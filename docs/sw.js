@@ -1,11 +1,13 @@
 // Service worker simplu: cache offline pentru aplicatie.
-const CACHE = 'ofertare-v2';
+const CACHE = 'ofertare-v3';
 const ASSETS = [
   './',
   './index.html',
   './css/style.css',
   './js/app.js',
   './js/config.js',
+  './js/preboot.js',
+  './js/fixes.js',
   './js/catalog.js',
   './vendor/xlsx.full.min.js',
   './vendor/supabase.js',
