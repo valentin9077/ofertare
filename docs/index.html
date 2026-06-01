@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f4c81">
+<title>Ofertare Instalații</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="icon" href="./icons/favicon-32.png">
+<link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <span class="logo">💧</span>
+  <h1>Ofertare Instalații <span class="small" id="hdr-co"></span></h1>
+</header>
+
+<nav class="tabbar" id="tabbar">
+  <button data-tab="oferte" class="active">📄 Oferte</button>
+  <button data-tab="editor">✏️ Ofertă</button>
+  <button data-tab="catalog">📚 Catalog</button>
+  <button data-tab="setari">⚙️ Setări</button>
+</nav>
+
+<!-- ============ OFERTE ============ -->
+<section class="view" id="view-oferte">
+  <div class="row">
+    <button class="btn" id="btn-new-offer">➕ Ofertă nouă</button>
+    <span class="spacer"></span>
+  </div>
+  <div id="offers-list"></div>
+</section>
+
+<!-- ============ EDITOR ============ -->
+<section class="view" id="view-editor" hidden>
+  <div id="editor-body"></div>
+</section>
+
+<!-- ============ CATALOG ============ -->
+<section class="view" id="view-catalog" hidden>
+  <input class="search" id="cat-search" placeholder="🔎 Caută articol (ex: teava ppr, hidrant, bratara)...">
+  <div class="row">
+    <button class="btn sm" id="btn-add-art">➕ Articol nou</button>
+    <span class="muted" id="cat-count"></span>
+  </div>
+  <div id="catalog-list"></div>
+</section>
+
+<!-- ============ SETARI ============ -->
+<section class="view" id="view-setari" hidden>
+  <div id="setari-body"></div>
+</section>
+
+<!-- ============ MODAL ============ -->
+<div class="modal" id="modal" hidden>
+  <div class="sheet">
+    <div class="top"><h3 id="modal-title"></h3><button class="btn gray sm" id="modal-close">✕</button></div>
+    <div class="body" id="modal-body"></div>
+    <div class="foot" id="modal-foot"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- print -->
+<div id="print-area"></div>
+
+<input type="file" id="file-import" accept=".xlsx,.xls,.csv" style="display:none">
+
+<script src="./js/catalog.js"></script>
+<script src="./vendor/xlsx.full.min.js"></script>
+<script src="./js/app.js"></script>
+</body>
+</html>
