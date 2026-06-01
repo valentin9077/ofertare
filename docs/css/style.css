@@ -14,6 +14,18 @@ input,select,textarea{font-family:inherit;font-size:15px}
 .app-header .logo{font-size:22px}
 .app-header h1{font-size:17px;margin:0;font-weight:600;flex:1}
 .app-header .small{font-size:11px;opacity:.8;font-weight:400}
+.sync-dot{width:11px;height:11px;border-radius:50%;background:#9fb3c8;flex:none;transition:background .3s}
+.sync-dot.ok{background:#46d27e}.sync-dot.busy{background:#f2c200}.sync-dot.err{background:#ff6b5e}.sync-dot.off{background:#7a8794}
+
+/* auth */
+.auth{position:fixed;inset:0;background:linear-gradient(160deg,#0f4c81,#0b3a63);display:flex;align-items:center;justify-content:center;z-index:100;padding:18px}
+.auth[hidden]{display:none}
+.auth-card{background:#fff;border-radius:16px;padding:22px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.auth-logo{font-size:40px;text-align:center}
+.auth-card h2{text-align:center;margin:4px 0 2px;color:var(--blue)}
+.auth-card p{text-align:center;margin:0 0 14px}
+.auth-msg{font-size:13px;min-height:18px;margin:4px 0;text-align:center}
+.auth-msg.err{color:#c0392b}.auth-msg.ok{color:var(--ok)}
 
 .tabbar{display:flex;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:48px;z-index:20;overflow-x:auto}
 .tabbar button{flex:1;min-width:90px;border:0;background:none;padding:12px 6px;font-size:13px;color:#5a6b7b;border-bottom:3px solid transparent;white-space:nowrap}

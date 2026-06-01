@@ -15,6 +15,7 @@
 <header class="app-header">
   <span class="logo">💧</span>
   <h1>Ofertare Instalații <span class="small" id="hdr-co"></span></h1>
+  <span class="sync-dot" id="sync-dot" title="stare sincronizare"></span>
 </header>
 
 <nav class="tabbar" id="tabbar">
@@ -64,11 +65,28 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- ============ AUTENTIFICARE ============ -->
+<div class="auth" id="auth" hidden>
+  <div class="auth-card">
+    <div class="auth-logo">💧</div>
+    <h2>Ofertare Instalații</h2>
+    <p class="muted" id="auth-sub">Intră în contul tău ca să-ți vezi ofertele pe orice dispozitiv.</p>
+    <div class="field"><label>Email</label><input id="auth-email" type="email" autocomplete="username" placeholder="email@exemplu.ro"></div>
+    <div class="field"><label>Parolă</label><input id="auth-pass" type="password" autocomplete="current-password" placeholder="parola ta"></div>
+    <div id="auth-msg" class="auth-msg"></div>
+    <button class="btn block" id="auth-submit">Intră în cont</button>
+    <button class="btn sec block" id="auth-toggle" style="margin-top:8px">Nu am cont — creează unul</button>
+    <div class="muted" style="margin-top:10px;font-size:12px">Datele tale sunt private, protejate cu parolă.</div>
+  </div>
+</div>
+
 <!-- print -->
 <div id="print-area"></div>
 
 <input type="file" id="file-import" accept=".xlsx,.xls,.csv" style="display:none">
 
+<script src="./js/config.js"></script>
+<script src="./vendor/supabase.js"></script>
 <script src="./js/catalog.js"></script>
 <script src="./vendor/xlsx.full.min.js"></script>
 <script src="./js/app.js"></script>

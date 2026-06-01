@@ -57,9 +57,9 @@ if (!S.catalog) {
   S.catalog = (window.CATALOG_SEED || []).map(a => Object.assign({aliases: []}, a));
   LS.set('catalog', S.catalog);
 }
-function saveCatalog(){ LS.set('catalog', S.catalog); }
-function saveOffers(){ LS.set('offers', S.offers); }
-function saveSettings(){ LS.set('settings', S.settings); }
+function saveCatalog(){ LS.set('catalog', S.catalog); if(window.Sync) Sync.pushCatalog(); }
+function saveOffers(){ LS.set('offers', S.offers); if(window.Sync) Sync.pushOffers(); }
+function saveSettings(){ LS.set('settings', S.settings); if(window.Sync) Sync.pushSettings(); }
 
 /* ---------- Utilitare ---------- */
 const $ = s => document.querySelector(s);
@@ -119,7 +119,7 @@ function renderOffers(){
 }
 $('#offers-list').addEventListener('click', e=>{
   const del = e.target.closest('[data-del]');
-  if(del){ e.stopPropagation(); if(confirm('Ștergi această ofertă?')){ S.offers=S.offers.filter(o=>o.id!==del.dataset.del); saveOffers(); renderOffers(); } return; }
+  if(del){ e.stopPropagation(); if(confirm('Ștergi această ofertă?')){ if(window.Sync) Sync.deleteOffer(del.dataset.del); S.offers=S.offers.filter(o=>o.id!==del.dataset.del); saveOffers(); renderOffers(); } return; }
   const op = e.target.closest('[data-open]');
   if(op){ openOffer(op.dataset.open); }
 });
@@ -488,7 +488,9 @@ function renderSettings(){
     <div class="row"><button class="btn sec sm" id="s-export">⬇️ Exportă backup</button>
       <button class="btn sec sm" id="s-importbk">⬆️ Importă backup</button>
       <button class="btn danger sm" id="s-reset-cat">↺ Resetează catalog</button></div>
-   </div>`;
+   </div>
+   <div class="card"><div class="row"><span class="muted" id="s-user"></span><span class="spacer"></span>
+     <button class="btn sec sm" id="s-logout">🚪 Ieși din cont</button></div></div>`;
   $('#s-save').onclick=()=>{
     const g=id=>$(id).value;
     Object.assign(s,{co:g('#s-co'),slogan:g('#s-slogan'),cif:g('#s-cif'),reg:g('#s-reg'),adresa:g('#s-adresa'),
@@ -500,6 +502,8 @@ function renderSettings(){
   $('#s-export').onclick=exportBackup;
   $('#s-importbk').onclick=importBackup;
   $('#s-reset-cat').onclick=()=>{ if(confirm('Resetezi catalogul la cel inițial? Pierzi modificările din catalog.')){ S.catalog=(window.CATALOG_SEED||[]).map(a=>Object.assign({aliases:[]},a)); saveCatalog(); toast('Catalog resetat'); } };
+  if($('#s-user')) $('#s-user').textContent = USER ? ('Cont: '+(USER.email||'')) : 'Mod local (fără cont)';
+  if($('#s-logout')) $('#s-logout').onclick = logout;
 }
 function exportBackup(){
   const data=JSON.stringify({settings:S.settings,catalog:S.catalog,offers:S.offers},null,1);
@@ -605,11 +609,112 @@ function printOffer(o, mode){
   setTimeout(()=>{ window.print(); }, 60);
 }
 
+/* ===================== SUPABASE / SINCRONIZARE ===================== */
+let sb = null, USER = null;
+const cfg = window.OFERTARE_CONFIG || {};
+function syncDot(state){ const d=$('#sync-dot'); if(d) d.className='sync-dot '+state; }
+function isoNow(){ return new Date().toISOString(); }
+
+const Sync = {
+  _t:{},
+  _deb(key, fn, ms=900){ clearTimeout(this._t[key]); this._t[key]=setTimeout(fn, ms); },
+  online(){ return sb && USER && navigator.onLine; },
+  pushSettings(){ if(!this.online()) return; this._deb('s', async()=>{ syncDot('busy');
+    const {error}=await sb.from('settings').upsert({user_id:USER.id, data:S.settings, updated_at:isoNow()});
+    syncDot(error?'err':'ok'); }); },
+  pushCatalog(){ if(!this.online()) return; this._deb('c', async()=>{ syncDot('busy');
+    const {error}=await sb.from('catalog').upsert({user_id:USER.id, data:S.catalog, updated_at:isoNow()});
+    syncDot(error?'err':'ok'); }); },
+  pushOffers(){ if(!this.online()) return; this._deb('o', async()=>{ syncDot('busy');
+    const rows=S.offers.map(o=>({id:o.id, user_id:USER.id, data:o, updated_at:isoNow()}));
+    if(!rows.length){ syncDot('ok'); return; }
+    const {error}=await sb.from('oferte').upsert(rows); syncDot(error?'err':'ok'); }); },
+  async deleteOffer(id){ if(!this.online()) return; try{ await sb.from('oferte').delete().eq('id',id).eq('user_id',USER.id); }catch(e){} },
+  async pullAll(){
+    syncDot('busy');
+    const [st, ca, of] = await Promise.all([
+      sb.from('settings').select('data').eq('user_id',USER.id).maybeSingle(),
+      sb.from('catalog').select('data').eq('user_id',USER.id).maybeSingle(),
+      sb.from('oferte').select('data').eq('user_id',USER.id)
+    ]);
+    if(st.error||ca.error||of.error){ syncDot('err'); throw (st.error||ca.error||of.error); }
+    if(st.data && st.data.data) S.settings=Object.assign({}, DEFAULT_SETTINGS, st.data.data);
+    if(ca.data && Array.isArray(ca.data.data) && ca.data.data.length){ S.catalog=ca.data.data; }
+    else { await sb.from('catalog').upsert({user_id:USER.id, data:S.catalog, updated_at:isoNow()}); } // seed prima dată
+    if(of.data){ S.offers = of.data.map(r=>r.data).filter(Boolean); }
+    LS.set('settings',S.settings); LS.set('catalog',S.catalog); LS.set('offers',S.offers);
+    syncDot('ok');
+  }
+};
+window.Sync = Sync;
+window.addEventListener('online', ()=>{ if(USER){ Sync.pushSettings(); Sync.pushCatalog(); Sync.pushOffers(); syncDot('ok'); } });
+window.addEventListener('offline', ()=>syncDot('off'));
+
+/* ---------- Autentificare ---------- */
+let authMode='signin';
+function transAuth(m){
+  m=(m||'').toLowerCase();
+  if(m.includes('invalid login')) return 'Email sau parolă greșite.';
+  if(m.includes('already registered')||m.includes('already exists')) return 'Există deja un cont cu acest email. Intră în cont.';
+  if(m.includes('password')) return 'Parola trebuie să aibă minim 6 caractere.';
+  if(m.includes('email')) return 'Verifică adresa de email.';
+  return 'A apărut o problemă. Mai încearcă o dată.';
+}
+function updateAuthUI(){
+  $('#auth-submit').textContent = authMode==='signin'?'Intră în cont':'Creează cont';
+  $('#auth-toggle').textContent = authMode==='signin'?'Nu am cont — creează unul':'Am deja cont — intră';
+  $('#auth-sub').textContent = authMode==='signin'
+    ? 'Intră în contul tău ca să-ți vezi ofertele pe orice dispozitiv.'
+    : 'Creează un cont nou (email + parolă, minim 6 caractere).';
+  const msg=$('#auth-msg'); msg.textContent=''; msg.className='auth-msg';
+}
+function bindAuth(){
+  $('#auth-toggle').onclick=()=>{ authMode = authMode==='signin'?'signup':'signin'; updateAuthUI(); };
+  $('#auth-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#auth-submit').click(); });
+  $('#auth-submit').onclick=async()=>{
+    const email=$('#auth-email').value.trim(); const pass=$('#auth-pass').value;
+    const msg=$('#auth-msg'); msg.className='auth-msg';
+    if(!email || pass.length<6){ msg.className='auth-msg err'; msg.textContent='Pune email și o parolă de minim 6 caractere.'; return; }
+    $('#auth-submit').disabled=true; msg.textContent='Se procesează...';
+    try{
+      const res = authMode==='signup'
+        ? await sb.auth.signUp({email, password:pass})
+        : await sb.auth.signInWithPassword({email, password:pass});
+      if(res.error){ msg.className='auth-msg err'; msg.textContent=transAuth(res.error.message); }
+      else if(authMode==='signup' && !res.data.session){
+        msg.className='auth-msg ok'; msg.textContent='Cont creat! Verifică emailul pentru confirmare, apoi intră.';
+        authMode='signin'; setTimeout(updateAuthUI, 4000);
+      } else { USER=res.data.user; await afterLogin(); }
+    }catch(e){ msg.className='auth-msg err'; msg.textContent='Eroare de rețea. Verifică internetul și mai încearcă.'; }
+    $('#auth-submit').disabled=false;
+  };
+}
+function showAuth(){ $('#auth').hidden=false; syncDot('off'); updateAuthUI(); }
+async function afterLogin(){
+  $('#auth').hidden=true; syncDot('ok');
+  try{ await Sync.pullAll(); }catch(e){ console.warn('pull', e); }
+  startApp();
+}
+async function logout(){
+  try{ if(sb) await sb.auth.signOut(); }catch(e){}
+  USER=null;
+  ['settings','catalog','offers'].forEach(k=>localStorage.removeItem('ofertare.'+k));
+  location.reload();
+}
+
 /* ===================== INIT ===================== */
 function updateHeader(){ $('#hdr-co').textContent = S.settings.co ? '· '+S.settings.co.replace(/ SRL$/,'') : ''; }
-updateHeader();
-showTab('oferte');
+function startApp(){ updateHeader(); showTab('oferte'); }
 
-if('serviceWorker' in navigator){
-  window.addEventListener('load', ()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+async function boot(){
+  if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
+  if(!cfg.SUPABASE_URL || !window.supabase){ startApp(); return; } // mod local (fără cont)
+  try{
+    sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_KEY, {auth:{persistSession:true, autoRefreshToken:true}});
+    bindAuth();
+    const {data:{session}} = await sb.auth.getSession();
+    if(session){ USER=session.user; await afterLogin(); }
+    else showAuth();
+  }catch(e){ console.warn('boot', e); startApp(); } // dacă pică conexiunea, măcar local
 }
+boot();
