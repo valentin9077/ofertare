@@ -12,12 +12,15 @@
   const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   const MAP_KEY = 'ofertare.offerIdMap';
 
+  function hasAppState(){
+    try{ return typeof S !== 'undefined' && S && Array.isArray(S.offers) && typeof LS !== 'undefined'; }
+    catch(e){ return false; }
+  }
   function safeJsonGet(key, fallback){
     try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
     catch(e){ return fallback; }
   }
   function isUuid(id){ return typeof id === 'string' && UUID_RE.test(id); }
-  function shortId(){ return Math.random().toString(36).slice(2, 9); }
   function newOfferId(){
     if(window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
     // RFC4122 v4 fallback pentru browsere vechi
@@ -34,7 +37,7 @@
     return o;
   }
   function migrateOfferIds(){
-    if(!window.S || !Array.isArray(S.offers)) return false;
+    if(!hasAppState()) return false;
     const idMap = safeJsonGet(MAP_KEY, {});
     const used = new Set();
     let changed = false;
