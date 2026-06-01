@@ -280,7 +280,12 @@ function renderCatalog(){
   const list=filteredCatalog();
   $('#cat-count').textContent = `${list.length} / ${S.catalog.length} articole`;
   const el=$('#catalog-list');
-  el.innerHTML = list.slice(0,400).map(a=>`
+  const allEmpty = S.catalog.length && S.catalog.every(a=>a.pret==null);
+  const hint = allEmpty ? `<div class="card" style="border-color:#e8c46a;background:#fffaf0">
+    <b>💡 Încarcă-ți prețurile o singură dată</b><div class="muted" style="margin-top:4px">
+    Catalogul are denumirile, dar prețurile tale se încarcă privat. Mergi la <b>Setări → ⬆️ Importă backup</b>
+    și alege fișierul <b>catalog-cu-preturi.json</b> (îl descarci din proiectul tău GitHub, folderul <b>preturi</b>).</div></div>` : '';
+  el.innerHTML = hint + list.slice(0,400).map(a=>`
     <div class="cat-item" data-edit="${a.id}">
       <div class="info"><div class="den">${esc(a.denumire)}</div>
         <div class="meta">${esc(a.grup)} · ${esc(a.um)} ${a.descriere?'· '+esc(a.descriere.slice(0,60)):''}</div></div>
