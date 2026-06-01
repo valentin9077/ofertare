@@ -1,0 +1,11 @@
+# Configurare Netlify — publică DOAR folderul aplicației (docs/).
+# Restul (exemple/, modele/, preturi/) NU se publică — rămân private.
+[build]
+  publish = "docs"
+  command = ""
+
+# cache redus pentru fișierele aplicației, ca actualizările să apară repede
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "no-cache"
