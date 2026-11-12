@@ -27,25 +27,76 @@
   /* Fiecare citire are o adresă unică, ca nimic de pe drum (nici o aplicație mai veche de pe aceeași adresă) să nu poată întoarce date vechi. */
   const fresh = q => q.neq("path", "~" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
 
-  /** Contul curent: {id, email, offline} sau null dacă nu e nimeni intrat. */
-  async function user() {
-    let r;
-    try { r = await sb.auth.getSession(); } catch (e) { r = { data: { session: null }, error: e }; }
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const clone = o => o === undefined ? undefined : JSON.parse(JSON.stringify(o));
+  const sessionBack = new Set();   // anunțați când intrarea în cont a fost reconfirmată după o pornire fără semnal
+
+  /**
+   * Contul curent: {id, email, offline} sau null dacă nu e nimeni intrat.
+   * Dacă verificarea durează (semnal slab) și omul a mai fost intrat pe acest aparat, pornim imediat cu datele păstrate aici
+   * (offline: true); verificarea continuă în fundal.
+   */
+  async function user(wait) {
+    const c = LS.get("scv-me");
+    const p = sb.auth.getSession().then(r => r, e => ({ data: { session: null }, error: e }));
+    const known = c && c.id;
+    let r = known ? await Promise.race([p, sleep(wait == null ? (navigator.onLine === false ? 300 : 2500) : wait).then(() => null)]) : await p;
+    if (r === null) {
+      const off = me = { id: c.id, email: c.email, offline: true };
+      p.then(x => {
+        const s = x && x.data && x.data.session;
+        if (s && s.user && me === off) { me = { id: s.user.id, email: s.user.email, offline: false }; sessionBack.forEach(f => { try { f(); } catch (e) { } }); }
+      });
+      return me;
+    }
     const s = r && r.data && r.data.session;
     if (s && s.user) {
       me = { id: s.user.id, email: s.user.email, offline: false };
       LS.set("scv-me", { id: me.id, email: me.email });
       return me;
     }
-    const c = LS.get("scv-me");
-    if (c && c.id && (isRetryable(r && r.error) || navigator.onLine === false)) {
+    if (known && (isRetryable(r && r.error) || navigator.onLine === false)) {
       me = { id: c.id, email: c.email, offline: true };
       return me;
     }
+    if (known) LS.del("scv-me");   // sesiunea nu mai există (ieșire din cont sau parolă schimbată de pe alt aparat)
     me = null;
     return null;
   }
 
+  /** Semnalul a revenit: cerem imediat reînnoirea intrării, fără minutul de pauză pe care biblioteca îl ține după o încercare eșuată. */
+  async function revive() {
+    try { if (navigator.onLine !== false && sb.auth && sb.auth.lastRefreshFailure) sb.auth.lastRefreshFailure = null; } catch (e) { }
+    return user();
+  }
+
+  /* ---------- Împăcarea a trei versiuni ale aceluiași document (ce era pe server când am pornit, ce am schimbat aici, ce e acum pe server).
+     Regula: ce s-a schimbat doar într-un loc se păstrează; dacă același lucru s-a schimbat în ambele locuri, rămâne ce s-a făcut pe acest aparat. */
+  const isObj = v => v !== null && typeof v === "object" && !Array.isArray(v);
+  const same = (a, b) => a === b || JSON.stringify(a) === JSON.stringify(b);
+  const keyed = a => Array.isArray(a) && a.length > 0 && a.every(x => isObj(x) && x.id != null) && new Set(a.map(x => x.id)).size === a.length;
+  function merge3(base, local, remote) {
+    if (same(local, remote)) return local;
+    if (same(base, local)) return remote;
+    if (same(base, remote)) return local;
+    if (isObj(local) && isObj(remote)) {
+      const b = isObj(base) ? base : {}, out = {};
+      new Set([...Object.keys(local), ...Object.keys(remote)]).forEach(k => {
+        const inL = k in local, inR = k in remote, inB = k in b;
+        if (inL && inR) out[k] = merge3(b[k], local[k], remote[k]);
+        else if (inL) { if (!inB || !same(b[k], local[k])) out[k] = local[k]; }
+        else if (!inB || !same(b[k], remote[k])) out[k] = remote[k];
+      });
+      return out;
+    }
+    if (keyed(local) && keyed(remote)) {
+      const B = new Map((keyed(base) ? base : []).map(x => [x.id, x])), L = new Map(local.map(x => [x.id, x])), R = new Map(remote.map(x => [x.id, x])), out = [];
+      local.forEach(x => { if (R.has(x.id)) out.push(merge3(B.get(x.id), x, R.get(x.id))); else if (!B.has(x.id) || !same(B.get(x.id), x)) out.push(x); });
+      remote.forEach(x => { if (!L.has(x.id) && (!B.has(x.id) || !same(B.get(x.id), x))) out.push(x); });
+      return out;
+    }
+    return local;
+  }
 
   async function signIn(email, password) {
     const { data, error } = await sb.auth.signInWithPassword({ email, password });
@@ -258,61 +309,140 @@
   /**
    * Depozit de documente pentru o aplicație ("prezenta" sau "oferta").
    * opt: { onRemote(path,data), onStatus(text,warn), cache:true|false, delay:ms, poll:ms, warnUnload:bool, onAuthLost() }
+   *
+   * Cum lucrează:
+   *  - fiecare modificare se păstrează întâi pe aparat, apoi se trimite în baza de date;
+   *  - fără semnal, aplicația pornește imediat cu datele păstrate pe aparat; când revine semnalul, ÎNTÂI ia ce s-a schimbat
+   *    pe server (de pe alt aparat), împacă cele două versiuni și abia apoi trimite – nimic făcut pe alt aparat nu se pierde.
    */
   function store(app, opt) {
     opt = opt || {};
     const uid = me.id, ckey = "scv-cache-" + app + "-" + uid, useCache = opt.cache !== false;
     const dirty = new Map();
-    let cache = (useCache && LS.get(ckey)) || { docs: {}, ts: {}, pend: [] };
-    cache.docs = cache.docs || {}; cache.ts = cache.ts || {}; cache.pend = cache.pend || [];
+    const srv = {};                       // ultima versiune cunoscută de pe server, pe document
+    let cache = (useCache && LS.get(ckey)) || {};
+    cache.docs = cache.docs || {}; cache.ts = cache.ts || {}; cache.pend = cache.pend || []; cache.base = cache.base || {};
     let lastTs = "";
     const bump = t => { if (t && (!lastTs || Date.parse(t) > Date.parse(lastTs))) lastTs = t; };
-    let flushing = false, timer = null, retry = null, started = false, online = true;
+    let flushing = false, timer = null, retry = null, started = false, online = true, authTold = false, authTries = 0;
     const status = (t, w) => { if (opt.onStatus) opt.onStatus(t, !!w); };
+    const isAuthErr = e => !!e && !isNet(e) && (e.code === "42501" || e.code === "PGRST301" || e.code === "PGRST303" || e.status === 401 || /jwt|permission denied/i.test(String(e.message || "")));
+    const authLost = () => { if (!authTold && opt.onAuthLost) { authTold = true; opt.onAuthLost(); } };
+    const baseOf = p => p in srv ? srv[p] : cache.base[p];
+    const newer = (a, b) => { const x = Date.parse(a), y = Date.parse(b); return x > y || (x === y && a > b); };
+    let pulling = null;
     const saveCache = () => {
       if (!useCache) return;
       cache.pend = [...dirty.keys()];
-      if (!LS.set(ckey, cache)) LS.set(ckey, { docs: {}, ts: cache.ts, pend: [] });
+      Object.keys(cache.base).forEach(p => { if (!dirty.has(p)) delete cache.base[p]; });
+      if (!LS.set(ckey, cache)) LS.set(ckey, { docs: {}, ts: cache.ts, pend: [], base: {} });
     };
-    const fromCachePending = docs => {
+    /* Modificările rămase netrimise de data trecută (aplicația a fost închisă fără semnal). */
+    const pendingFromCache = remote => {
       (cache.pend || []).forEach(p => {
-        if (cache.docs && p in cache.docs) { const snap = cache.docs[p]; if (docs) docs[p] = snap; dirty.set(p, { get: () => snap }); }
+        if (!(p in cache.docs)) return;
+        let snap = cache.docs[p];
+        if (remote) { if (p in remote) snap = merge3(cache.base[p], snap, remote[p]); remote[p] = snap; cache.docs[p] = snap; }
+        dirty.set(p, { get: () => snap });
       });
     };
+    const fetchAll = () => fresh(sb.from("docs").select("path,data,updated_at").eq("app", app)).then(r => r.error ? { err: r.error } : { rows: r.data }, e => ({ err: e }));
+
+    /* Rânduri venite de pe server după pornire: ce nu e în lucru aici se înlocuiește; ce e în lucru se împacă. */
+    function applyRows(rows) {
+      let changed = false;
+      rows.forEach(row => {
+        bump(row.updated_at);
+        const p = row.path;
+        if (cache.ts[p] && !newer(row.updated_at, cache.ts[p])) return;   // același rând sau unul mai vechi decât ce avem deja
+        cache.ts[p] = row.updated_at; changed = true;
+        if (dirty.has(p)) {
+          let local; try { local = dirty.get(p).get(); } catch (e) { local = undefined; }
+          const base = baseOf(p);
+          srv[p] = clone(row.data); cache.base[p] = srv[p];
+          if (local === undefined) return;
+          const merged = merge3(base, clone(local), row.data);
+          if (!same(merged, local)) {
+            dirty.set(p, { get: () => merged });
+            if (useCache) cache.docs[p] = merged;
+            if (opt.onRemote) opt.onRemote(p, clone(merged));
+          }
+          return;
+        }
+        srv[p] = clone(row.data);
+        if (useCache) cache.docs[p] = row.data;
+        if (opt.onRemote) opt.onRemote(p, row.data);
+      });
+      if (changed) saveCache();
+    }
 
     async function load() {
-      let rows = null, err = null;
-      if (!me.offline) {
-        try {
-          const r = await fresh(sb.from("docs").select("path,data,updated_at").eq("app", app));
-          if (r.error) err = r.error; else rows = r.data;
-        } catch (e) { err = e; }
-      }
-      if (rows) {
+      const hasCache = useCache && Object.keys(cache.docs).length > 0;
+      /* fără date păstrate pe aparat nu avem cu ce porni: mai așteptăm puțin confirmarea contului (semnal slab) */
+      if (me.offline && !hasCache && navigator.onLine !== false) await user(8000);
+      const net = me.offline ? null : fetchAll();
+      let first;
+      if (!net) first = { err: new Error("Failed to fetch") };
+      else if (hasCache) first = await Promise.race([net, sleep(navigator.onLine === false ? 0 : 2500).then(() => null)]);
+      else first = await net;
+      if (first && first.rows) {
         const docs = {}, ts = {};
-        rows.forEach(r => { docs[r.path] = r.data; ts[r.path] = r.updated_at; bump(r.updated_at); });
-        fromCachePending(docs);
-        cache.docs = useCache ? JSON.parse(JSON.stringify(docs)) : {}; cache.ts = ts; saveCache();
+        first.rows.forEach(r => { docs[r.path] = r.data; ts[r.path] = r.updated_at; bump(r.updated_at); srv[r.path] = clone(r.data); });
+        pendingFromCache(docs);
+        dirty.forEach((v, p) => { if (p in srv) cache.base[p] = srv[p]; });
+        cache.docs = useCache ? clone(docs) : {}; cache.ts = ts; saveCache();
         online = true;
         if (dirty.size) kick(0);
         return { docs, offline: false };
       }
-      if (useCache && cache.docs && Object.keys(cache.docs).length && (me.offline || isNet(err) || navigator.onLine === false)) {
-        fromCachePending(null);
+      const netDown = first === null || me.offline || isNet(first.err) || navigator.onLine === false;
+      if (hasCache && netDown) {
+        pendingFromCache(null);
         Object.values(cache.ts).forEach(bump);
         online = false;
-        return { docs: JSON.parse(JSON.stringify(cache.docs)), offline: true, error: err };
+        if (first === null) net.then(x => {
+          if (x.rows) { applyRows(x.rows); online = true; if (dirty.size) kick(0); else status("la zi ✓"); }
+          else status("fără internet – lucrezi pe datele păstrate pe acest aparat", true);
+        });
+        return { docs: clone(cache.docs), offline: true, waiting: first === null, error: first && first.err };
       }
-      throw err || new Error("Fără internet și fără date păstrate pe acest aparat.");
+      throw (first && first.err && !me.offline ? first.err : new Error("Fără internet și fără date păstrate pe acest aparat."));
     }
 
     function kick(ms) { clearTimeout(timer); timer = setTimeout(flush, ms); }
 
     function put(path, getter, delay) {
+      if (!dirty.has(path)) { const b = path in srv ? srv[path] : (useCache ? cache.docs[path] : undefined); if (b !== undefined) cache.base[path] = clone(b); }
       dirty.set(path, { get: getter });
-      if (useCache) { try { cache.docs[path] = JSON.parse(JSON.stringify(getter())); } catch (e) { } saveCache(); }
-      status("se salvează…");
+      if (useCache) { try { cache.docs[path] = clone(getter()); } catch (e) { } saveCache(); }
+      if (online && !me.offline) status("se salvează…"); else status("fără internet – se salvează când revine", true);
       kick(delay == null ? (opt.delay == null ? 250 : opt.delay) : delay);
+    }
+
+    /* Aduce ce s-a schimbat pe server. Întoarce null dacă a mers, altfel eroarea. */
+    function pull() {
+      if (!pulling) pulling = pullNow().finally(() => { pulling = null; });
+      return pulling;
+    }
+    async function pullNow() {
+      if (me.offline) { const u = await revive(); if (!u) { authLost(); return new Error("Sesiune expirată"); } if (u.offline) return new Error("Failed to fetch"); }
+      let r;
+      try {
+        const since = lastTs ? new Date(Date.parse(lastTs) - 5000).toISOString() : "1970-01-01T00:00:00Z";
+        r = await fresh(sb.from("docs").select("path,data,updated_at").eq("app", app).gt("updated_at", since));
+      } catch (e) { return e; }
+      if (r.error) return r.error;
+      applyRows(r.data);
+      const was = online; online = true; authTold = false;
+      if (!was && !dirty.size) status("la zi ✓");
+      return null;
+    }
+
+    async function poll() {
+      if (flushing) return;
+      const err = await pull();
+      if (err) { if (isAuthErr(err)) { const u = await revive(); if (!u) authLost(); } return; }
+      if (dirty.size && !flushing) kick(0);
     }
 
     async function flush() {
@@ -321,13 +451,17 @@
       flushing = true;
       let fail = null;
       try {
-        for (const [path, ent] of [...dirty]) {
+        /* după o pauză fără semnal: întâi luăm și împăcăm ce s-a schimbat pe server, abia apoi trimitem */
+        if (!online || me.offline) fail = await pull();
+        else if (pulling) { try { await pulling; } catch (e) { } }
+        if (!fail) for (const [path, ent] of [...dirty]) {
+          const cur = dirty.get(path); if (!cur) continue;
           let data;
-          try { data = ent.get(); } catch (e) { dirty.delete(path); continue; }
+          try { data = clone(cur.get()); } catch (e) { dirty.delete(path); continue; }
           const r = await sb.from("docs").upsert({ owner: uid, app, path, data }, { onConflict: "owner,app,path" }).select("updated_at").single();
           if (r.error) { fail = r.error; break; }
-          cache.ts[path] = r.data.updated_at; bump(r.data.updated_at);
-          if (dirty.get(path) === ent) dirty.delete(path);
+          cache.ts[path] = r.data.updated_at; bump(r.data.updated_at); srv[path] = data;
+          if (dirty.get(path) === cur) dirty.delete(path); else cache.base[path] = data;
         }
       } catch (e) { fail = e; }
       flushing = false;
@@ -335,52 +469,42 @@
       if (fail) {
         online = false;
         const net = isNet(fail) || navigator.onLine === false;
-        status(net ? "fără internet – se salvează când revine" : "NESALVAT – reîncerc", true);
-        retry = setTimeout(flush, 5000);
-        if (!net && (fail.code === "PGRST301" || fail.code === "PGRST303" || fail.status === 401) && opt.onAuthLost) opt.onAuthLost();
+        if (!net && isAuthErr(fail)) {
+          status("se reconectează…", true);
+          const u = await revive();
+          if (!u) { authLost(); retry = setTimeout(flush, 5000); }
+          else retry = setTimeout(flush, authTries++ < 2 ? 400 : 5000);
+        } else {
+          status(net ? "fără internet – se salvează când revine" : "NESALVAT – reîncerc", true);
+          retry = setTimeout(flush, 5000);
+        }
       } else {
-        online = true;
+        online = true; authTold = false; authTries = 0;
         if (dirty.size) kick(50); else status("salvat ✓");
       }
     }
 
-    async function poll() {
-      if (me.offline) { const u = await user(); if (!u || u.offline) return; }
-      try {
-        const since = lastTs ? new Date(Date.parse(lastTs) - 5000).toISOString() : "1970-01-01T00:00:00Z";
-        const r = await fresh(sb.from("docs").select("path,data,updated_at").eq("app", app).gt("updated_at", since));
-        if (r.error) return;
-        online = true;
-        let changed = false;
-        r.data.forEach(row => {
-          if (cache.ts[row.path] === row.updated_at) return;
-          cache.ts[row.path] = row.updated_at; bump(row.updated_at);
-          if (dirty.has(row.path)) return;
-          if (useCache) cache.docs[row.path] = row.data;
-          changed = true;
-          if (opt.onRemote) opt.onRemote(row.path, row.data);
-        });
-        if (changed) saveCache();
-        if (dirty.size && !flushing) kick(0);
-      } catch (e) { }
-    }
-
     async function remove(path) {
-      dirty.delete(path); delete cache.docs[path]; delete cache.ts[path]; saveCache();
+      dirty.delete(path); delete cache.docs[path]; delete cache.ts[path]; delete cache.base[path]; delete srv[path]; saveCache();
       const r = await sb.from("docs").delete().eq("app", app).eq("path", path);
       if (r.error) throw r.error;
     }
 
+    const wake = () => { if (dirty.size) flush(); else poll(); };
     function start() {
       if (started) return; started = true;
       setInterval(() => { if (document.visibilityState === "visible") poll(); }, opt.poll || 20000);
       document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") poll(); else if (dirty.size) flush(); });
-      window.addEventListener("online", () => { flush(); poll(); });
+      window.addEventListener("online", () => { revive().then(wake); });
       window.addEventListener("pagehide", () => { if (dirty.size) flush(); });
+      sessionBack.add(wake);
       if (opt.warnUnload) window.addEventListener("beforeunload", e => { if (dirty.size) { e.preventDefault(); e.returnValue = ""; } });
     }
 
-    return { load, put, remove, poll, start, flush, pending: () => dirty.size, isOnline: () => online };
+    /** După ce omul a intrat din nou în cont (sesiunea expirase): reluăm trimiterea. */
+    function resume() { authTold = false; authTries = 0; wake(); }
+
+    return { load, put, remove, poll, start, flush, resume, pending: () => dirty.size, isOnline: () => online };
   }
 
   /** Dă un fișier utilizatorului: pe telefon deschide „Partajează” (WhatsApp, Mail, Fișiere), pe laptop îl descarcă. */
@@ -418,5 +542,5 @@
     navigator.serviceWorker.register(BASE + "sw.js", { scope: new URL(BASE).pathname }).catch(() => { });
   }
 
-  window.SCV = { base: BASE, sb, user, gate, account, accountButton, signIn, signUp, signOut, changePassword, dbState, claimSeed, authMessage, store, saveFile, loadScript, needXl, LS, isNet };
+  window.SCV = { base: BASE, sb, user, revive, merge3, gate, account, accountButton, signIn, signUp, signOut, changePassword, dbState, claimSeed, authMessage, store, saveFile, loadScript, needXl, LS, isNet };
 })();

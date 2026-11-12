@@ -121,7 +121,7 @@ dialog{border:1px solid var(--line);border-radius:8px;padding:18px;max-width:640
 <dialog id="dlg"><h3>Ce foi importăm?</h3><div id="dlgBody"></div><div style="margin-top:12px;text-align:right"><button class="b g" id="dlgNo">Anulează</button> <button class="b" id="dlgOk">Importă</button></div></dialog>
 
 <script src="../lib/vendor/supabase.js"></script>
-<script src="../lib/scv.js?v=3"></script>
+<script src="../lib/scv.js?v=4"></script>
 <script src="core.js"></script>
 <script src="export.js"></script>
 <script>
@@ -312,7 +312,7 @@ window.__st=()=>st;
  try{
   ME=await SCV.gate({name:"Ofertare SCV",sub:"Oferte de manoperă · doar pentru proprietar"});
   document.querySelector("header").appendChild(SCV.accountButton({pending:()=>store?store.pending():0}));
-  store=SCV.store("oferta",{cache:false,delay:1200,warnUnload:true,onStatus:setSaved,onRemote});
+  store=SCV.store("oferta",{cache:false,delay:1200,warnUnload:true,onStatus:setSaved,onRemote,onAuthLost:()=>{SCV.gate({name:"Ofertare SCV",sub:"Sesiunea a expirat – intră din nou. Ce ai scris rămâne pe ecran și se salvează după intrare."}).then(u=>{ME=u;store.resume()})}});
   let r=await store.load();
   if(!Object.keys(r.docs).length){const n=await SCV.claimSeed();if(n)r=await store.load()}
   DOCS=r.docs;

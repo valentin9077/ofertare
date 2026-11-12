@@ -161,7 +161,7 @@ tr:last-child td{border-bottom:none}
 <div class="toast" id="toast"></div>
 
 <script src="../lib/vendor/supabase.js"></script>
-<script src="../lib/scv.js?v=3"></script>
+<script src="../lib/scv.js?v=4"></script>
 <script>
 "use strict";
 /* ============ utilitare ============ */
@@ -597,14 +597,14 @@ function applyDoc(path,data){
   try{
     ME=await SCV.gate({name:"Prezență SCV",sub:"Pontaj, salarii, șantiere · doar pentru proprietar"});
     document.querySelector("header").appendChild(SCV.accountButton({pending:()=>store?store.pending():0}));
-    store=SCV.store("prezenta",{onStatus:setSaveLbl,onRemote:(p,d)=>{applyDoc(p,d);render()},onAuthLost:()=>toast("Sesiunea a expirat. Reîncarcă pagina și intră din nou.")});
+    store=SCV.store("prezenta",{onStatus:setSaveLbl,onRemote:(p,d)=>{applyDoc(p,d);render()},onAuthLost:()=>{SCV.gate({name:"Prezență SCV",sub:"Sesiunea a expirat – intră din nou. Ce ai marcat rămâne pe telefon și se trimite după intrare."}).then(u=>{ME=u;store.resume()})}});
     msg("Se încarcă datele…");
     let r=await store.load();
     if(!Object.keys(r.docs).length&&!r.offline){const n=await SCV.claimSeed();if(n)r=await store.load()}
     Object.keys(r.docs).forEach(p=>applyDoc(p,r.docs[p]));
     normS();
     ready=true;render();store.start();
-    if(r.offline)setSaveLbl("fără internet – lucrezi pe datele păstrate pe acest aparat",true);
+    if(r.offline)setSaveLbl(r.waiting?"se conectează… lucrezi pe datele păstrate pe acest aparat":"fără internet – lucrezi pe datele păstrate pe acest aparat",true);
   }catch(e){msg("Nu pot încărca datele: "+esc((e&&e.message)||e)+'<br><br><button class="btn" onclick="location.reload()">Încearcă din nou</button>')}
 })();
 </script>
