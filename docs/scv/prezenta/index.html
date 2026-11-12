@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prezență SCV</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0B6B86">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SCV">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://vympzujixmklqfyuxywm.supabase.co; img-src 'self' data: blob:; font-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="icon" href="../icon-192.png">
+<link rel="stylesheet" href="../lib/fonts.css">
+<style>
+/* Registru de pontaj: hârtie rece, cerneală închisă, un singur accent albastru-apă. Titluri în Barlow Condensed ca pe plăcuțele de șantier. */
+:root{--bg:#F1F3F4;--surface:#FFFFFF;--ink:#16212B;--mut:#5B6872;--line:#DADFE3;--acc:#0B6B86;--acc-ink:#FFFFFF;--pos:#1E7A46;--pos-bg:#E2F0E7;--neg:#B3261E;--neg-bg:#FBE8E6;--leave-bg:#E7EBEF;--warn:#8A5A00;--warn-bg:#FFF3D0;
+--f-body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--f-head:"Barlow Condensed","Barlow",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0E151B;--surface:#16212A;--ink:#E6ECF0;--mut:#98A6B1;--line:#283541;--acc:#4DB3D1;--acc-ink:#04202A;--pos:#62CC8D;--pos-bg:#16331F;--neg:#FF8F86;--neg-bg:#3A1C1A;--leave-bg:#22303B;--warn:#F0C25E;--warn-bg:#382E10}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0E151B;--surface:#16212A;--ink:#E6ECF0;--mut:#98A6B1;--line:#283541;--acc:#4DB3D1;--acc-ink:#04202A;--pos:#62CC8D;--pos-bg:#16331F;--neg:#FF8F86;--neg-bg:#3A1C1A;--leave-bg:#22303B;--warn:#F0C25E;--warn-bg:#382E10}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.35;padding-bottom:78px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+header{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;gap:12px;min-height:56px}
+.brand{display:flex;align-items:baseline;gap:10px}
+.brand .mark{width:10px;height:22px;background:var(--acc);align-self:center;border-radius:1px}
+.brand b{font-family:var(--f-head);font-size:24px;font-weight:700;letter-spacing:.02em}
+.brand span{color:var(--mut);font-size:14px}
+#save{margin-left:auto;font-size:12px;color:var(--mut);text-align:right}
+#save.bad{color:var(--neg);font-weight:600}
+.back{display:flex;align-items:center;justify-content:center;width:36px;height:36px;margin-left:-8px;border-radius:5px;color:var(--mut);font-size:24px;text-decoration:none}
+.back:hover{background:var(--bg)}
+main{max-width:940px;margin:0 auto;padding:16px}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--line);display:flex;z-index:30;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;padding:15px 1px 13px;font-size:13px;font-weight:600;color:var(--mut);border-top:3px solid transparent;font-family:var(--f-head);letter-spacing:.03em;font-size:15px;text-transform:uppercase}
+nav button.on{color:var(--ink);border-top-color:var(--acc)}
+@media(min-width:900px){body{padding-bottom:24px}nav{top:0;bottom:auto;left:auto;right:56px;width:auto;border:none;background:none;height:56px;padding:0}nav button{flex:none;padding:0 14px;border-top:none;border-bottom:3px solid transparent;height:56px}nav button.on{border-bottom-color:var(--acc)}#save{margin-left:0;position:fixed;right:16px;top:20px}}
+h2{font-family:var(--f-head);font-size:28px;font-weight:700;margin:0;line-height:1.05;text-wrap:balance}
+.eyebrow{font-family:var(--f-head);text-transform:uppercase;letter-spacing:.08em;color:var(--mut);font-weight:600;font-size:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px;margin-bottom:14px}
+.card h3{margin:0 0 10px;font-family:var(--f-head);font-size:19px;font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sp{flex:1}
+.mut{color:var(--mut);font-size:14px}
+.btn{padding:10px 15px;border-radius:5px;background:var(--acc);color:var(--acc-ink);font-weight:600;border:1px solid var(--acc)}
+.btn.g{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.btn.g:hover{border-color:var(--mut)}
+.btn.r{background:var(--surface);color:var(--neg);border:1px solid var(--line)}
+.btn.s{padding:7px 11px;font-size:14px}
+input,select,textarea{padding:9px 10px;border:1px solid var(--line);border-radius:5px;background:var(--surface);max-width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 2px color-mix(in srgb,var(--acc) 25%,transparent)}
+input[type=checkbox]{width:20px;height:20px;vertical-align:-4px;accent-color:var(--acc)}
+label.f{display:block;font-size:12px;font-weight:600;color:var(--mut);margin:10px 0 4px;text-transform:uppercase;letter-spacing:.05em}
+.dh{display:flex;align-items:flex-end;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.dh .sp{flex:1}
+.nv{display:flex;gap:6px}
+.nv.w{width:100%}
+.ib{height:40px;min-width:40px;padding:0 12px;border:1px solid var(--line);border-radius:5px;background:var(--surface);font-weight:600}
+.strip{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:14px}
+.dc{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 7px;border:1px solid var(--line);border-radius:5px;background:var(--surface);position:relative}
+.dc span{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);font-weight:600}
+.dc b{font-family:var(--f-head);font-size:21px;line-height:1}
+.dc i{width:6px;height:6px;border-radius:50%;border:1px solid var(--mut);margin-top:3px}
+.dc i.ok{background:var(--pos);border-color:var(--pos)}
+.dc.off{background:transparent}.dc.off b{color:var(--mut)}
+.dc.on{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+.sum{display:flex;gap:16px;flex-wrap:wrap;font-size:15px;color:var(--mut);margin:2px 0 8px}
+.sum b{color:var(--ink);font-family:var(--f-head);font-size:20px}
+.sum .warn b{color:var(--warn)}
+.bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:14px}
+.bar i{display:block;height:100%;background:var(--pos)}
+.note{padding:9px 12px;background:var(--leave-bg);border-radius:5px;font-size:14px;margin-bottom:12px}
+.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.ctl label{font-size:12px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;width:100%}
+.ctl select{flex:1;min-width:140px}
+.roster{background:var(--surface);border:1px solid var(--line);border-radius:6px}
+.r{padding:11px 12px;border-bottom:1px solid var(--line)}
+.r:last-child{border-bottom:none}
+.r1{display:flex;align-items:center;gap:10px}
+.av{width:38px;height:38px;border-radius:50%;background:var(--leave-bg);display:flex;align-items:center;justify-content:center;font-family:var(--f-head);font-weight:700;font-size:16px;flex:none}
+@media(max-width:420px){.av{display:none}}
+.who{flex:1;min-width:0}
+.who b{font-size:18px;font-weight:600;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.who small{color:var(--mut);font-size:13px}
+.seg{display:flex;gap:4px}
+.seg button{width:42px;height:42px;border:1px solid var(--line);border-radius:5px;background:var(--surface);font-family:var(--f-head);font-weight:700;font-size:16px;color:var(--mut);letter-spacing:.02em}
+.seg button.on{border-width:2px;color:inherit}
+.seg button.dash{border-style:dashed}
+.c-P{background:var(--pos-bg)!important;color:var(--pos)!important;border-color:var(--pos)!important}
+.c-A{background:var(--neg-bg)!important;color:var(--neg)!important;border-color:var(--neg)!important}
+.c-CO,.c-CM,.c-CFP{background:var(--leave-bg)!important;color:var(--ink)!important;border-color:var(--mut)!important}
+.r2{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:9px;font-size:15px}
+.r2 select{flex:1;min-width:130px;padding:7px 9px}
+.r2 input[type=number]{width:88px;padding:7px 9px}
+.r2 input[type=text]{width:130px;padding:7px 9px}
+.r2 label.ck{display:flex;align-items:center;gap:6px;color:var(--mut)}
+.amt{text-align:right;flex:none}
+.amt b{font-family:var(--f-head);font-size:24px;display:block;line-height:1;font-variant-numeric:tabular-nums}
+.amt small{color:var(--mut);font-size:12px}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 10px;margin-top:10px;font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.kv b{display:block;font-size:15px;color:var(--ink);text-transform:none;letter-spacing:0;font-variant-numeric:tabular-nums}
+.kv i{font-style:normal}
+@media(min-width:700px){.kv{grid-template-columns:repeat(6,1fr)}}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:600px){.tiles{grid-template-columns:1fr 1fr}}
+.tiles>div{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+.tiles>div:first-child{border-color:var(--acc);box-shadow:inset 3px 0 0 var(--acc)}
+.tiles span{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}
+.tiles b{font-family:var(--f-head);font-size:26px;font-variant-numeric:tabular-nums;display:block;line-height:1.15}
+.tiles small{color:var(--mut);font-size:12px}
+.tw{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:8px 9px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+th{background:var(--bg);font-family:var(--f-head);font-size:13px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
+td.n,th.n{text-align:left;position:sticky;left:0;background:var(--surface);font-weight:600;border-right:1px solid var(--line);z-index:2}
+th.n{background:var(--bg)}
+td.num{text-align:right}
+tr.tot td{font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:none}
+.cell{min-width:30px;height:30px;border-radius:4px;font-family:var(--f-head);font-weight:700;font-size:13px;display:inline-flex;align-items:center;justify-content:center;border:1px solid transparent}
+.cell.e{background:transparent;color:var(--line);border:1px dashed var(--line)}
+.cell.W{background:var(--bg);color:var(--mut)}.cell.H{background:var(--warn-bg);color:var(--warn)}
+.cell.l{border-style:dashed}
+.mono{font-variant-numeric:tabular-nums}
+.neg{color:var(--neg);font-weight:700}
+.warn{color:var(--warn);font-weight:700}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin:0 0 12px;color:var(--mut)}
+.legend b{font-family:var(--f-head);color:var(--ink);font-size:15px;margin-right:3px}
+.legend i{display:none}
+.pill{display:inline-block;padding:2px 9px;border-radius:3px;font-family:var(--f-head);font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:var(--leave-bg);color:var(--ink)}
+.banner{padding:10px 12px;border-radius:5px;font-weight:600;margin-bottom:12px;font-size:15px;background:var(--leave-bg)}
+.banner.no{background:var(--warn-bg);color:var(--warn)}
+.list .it{display:flex;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.list .it:last-child{border-bottom:none}
+.emp{border:1px solid var(--line);border-radius:6px;padding:12px;margin-bottom:10px;background:var(--surface)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pr .grid2{grid-template-columns:1fr}
+@media(min-width:700px){.pr .grid2{grid-template-columns:1fr 1fr}}
+.grid3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px}
+@media(max-width:520px){.grid3{grid-template-columns:1fr 1fr}}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:88px;background:var(--ink);color:var(--surface);padding:11px 16px;border-radius:5px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:99;max-width:90%}
+.toast.on{opacity:1}
+.empty{text-align:center;color:var(--mut);padding:30px 10px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header><a class="back" href="../" aria-label="Înapoi la aplicații">‹</a><div class="brand"><span class="mark"></span><b>SCV</b><span>Prezență și salarii</span></div><span id="save"></span></header>
+<main id="main"><div class="empty">Se încarcă…</div></main>
+<nav id="nav">
+<button data-t="azi" class="on">Azi</button>
+<button data-t="luna">Luna</button>
+<button data-t="sal">Salarii</button>
+<button data-t="conc">Concedii</button>
+<button data-t="sit">Șantiere</button>
+<button data-t="set">Setări</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script src="../lib/vendor/supabase.js"></script>
+<script src="../lib/scv.js"></script>
+<script>
+"use strict";
+/* ============ utilitare ============ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const DS=(y,m,d)=>y+"-"+pad(m)+"-"+pad(d);
+const dim=(y,m)=>new Date(y,m,0).getDate();
+const dowOf=(y,m,d)=>new Date(y,m-1,d).getDay();
+const DN=["dum","lun","mar","mie","joi","vin","sâm"], DNL=["duminică","luni","marți","miercuri","joi","vineri","sâmbătă"];
+const MN=["ianuarie","februarie","martie","aprilie","mai","iunie","iulie","august","septembrie","octombrie","noiembrie","decembrie"];
+const num=v=>{const n=parseFloat(String(v).replace(",","."));return isNaN(n)?0:n};
+const r2=x=>Math.round((x+Number.EPSILON)*100)/100;
+const money=x=>(x||0).toLocaleString("ro-RO",{minimumFractionDigits:2,maximumFractionDigits:2});
+const todayStr=()=>{const t=new Date();return DS(t.getFullYear(),t.getMonth()+1,t.getDate())};
+const parseDS=s=>{const p=s.split("-").map(Number);return{y:p[0],m:p[1],d:p[2]}};
+const addDays=(s,n)=>{const p=parseDS(s);const t=new Date(p.y,p.m-1,p.d+n);return DS(t.getFullYear(),t.getMonth()+1,t.getDate())};
+const roDate=s=>{const p=parseDS(s);return pad(p.d)+"."+pad(p.m)+"."+p.y};
+let toastT;const toast=t=>{const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove("on"),2200)};
+
+/* ============ constante ============ */
+const ST={P:{n:"Prezent",s:"Prez.",c:"var(--P)"},A:{n:"Absent",s:"Abs.",c:"var(--A)"},CO:{n:"Concediu de odihnă",s:"C.odih.",c:"var(--CO)"},CM:{n:"Concediu medical",s:"C.med.",c:"var(--CM)"},CFP:{n:"Concediu fără salariu",s:"Fără sal.",c:"var(--CFP)"}};
+const CODES=["P","A","CO","CM","CFP"];
+const DEF_HOL={2026:[["2026-01-01","Anul Nou"],["2026-01-02","Anul Nou (a doua zi)"],["2026-01-06","Boboteaza"],["2026-01-07","Sf. Ioan Botezătorul"],["2026-01-24","Ziua Unirii"],["2026-04-10","Vinerea Mare"],["2026-04-12","Paștele"],["2026-04-13","Paștele (a doua zi)"],["2026-05-01","Ziua Muncii"],["2026-05-31","Rusaliile"],["2026-06-01","Rusalii / Ziua Copilului"],["2026-08-15","Adormirea Maicii Domnului"],["2026-11-30","Sf. Andrei"],["2026-12-01","Ziua Națională"],["2026-12-25","Crăciunul"],["2026-12-26","Crăciunul (a doua zi)"]].map(x=>({d:x[0],n:x[1]}))};
+
+/* ============ stare ============ */
+let store=null, ME=null, S={emps:[],holidays:{},mult:0,diurna:0,sites:[],lastSite:""}, L=[], months={};
+let openSite=null, daySite="";
+let tab="azi", curDay=todayStr(), curYM=todayStr().slice(0,7), tr="1", openEmp=null, ready=false, confirmDel=null;
+
+/* ============ salvare ============ */
+function setSaveLbl(t,warn){const e=$("#save");e.textContent=t;e.classList.toggle("bad",!!warn)}
+function persist(path,getter){if(store)store.put(path,getter)}
+const saveSettings=()=>persist("app/settings",()=>S);
+const saveLeaves=()=>persist("app/concedii",()=>({list:L}));
+function monthDoc(ym){const m=months[ym]||(months[ym]={});m.marks=m.marks||{};m.dep=m.dep||{};m.adv=m.adv||{};m.paid=m.paid||{};m.site=m.site||{};m.sup=m.sup||{};return m}
+const saveMonth=ym=>persist("luni/"+ym,()=>months[ym]);
+
+const fn=e=>(e&&(e.full||e.nume))||"?";
+function normS(){if(S.zl==null)S.zl=21;S.sites=S.sites||[];S.holidays=S.holidays||{};S.sites.forEach(s=>{});S.emps.forEach(e=>{if(e.activ===false&&!e.end){e.end=addDays(todayStr(),-1)}delete e.activ;if(e.full==null)e.full="";if(!e.rates||!e.rates.length)e.rates=[{from:"2000-01-01",sal:num(e.sal),cost:num(e.cost)}];
+  e.rates.forEach(x=>{if(x.from.length===7)x.from+="-01"});e.rates.sort((a,b)=>a.from<b.from?-1:a.from>b.from?1:0);e.rates[0].from="2000-01-01"})}
+function rate(e,date){const rs=e.rates||[];if(!rs.length)return{sal:num(e.sal),cost:0};let r=rs[0];rs.forEach(x=>{if(x.from<=date)r=x});return{sal:num(r.sal),cost:num(r.cost)}}
+const activeSites=()=>(S.sites||[]).filter(x=>x.st!=="fin"&&!x.arh);
+function defSite(){const a=activeSites();if(daySite&&a.some(x=>x.id===daySite))return daySite;if(S.lastSite&&a.some(x=>x.id===S.lastSite))return S.lastSite;return a.length===1?a[0].id:""}
+function siteOf(emp,date){const m=months[date.slice(0,7)];return(m&&m.site&&m.site[emp]&&m.site[emp][+date.slice(8)])||""}
+function siteName(id){const s=(S.sites||[]).find(x=>x.id===id);return s?s.nume:(id?"(șantier șters)":"fără șantier")}
+function siteOpts(sel){const a=activeSites();let o=`<option value="">— fără șantier —</option>`;const seen={};a.forEach(s=>{seen[s.id]=1;o+=`<option value="${s.id}" ${s.id===sel?"selected":""}>${esc(s.nume)}</option>`});
+  if(sel&&!seen[sel]){const s=(S.sites||[]).find(x=>x.id===sel);o+=`<option value="${sel}" selected>${esc(s?s.nume+" (finalizat)":"(șantier șters)")}</option>`}return o}
+function hasAny(id){return Object.keys(months).some(ym=>hasData(id,ym))||L.some(l=>l.emp===id)}
+function siteReport(id){const R={byEmp:{},byMonth:{},days:0,c1:0,c2:0,first:"",last:"",list:[]};
+  Object.keys(months).sort().forEach(ym=>{const m=months[ym];if(!m||!m.site)return;const wm=divisor(ym);if(!wm)return;
+    Object.keys(m.site).forEach(emp=>{const e=S.emps.find(x=>x.id===emp);
+      Object.keys(m.site[emp]).forEach(d=>{if(m.site[emp][d]!==id)return;if(!(m.marks&&m.marks[emp]&&m.marks[emp][d]==="P"))return;
+        const ds=ym+"-"+pad(+d),f=dayType(ds).work?1:num(S.mult),rt=e?rate(e,ds):{sal:0,cost:0},a=rt.sal/wm*f,b=rt.cost/wm*f;
+        const E=R.byEmp[emp]||(R.byEmp[emp]={name:e?e.nume:"(angajat șters)",days:0,c1:0,c2:0});E.days++;E.c1+=a;E.c2+=b;
+        const M=R.byMonth[ym]||(R.byMonth[ym]={days:0,c1:0,c2:0});M.days++;M.c1+=a;M.c2+=b;
+        R.days++;R.c1+=a;R.c2+=b;if(!R.first||ds<R.first)R.first=ds;if(!R.last||ds>R.last)R.last=ds;R.list.push({d:ds,name:E.name})})})});
+  R.c1=r2(R.c1);R.c2=r2(R.c2);return R}
+function unassigned(){let c=0;Object.keys(months).forEach(ym=>{const m=months[ym];if(!m||!m.marks)return;Object.keys(m.marks).forEach(emp=>Object.keys(m.marks[emp]).forEach(d=>{if(m.marks[emp][d]==="P"&&!(m.site&&m.site[emp]&&m.site[emp][d]))c++}))});return c}
+
+/* ============ calendar / reguli ============ */
+function holList(y){return (S.holidays&&S.holidays[y])||DEF_HOL[y]||[]}
+function holMap(y){const o={};holList(y).forEach(h=>o[h.d]=h.n);return o}
+function dayType(s){const p=parseDS(s);const w=dowOf(p.y,p.m,p.d);const H=holMap(p.y);if(H[s])return{t:"H",n:H[s],work:false};if(w===0||w===6)return{t:"W",n:DNL[w],work:false};return{t:"",n:"",work:true}}
+function workDaysInMonth(ym){const p=ym.split("-").map(Number);let c=0;for(let d=1;d<=dim(p[0],p[1]);d++)if(dayType(DS(p[0],p[1],d)).work)c++;return c}
+function leaveFor(emp,d){for(const l of L)if(l.emp===emp&&l.from<=d&&d<=l.to)return l;return null}
+function eff(emp,d){const m=months[d.slice(0,7)];const v=m&&m.marks&&m.marks[emp]&&m.marks[emp][+d.slice(8)];
+  if(v)return{s:v,src:"m"};const l=leaveFor(emp,d);if(l&&dayType(d).work)return{s:l.tip,src:"l"};return{s:"",src:""}}
+function worksOn(e,d){return(!e.start||e.start<=d)&&(!e.end||d<=e.end)}
+function isFormer(e){return !!e.end&&e.end<todayStr()}
+function activeEmps(ym){const p=ym.split("-").map(Number),a=ym+"-01",b=DS(p[0],p[1],dim(p[0],p[1]));return S.emps.filter(e=>((!e.start||e.start<=b)&&(!e.end||e.end>=a))||hasData(e.id,ym))}
+const okWord=id=>{const el=document.getElementById(id);return el&&/^[sș]terge$/i.test(el.value.trim())};
+function hasData(id,ym){const m=months[ym];if(!m)return false;return !!((m.marks&&m.marks[id]&&Object.values(m.marks[id]).some(Boolean))||(m.dep&&(m.dep[id]||[]).length)||(m.sup&&(m.sup[id]||[]).length)||(m.adv&&(m.adv[id]||[]).length))}
+
+/* Cu câte zile se împarte salariul lunar ca să afli valoarea unei zile (la tine: 21). 0 = zilele lucrătoare reale ale lunii. */
+function divisor(ym){return num(S.zl)>0?num(S.zl):workDaysInMonth(ym)}
+/* Plata pe o perioadă formată din tranșe întregi (1–15, 16–sfârșit):
+   fiecare tranșă = jumătate din salariul lunar, minus zilele absente / fără salariu / medicale (fiecare la salariu ÷ zile-pe-lună).
+   Cine a fost angajat doar o parte din tranșă primește zilele lucrate × valoarea zilei (cel mult jumătatea). */
+function calc(emp,ym,d1,d2){
+  const p=ym.split("-").map(Number),y=p[0],m=p[1],N=dim(y,m),wm=divisor(ym);
+  let wp=0,un=0,cm=0,co=0,pr=0,nm=0,ex=0,out=0,base=0,b2=0,extra=0;
+  [[1,15],[16,N]].forEach(([ta,tb])=>{if(ta<d1||tb>d2)return;
+    let wT=0,wE=0,half=0,half2=0,sumE=0,sumE2=0,ded=0,ded2=0;
+    for(let d=ta;d<=tb;d++){const s=DS(y,m,d),dt=dayType(s),st=eff(emp.id,s).s,r=rate(emp,s),v=wm?r.sal/wm:0,v2=wm?r.cost/wm:0,on=worksOn(emp,s);
+      if(!dt.work){if(on&&st==="P"){ex++;extra+=v*num(S.mult);b2+=v2*num(S.mult)}continue}
+      wT++;wp++;half+=r.sal/2;half2+=r.cost/2;
+      if(!on){out++;continue}
+      wE++;sumE+=v;sumE2+=v2;
+      if(st==="A"||st==="CFP"){un++;ded+=v;ded2+=v2}else if(st==="CM"){cm++;ded+=v;ded2+=v2}else if(st==="CO")co++;else if(st==="P")pr++;else nm++}
+    if(!wT||!wE)return;
+    half/=wT;half2/=wT;
+    const g=wE===wT?half:Math.min(half,sumE),g2=wE===wT?half2:Math.min(half2,sumE2);
+    base+=Math.max(0,g-ded);b2+=Math.max(0,g2-ded2)});
+  const md=months[ym]||{};
+  const inR=a=>(a||[]).filter(x=>x.d>=d1&&x.d<=d2).reduce((a,x)=>a+num(x.sum),0);
+  const dep=inR((md.dep||{})[emp.id]),adv=inR((md.adv||{})[emp.id]),sup=inR((md.sup||{})[emp.id]);
+  base=r2(base);extra=r2(extra);const val=wm?r2(rate(emp,DS(y,m,d2)).sal/wm):0;
+  return{val,wm,wp,un,cm,co,pr,nm,ex,out,base,extra,cuv:r2(base+extra),cuv2:r2(b2),dep:r2(dep),adv:r2(adv),sup:r2(sup),pay:r2(base+extra+sup+dep-adv)}
+}
+function monthStats(emp,ym){const p=ym.split("-").map(Number);const o={P:0,A:0,CO:0,CM:0,CFP:0,ex:0,nm:0,work:0};
+  for(let d=1;d<=dim(p[0],p[1]);d++){const s=DS(p[0],p[1],d),dt=dayType(s),st=eff(emp.id,s).s;
+    if(!worksOn(emp,s))continue;if(dt.work){o.work++;if(st)o[st]++;else o.nm++}else if(st==="P")o.ex++}
+  return o}
+function workdaysBetween(a,b){let c=0;for(let d=a;d<=b;d=addDays(d,1))if(dayType(d).work)c++;return c}
+
+/* ============ acțiuni ============ */
+function markQuiet(emp,date,val){const ym=date.slice(0,7),m=monthDoc(ym),d=+date.slice(8);m.marks[emp]=m.marks[emp]||{};m.site[emp]=m.site[emp]||{};
+  if(val){m.marks[emp][d]=val;if(val==="P"){if(!m.site[emp][d]){const s=defSite();if(s)m.site[emp][d]=s}}else delete m.site[emp][d]}
+  else{delete m.marks[emp][d];delete m.site[emp][d]}}
+function setMark(emp,date,val){markQuiet(emp,date,val);saveMonth(date.slice(0,7));render()}
+function setSite(emp,date,id){const ym=date.slice(0,7),m=monthDoc(ym),d=+date.slice(8);m.site[emp]=m.site[emp]||{};if(id)m.site[emp][d]=id;else delete m.site[emp][d];saveMonth(ym);render()}
+function toggleMark(emp,date,code){const cur=eff(emp,date);setMark(emp,date,cur.src==="m"&&cur.s===code?"":code)}
+function setDep(emp,date,on,sum,loc){const ym=date.slice(0,7),m=monthDoc(ym),d=+date.slice(8);
+  let a=(m.dep[emp]||[]).filter(x=>x.d!==d);if(on)a.push({d,sum:r2(num(sum)),loc:loc||""});a.sort((x,y)=>x.d-y.d);m.dep[emp]=a;saveMonth(ym);render()}
+function getDep(emp,date){const m=months[date.slice(0,7)];return m&&m.dep&&(m.dep[emp]||[]).find(x=>x.d===+date.slice(8))}
+
+/* ============ ecrane ============ */
+let inClick=false;
+/* Nu redesenăm peste un câmp în care se scrie, decât la o apăsare de buton (atunci închidem întâi câmpul, ca să i se salveze valoarea). */
+function render(force){if(!ready)return;
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===tab));
+  const f=document.activeElement;if(f&&/INPUT|TEXTAREA|SELECT/.test(f.tagName)&&f.dataset.keep){if(!(force||inClick))return;f.blur()}
+  const fn={azi:vAzi,luna:vLuna,sal:vSal,conc:vConc,sit:vSit,set:vSet}[tab];$("#main").innerHTML=fn()}
+
+function vAzi(){
+  const dt=dayType(curDay),p=parseDS(curDay),w=dowOf(p.y,p.m,p.d);
+  const emps=S.emps.filter(e=>worksOn(e,curDay));
+  if(!emps.length)return `<div class="card empty">Nu ai angajați. Adaugă-i în Setări.</div>`;
+  const cnt={P:0,A:0,CO:0,CM:0,CFP:0,n:0};emps.forEach(e=>{const s=eff(e.id,curDay).s;if(s)cnt[s]++;else cnt.n++});
+  const start=addDays(curDay,-((w+6)%7));let strip="";
+  for(let i=0;i<7;i++){const d=addDays(start,i),q=parseDS(d),ty=dayType(d),all=emps.every(e=>eff(e.id,d).s);
+    strip+=`<button class="dc${d===curDay?" on":""}${ty.work?"":" off"}" data-a="gotoday" data-d="${d}" aria-label="${q.d} ${MN[q.m-1]}"><span>${DN[dowOf(q.y,q.m,q.d)]}</span><b>${q.d}</b><i class="${all?"ok":""}"></i></button>`}
+  let h=`<div class="dh"><div><div class="eyebrow">${DNL[w]}</div><h2>${p.d} ${MN[p.m-1]} ${p.y}</h2></div><div class="nv w"><button class="ib" data-a="day" data-n="-1" aria-label="Ziua dinainte">‹</button><button class="ib" data-a="today">Azi</button><button class="ib" data-a="day" data-n="1" aria-label="Ziua următoare">›</button>
+  <input type="date" id="dpick" value="${curDay}" data-keep="1" aria-label="Alege data" style="height:40px;flex:1;min-width:0"></div></div><div class="strip">${strip}</div>`;
+  if(!dt.work)h+=`<div class="note">${dt.t==="H"?"Sărbătoare legală: "+esc(dt.n):"Weekend"}. Nu e zi lucrătoare, dar poți marca cine a lucrat.</div>`;
+  h+=`<div class="sum"><span><b>${cnt.P}</b> prezenți</span><span><b>${cnt.A}</b> absenți</span><span><b>${cnt.CO+cnt.CM+cnt.CFP}</b> în concediu</span><span class="${cnt.n?"warn":""}"><b>${cnt.n}</b> nemarcați</span></div><div class="bar"><i style="width:${(emps.length-cnt.n)/emps.length*100}%"></i></div>
+  <div class="ctl"><label for="daysite">Șantier implicit pentru azi</label><select id="daysite">${siteOpts(defSite())}</select><button class="btn" data-a="allP">Toți prezenți</button></div>
+  ${activeSites().length?"":'<div class="note">Nu ai niciun șantier în lucru. Adaugă unul în fila Șantiere.</div>'}
+  <div class="legend"><span><b>P</b>prezent</span><span><b>A</b>absent</span><span><b>CO</b>concediu de odihnă</span><span><b>CM</b>concediu medical</span><span><b>FS</b>fără salariu</span></div><div class="roster">`;
+  emps.forEach(e=>{const ef=eff(e.id,curDay),dep=getDep(e.id,curDay),site=siteOf(e.id,curDay);
+    h+=`<div class="r"><div class="r1"><span class="av">${esc(e.nume.slice(0,2).toUpperCase())}</span><div class="who"><b>${esc(e.nume)}</b><small>${ef.src==="l"?"din concedii":ef.s==="P"?esc(site?siteName(site):"fără șantier"):ef.s?ST[ef.s].n:"nemarcat"}</small></div>
+    <div class="seg">${CODES.map(c=>`<button class="${ef.s===c?"on c-"+c:""}${ef.s===c&&ef.src==="l"?" dash":""}" data-a="mark" data-e="${e.id}" data-c="${c}" title="${ST[c].n}" aria-label="${ST[c].n}">${c==="CFP"?"FS":c}</button>`).join("")}</div></div>
+    <div class="r2">${ef.s==="P"?`<select data-a="esite" data-e="${e.id}" aria-label="Șantier">${siteOpts(site)}</select>`:""}
+    <label class="ck"><input type="checkbox" data-a="depon" data-e="${e.id}" ${dep?"checked":""}> Deplasare</label>
+    ${dep?`<input type="number" step="0.01" inputmode="decimal" value="${dep.sum}" data-a="depsum" data-e="${e.id}" data-keep="1" aria-label="Sumă deplasare"> lei <input type="text" placeholder="unde" value="${esc(dep.loc||"")}" data-a="deploc" data-e="${e.id}" data-keep="1">`:""}</div></div>`});
+  return h+`</div>`}
+
+function vLuna(){
+  const p=curYM.split("-").map(Number),N=dim(p[0],p[1]),emps=activeEmps(curYM);
+  let h=ymBar()+`<div class="legend">${CODES.map(c=>`<span><b>${c==="CFP"?"FS":c}</b>${ST[c].n.toLowerCase()}</span>`).join("")}<span><b>S</b>sărbătoare</span></div>`;
+  if(!emps.length)return h+`<div class="card empty">Niciun angajat.</div>`;
+  h+=`<p class="mut">Atinge o zi ca să schimbi: gol → Prezent → Absent → C.odihnă → C.medical → Fără salariu → gol.</p><div class="tw"><table><thead><tr><th class="n">Angajat</th>`;
+  for(let d=1;d<=N;d++)h+=`<th>${d}<br><span class="mut">${DN[dowOf(p[0],p[1],d)]}</span></th>`;
+  h+=`<th>Prez.</th><th>Abs.</th><th>CO</th><th>CM</th><th>CFP</th><th>Nemarc.</th></tr></thead><tbody>`;
+  emps.forEach(e=>{h+=`<tr><td class="n">${esc(e.nume)}</td>`;
+    for(let d=1;d<=N;d++){const s=DS(p[0],p[1],d),dt=dayType(s),ef=eff(e.id,s);
+      let cls="cell e",txt="";if(ef.s){cls="cell c-"+ef.s+(ef.src==="l"?" l":"");txt=ef.s==="CFP"?"FS":ef.s}else if(dt.t==="H"){cls="cell H";txt="S"}else if(dt.t==="W"){cls="cell W";txt=""}
+      h+=`<td><button class="${cls}" data-a="cell" data-e="${e.id}" data-d="${s}">${txt}</button></td>`}
+    const st=monthStats(e,curYM);
+    h+=`<td>${st.P}</td><td>${st.A}</td><td>${st.CO}</td><td>${st.CM}</td><td>${st.CFP}</td><td class="${st.nm?"warn":""}">${st.nm}</td></tr>`});
+  return h+`</tbody></table></div><p class="mut">Zile lucrătoare în lună: <b>${workDaysInMonth(curYM)}</b>. „Nemarc." = zile lucrătoare fără nicio marcare (se plătesc ca prezent, dar verifică-le).</p>`}
+
+function ymBar(){const p=curYM.split("-").map(Number);
+  return `<div class="dh"><div><div class="eyebrow">Luna</div><h2>${MN[p[1]-1]} ${p[0]}</h2></div><div class="sp"></div><div class="nv"><button class="ib" data-a="ym" data-n="-1" aria-label="Luna dinainte">‹</button><button class="ib" data-a="ym" data-n="1" aria-label="Luna următoare">›</button></div></div>`}
+
+function vSal(){
+  const p=curYM.split("-").map(Number),N=dim(p[0],p[1]),emps=activeEmps(curYM);
+  const d1=tr==="2"?16:1,d2=tr==="1"?15:N;
+  const lbl=tr==="1"?"Tranșa 1 (1–15)":tr==="2"?`Tranșa 2 (16–${N})`:"Toată luna";
+  let h=ymBar()+`<div class="row" style="margin-bottom:10px">${[["1","Tranșa 1 (1–15)"],["2","Tranșa 2 (16–"+N+")"],["m","Toată luna"]].map(x=>`<button class="btn ${tr===x[0]?"":"g"} s" data-a="tr" data-v="${x[0]}">${x[1]}</button>`).join("")}</div>`;
+  if(!emps.length)return h+`<div class="card empty">Niciun angajat.</div>`;
+  const tot={cuv:0,cuv2:0,dep:0,adv:0,pay:0};
+  {const T=emps.map(e=>calc(e,curYM,d1,d2)),sm=k=>money(r2(T.reduce((a,c)=>a+c[k],0)));
+   h+=`<div class="tiles"><div><span>De plătit</span><b>${sm("pay")}</b><small>lei · ${lbl}</small></div><div><span>Cost cu taxe</span><b>${sm("cuv2")}</b><small>lei · salariu om + taxe</small></div><div><span>Suplimentar + deplasări</span><b>${money(r2(T.reduce((a,c)=>a+c.sup+c.dep,0)))}</b><small>lei · se adaugă</small></div><div><span>Avansuri</span><b>${sm("adv")}</b><small>lei · se scad</small></div></div>`}
+  {const md=months[curYM]||{},all=[];["adv","sup"].forEach(k=>emps.forEach(e=>((md[k]||{})[e.id]||[]).forEach((x,i)=>all.push({k,e,x,i}))));all.sort((a,b)=>a.x.d-b.x.d);
+   const defd=todayStr().slice(0,7)===curYM?todayStr():DS(p[0],p[1],1);
+   h+=`<div class="card"><h3>Avansuri și suplimentar în ${MN[p[1]-1]}</h3><div class="row"><select id="av_e" data-keep="1" style="flex:1;min-width:120px" aria-label="Angajat">${emps.map(e=>`<option value="${e.id}">${esc(e.nume)}</option>`).join("")}</select><select id="av_k" data-keep="1" aria-label="Fel"><option value="adv">Avans (se scade)</option><option value="sup">Suplimentar (se adaugă)</option></select><input type="date" id="av_d" value="${defd}" data-keep="1" aria-label="Data"><input type="number" id="av_s" inputmode="decimal" step="0.01" placeholder="suma (lei)" data-keep="1" style="width:110px"><input type="text" id="av_n" placeholder="notă (ex. sâmbătă)" data-keep="1" style="width:150px"><button class="btn" data-a="addadv2">Adaugă</button></div>
+   <div class="list" style="margin-top:8px">${all.map(o=>`<div class="it"><span class="mono">${pad(o.x.d)}.${pad(p[1])}</span><b>${esc(o.e.nume)}</b><span class="pill">${o.k==="adv"?"avans":"suplimentar"}</span><span class="mono">${o.k==="adv"?"−":"+"}${money(num(o.x.sum))} lei</span><span class="mut">${esc(o.x.note||"")}</span><span class="sp"></span>${confirmDel===o.k+":"+o.e.id+":"+o.i?`<button class="btn r s" data-a="delent" data-k="${o.k}" data-e="${o.e.id}" data-i="${o.i}">Sigur? Șterge</button>`:`<button class="btn g s" data-a="ask" data-k="${o.k}:${o.e.id}:${o.i}">Șterge</button>`}</div>`).join("")||'<div class="mut">Nimic trecut în această lună. Avansul se scade din tranșa în care a fost dat. Suplimentarul (sâmbete, ore în plus) se adaugă la tranșa în care e trecut.</div>'}</div></div>`}
+  h+=`<div class="roster">`;
+  emps.forEach(e=>{const rt=rate(e,DS(p[0],p[1],d2)),c=calc(e,curYM,d1,d2),chg=rate(e,DS(p[0],p[1],d1)).sal!==rt.sal,md=months[curYM]||{},paid=((md.paid||{})[e.id]||{})["t"+tr];
+    h+=`<div class="r pr"><div class="r1"><div class="who"><b>${esc(e.nume)}</b><small>${rt.sal?"salariu "+money(rt.sal)+" lei":'<span class="warn">salariu lipsă</span>'}${chg?" (schimbat în perioadă)":""}${c.nm?` · <span class="warn">${c.nm} zile nemarcate</span>`:""}</small></div>
+    <div class="amt${c.pay<0?" neg":""}"><b>${money(c.pay)}</b><small>de plătit</small></div></div>
+    <div class="kv"><span>Cuvenit<b>${money(c.cuv)}</b></span><span>Cu taxe<b>${rt.cost?money(c.cuv2):'<i class="warn">lipsă</i>'}</b></span><span>Suplimentar<b>${money(c.sup)}</b></span><span>Deplasări<b>${money(c.dep)}</b></span><span>Avans<b>${c.adv?"−"+money(c.adv):"0,00"}</b></span><span>Zile scăzute<b>${c.un+c.cm}${c.cm?" ("+c.cm+" med.)":""}${c.out?" · "+c.out+" neangajat":""}</b></span></div>
+    <div class="r2">${tr!=="m"?`<label class="ck"><input type="checkbox" data-a="paid" data-e="${e.id}" ${paid?"checked":""}> Plătit</label>`:""}<span class="sp"></span><button class="btn g s" data-a="open" data-e="${e.id}">${openEmp===e.id?"Ascunde":"Avansuri și deplasări"}</button></div>
+    ${openEmp===e.id?`<div style="margin-top:10px">${empPanel(e)}</div>`:""}</div>`});
+  h+=`</div>`;
+  h+=`<div class="card" style="margin-top:12px"><h3>Cum se calculează</h3><div class="mut">Ca în tabelele tale: <b>fiecare tranșă = jumătate din salariul lunar</b>. Pentru fiecare zi marcată absent, fără salariu sau medical se scade o zi, adică salariul ÷ ${divisor(curYM)} (concediul medical îl calculează contabilul). Concediul de odihnă și sărbătorile legale sunt plătite. Cine a fost angajat doar o parte din tranșă primește zilele lucrate × valoarea zilei. <b>De plătit</b> = cuvenit + suplimentar + deplasări − avansuri din tranșă. „Cu taxe” e același calcul făcut cu „Om + taxe”. Sumele sunt estimări pentru tine; statul de plată oficial îl face contabilul.</div></div>`;
+  h+=`<div class="card"><h3>Export</h3><div class="row"><button class="btn" data-a="xacc">Pontaj + concedii pentru contabil</button><button class="btn g" data-a="xpay">Fișa mea de plăți</button></div><div class="mut" style="margin-top:6px">Se creează un fișier Excel pe care îl trimiți tu mai departe. Aplicația nu trimite nimic singură.</div></div>`;
+  return h}
+
+function empPanel(e){const md=months[curYM]||{},adv=(md.adv||{})[e.id]||[],dep=(md.dep||{})[e.id]||[];
+  const p=curYM.split("-").map(Number),first=DS(p[0],p[1],1);
+  return `<div class="grid2"><div><b>Avansuri</b><div class="list">${adv.map((x,i)=>`<div class="it"><span>${pad(x.d)}.${pad(p[1])}</span><span class="mono">${money(num(x.sum))} lei</span><span class="mut">${esc(x.note||"")}</span><span class="sp"></span>${confirmDel==="adv:"+e.id+":"+i?`<button class="btn r s" data-a="deladv" data-e="${e.id}" data-i="${i}">Sigur? Șterge</button>`:`<button class="btn g s" data-a="ask" data-k="adv:${e.id}:${i}">Șterge</button>`}</div>`).join("")||'<div class="mut">niciun avans</div>'}</div>
+  <div class="row" style="margin-top:6px"><input type="date" id="advd" value="${first<=todayStr()&&todayStr().slice(0,7)===curYM?todayStr():first}" data-keep="1"><input type="number" step="0.01" inputmode="decimal" id="advs" placeholder="suma" style="width:100px" data-keep="1"><input type="text" id="advn" placeholder="notă" style="width:110px" data-keep="1"><button class="btn s" data-a="addadv" data-e="${e.id}">+ Avans</button></div></div>
+  <div><b>Deplasări</b><div class="list">${dep.map((x,i)=>`<div class="it"><span>${pad(x.d)}.${pad(p[1])}</span><span class="mono">${money(num(x.sum))} lei</span><span class="mut">${esc(x.loc||"")}</span><span class="sp"></span>${confirmDel==="dep:"+e.id+":"+i?`<button class="btn r s" data-a="deldep" data-e="${e.id}" data-i="${i}">Sigur? Șterge</button>`:`<button class="btn g s" data-a="ask" data-k="dep:${e.id}:${i}">Șterge</button>`}</div>`).join("")||'<div class="mut">nicio deplasare</div>'}</div>
+  <div class="row" style="margin-top:6px"><input type="date" id="depd" value="${first}" data-keep="1"><input type="number" step="0.01" inputmode="decimal" id="deps" placeholder="suma" value="${num(e.diurna)||num(S.diurna)||""}" style="width:100px" data-keep="1"><input type="text" id="depl" placeholder="unde" style="width:110px" data-keep="1"><button class="btn s" data-a="adddep" data-e="${e.id}">+ Deplasare</button></div></div></div>`}
+
+function vConc(){
+  const y=+todayStr().slice(0,4);
+  let h=`<div class="card"><h3>Concediu nou</h3><div class="grid3"><div><label class="f">Angajat</label><select id="lc_e" data-keep="1">${S.emps.map(e=>`<option value="${e.id}">${esc(e.nume)}</option>`).join("")}</select></div>
+  <div><label class="f">Tip</label><select id="lc_t" data-keep="1"><option value="CO">Odihnă</option><option value="CM">Medical</option><option value="CFP">Fără salariu</option></select></div><div></div>
+  <div><label class="f">De la</label><input type="date" id="lc_a" value="${todayStr()}" data-keep="1" style="width:100%"></div><div><label class="f">Până la (inclusiv)</label><input type="date" id="lc_b" value="${todayStr()}" data-keep="1" style="width:100%"></div></div>
+  <div class="grid2"><div><label class="f">Nr. certificat medical (doar medical)</label><input type="text" id="lc_n" data-keep="1" style="width:100%"></div><div><label class="f">Cod indemnizație (doar medical)</label><input type="text" id="lc_c" placeholder="ex. 01" data-keep="1" style="width:100%"></div></div>
+  <label class="f">Observații</label><input type="text" id="lc_o" data-keep="1" style="width:100%"><div class="row" style="margin-top:10px"><button class="btn" data-a="addl">Adaugă concediul</button><span class="mut">Zilele lucrătoare din interval se marchează singure în pontaj.</span></div></div>`;
+  h+=`<div class="card"><h3>Zile de concediu de odihnă ${y}</h3><div class="tw"><table><thead><tr><th class="n">Angajat</th><th>Drept pe an</th><th>Folosite</th><th>Rămase</th></tr></thead><tbody>`;
+  S.emps.filter(e=>!isFormer(e)).forEach(e=>{const used=countYear(e.id,y,"CO"),dr=e.co==null||e.co===""?20:num(e.co);h+=`<tr><td class="n">${esc(e.nume)}</td><td>${dr}</td><td>${used}</td><td class="${dr-used<0?"neg":""}"><b>${dr-used}</b></td></tr>`});
+  h+=`</tbody></table></div><div class="mut" style="margin-top:6px">Dreptul minim legal e de 20 de zile lucrătoare pe an; îl poți schimba în Setări, pe fiecare om.</div></div>`;
+  const sorted=L.slice().sort((a,b)=>a.from<b.from?1:-1);
+  h+=`<div class="card"><h3>Concedii introduse</h3><div class="list">`+(sorted.map(l=>{const e=S.emps.find(x=>x.id===l.emp);return `<div class="it"><span class="pill c-${l.tip}">${l.tip==="CO"?"Odihnă":l.tip==="CM"?"Medical":"Fără sal."}</span><b>${esc(e?e.nume:"?")}</b><span>${roDate(l.from)} – ${roDate(l.to)}</span><span class="mut">${workdaysBetween(l.from,l.to)} zile lucr.${l.nr?" • cert. "+esc(l.nr):""}${l.cod?" • cod "+esc(l.cod):""}${l.note?" • "+esc(l.note):""}</span><span class="sp"></span>${confirmDel===l.id?`<button class="btn r s" data-a="dell" data-id="${l.id}">Sigur? Șterge</button>`:`<button class="btn g s" data-a="askdel" data-id="${l.id}">Șterge</button>`}</div>`}).join("")||'<div class="mut">Niciun concediu introdus.</div>')+`</div></div>`;
+  return h}
+function vSit(){
+  let h=`<div class="card"><h3>Șantier nou</h3><div class="row"><input id="newsite" placeholder="Nume (ex. Bușteni, 262 apartamente)" data-keep="1" style="flex:1"><button class="btn" data-a="addsite">+ Adaugă</button></div></div>`;
+  const un=unassigned();if(un)h+=`<div class="banner no">${un} zile „prezent” nu au șantier ales. Le alegi în fila Azi, pe ziua respectivă.</div>`;
+  const arh=(S.sites||[]).filter(x=>x.arh);
+  const sites=(S.sites||[]).filter(x=>!x.arh).slice().sort((a,b)=>(a.st==="fin")-(b.st==="fin")||(a.nume>b.nume?1:-1));
+  if(!sites.length)h+=`<div class="card empty">Niciun șantier în listă.</div>`;
+  sites.forEach(s=>{const R=siteReport(s.id),fin=s.st==="fin";
+    h+=`<div class="card"><div class="row"><b style="font-size:17px">${esc(s.nume)}</b><span class="sp"></span><span class="pill" ${fin?"":'style="background:#111;color:#fff"'}>${fin?"Finalizat"+(s.end?" "+roDate(s.end):""):"În lucru"}</span></div>
+    <div class="mut" style="margin:6px 0">${R.days?`Perioadă: ${roDate(R.first)} – ${roDate(R.last)} • ${R.days} zile-om<br>Cost salarii: <b>${money(R.c1)} lei</b> • cu taxe: <b>${money(R.c2)} lei</b>`:"Nicio zi înregistrată încă."}</div>
+    <div class="row"><button class="btn g s" data-a="opensite" data-id="${s.id}">${openSite===s.id?"▲ Ascunde":"▼ Cine a lucrat / cost"}</button>
+    <button class="btn g s" data-a="${fin?"reopensite":"finsite"}" data-id="${s.id}">${fin?"Redeschide":"Finalizează"}</button><span class="sp"></span>
+    ${confirmDel==="arh:"+s.id?`<button class="btn r s" data-a="arhsite" data-id="${s.id}">Sigur? Mută în arhivă</button><button class="btn g s" data-a="ask" data-k="">Renunță</button>`:`<button class="btn g s" data-a="ask" data-k="arh:${s.id}">Scoate din listă</button>`}</div>`;
+    if(openSite===s.id&&R.days){
+      const warn=Object.values(R.byEmp).filter(x=>x.c1>0&&x.c2===0).map(x=>x.name);
+      h+=`<div class="tw" style="margin-top:10px"><table><thead><tr><th class="n">Angajat</th><th>Zile</th><th>Cost salariu</th><th>Cost cu taxe</th></tr></thead><tbody>`+
+      Object.values(R.byEmp).sort((a,b)=>b.days-a.days).map(x=>`<tr><td class="n">${esc(x.name)}</td><td>${x.days}</td><td class="num">${money(r2(x.c1))}</td><td class="num">${money(r2(x.c2))}</td></tr>`).join("")+
+      `<tr class="tot"><td class="n">Total</td><td>${R.days}</td><td class="num">${money(R.c1)}</td><td class="num">${money(R.c2)}</td></tr></tbody></table></div>
+      <div class="tw" style="margin-top:10px"><table><thead><tr><th class="n">Luna</th><th>Zile-om</th><th>Cost salarii</th><th>Cost cu taxe</th></tr></thead><tbody>`+
+      Object.keys(R.byMonth).sort().map(ym=>{const p=ym.split("-");const x=R.byMonth[ym];return `<tr><td class="n">${MN[+p[1]-1]} ${p[0]}</td><td>${x.days}</td><td class="num">${money(r2(x.c1))}</td><td class="num">${money(r2(x.c2))}</td></tr>`}).join("")+`</tbody></table></div>
+      ${warn.length?`<div class="banner no" style="margin-top:10px">Lipsește „Salariu om + taxe” pentru: ${esc(warn.join(", "))}. Îl treci în Setări.</div>`:""}
+      <div class="mut" style="margin-top:8px">Cost = (salariul lunar ÷ zilele lucrătoare din lună) × zilele în care omul a fost prezent pe acest șantier. Concediile și zilele absente nu se pun pe șantier.</div>
+      <div class="row" style="margin-top:8px"><button class="btn" data-a="xsite" data-id="${s.id}">Raport șantier (Excel)</button></div>`}
+    h+=`</div>`});
+  if(arh.length){h+=`<div class="card"><h3>Arhivă șantiere</h3><p class="mut">Scoase din listă, dar păstrate în baza de date cu tot istoricul.</p><div class="list">`+arh.map(s=>{const R=siteReport(s.id);
+    return `<div class="it"><b>${esc(s.nume)}</b><span class="mut">${R.days?R.days+" zile-om • "+money(R.c1)+" lei • cu taxe "+money(R.c2)+" lei":"fără zile înregistrate"}</span><span class="sp"></span><button class="btn g s" data-a="unarh" data-id="${s.id}">Pune înapoi</button>
+    ${R.days?"":(confirmDel==="dels:"+s.id?`<input id="delsw" placeholder="scrie STERGE" data-keep="1" style="width:140px"><button class="btn r s" data-a="delsite" data-id="${s.id}">Șterge definitiv</button>`:`<button class="btn r s" data-a="ask" data-k="dels:${s.id}">Șterge definitiv</button>`)}</div>`}).join("")+`</div></div>`}
+  return h}
+function countYear(emp,y,code){let c=0;for(let m=1;m<=12;m++)for(let d=1;d<=dim(y,m);d++){const s=DS(y,m,d);if(dayType(s).work&&eff(emp,s).s===code)c++}return c}
+
+function vSet(){
+  const y=curYM.slice(0,4);
+  let h=S.okSal?"":`<div class="banner no" style="font-weight:500"><b>Verifică salariile.</b> Aici se trece salariul pe <b>lună</b>, iar aplicația plătește jumătate la fiecare tranșă (7.000 pe lună → 3.500 pe 15 și 3.500 la sfârșit). Dacă ai trecut suma pe chenzină, apasă pe dublare.<div class="row" style="margin-top:8px"><button class="btn s" data-a="dblsal">Am trecut pe chenzină – dublează toate salariile</button><button class="btn g s" data-a="oksal">Sunt deja pe lună</button></div></div>`;
+  h+=`<div class="card"><h3>Angajați</h3><p class="mut"><b>Salariu om</b> = ce îi plătești omului pe lună (după el se calculează tranșele). <b>Om + taxe</b> = cât te costă în total, îl treci tu manual (după el se calculează costul pe șantier). Când i se schimbă salariul, apeși „+ Salariu nou de la o dată”, alegi data și suma. Zilele dinainte rămân cu salariul vechi. În tabelul tău de cheltuieli, „om + taxe” este salariul + statul (de exemplu 7.000 + 4.967 = 11.967), la care poți adăuga partea de cheltuieli ale firmei.</p><div class="list">`;
+  const card=e=>`<div class="emp"><div class="row"><b style="font-size:18px">${esc(e.nume)}</b><span class="sp"></span>${isFormer(e)?`<span class="pill">Plecat ${roDate(e.end)}</span>`:e.end?`<span class="pill">Pleacă ${roDate(e.end)}</span>`:""}</div>
+  <div class="grid2"><div style="grid-column:1/-1"><label class="f">Nume complet (apare în fișierele pentru contabil)</label><input data-a="e_full" data-e="${e.id}" data-keep="1" value="${esc(e.full||"")}" style="width:100%"></div><div><label class="f">Nume scurt</label><input data-a="e_nume" data-e="${e.id}" data-keep="1" value="${esc(e.nume)}" style="width:100%"></div>
+  <div><label class="f">Data angajării</label><input type="date" data-a="e_start" data-e="${e.id}" data-keep="1" value="${e.start||""}" style="width:100%"></div>
+  <div><label class="f">Zile CO / an</label><input type="number" data-a="e_co" data-e="${e.id}" data-keep="1" value="${e.co==null?20:e.co}" style="width:100%"></div><div><label class="f">Diurnă implicită / zi (lei)</label><input type="number" step="0.01" inputmode="decimal" data-a="e_diu" data-e="${e.id}" data-keep="1" value="${e.diurna||""}" style="width:100%"></div></div>
+  <div style="margin-top:10px"><b>Istoric salariu</b>${e.rates.map((r,i)=>`<div class="it" style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap;padding:6px 0;border-bottom:1px solid var(--line)">
+    <div style="width:130px"><label class="f" style="margin:0 0 2px">${i?"De la data":"Salariu inițial"}</label>${i?`<input type="date" data-a="r_date" data-e="${e.id}" data-i="${i}" data-keep="1" value="${r.from}" style="width:100%">`:`<div class="mut" style="padding:9px 0">de la început</div>`}</div>
+    <div style="width:100px"><label class="f" style="margin:0 0 2px">Salariu om</label><input type="number" step="0.01" inputmode="decimal" data-a="r_sal" data-e="${e.id}" data-i="${i}" data-keep="1" value="${r.sal||""}" style="width:100%"></div>
+    <div style="width:110px"><label class="f" style="margin:0 0 2px">Om + taxe</label><input type="number" step="0.01" inputmode="decimal" data-a="r_cost" data-e="${e.id}" data-i="${i}" data-keep="1" value="${r.cost||""}" style="width:100%"></div>
+    ${i?(confirmDel==="rate:"+e.id+":"+i?`<button class="btn r s" data-a="delrate" data-e="${e.id}" data-i="${i}">Sigur? Șterge</button>`:`<button class="btn g s" data-a="ask" data-k="rate:${e.id}:${i}">Șterge</button>`):""}</div>`).join("")}
+    <button class="btn g s" data-a="addrate" data-e="${e.id}" style="margin-top:8px">+ Salariu nou de la o dată</button></div>
+  <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px">${e.end?`<div class="row"><span class="mut">Data plecării: <b>${roDate(e.end)}</b>. Istoricul lui rămâne în rapoarte.</span><span class="sp"></span><button class="btn g s" data-a="rehire" data-e="${e.id}">Reangajează</button></div>`
+   :confirmDel==="leave:"+e.id?`<div class="row"><label class="f" style="margin:0;width:100%">Ultima zi de lucru</label><input type="date" id="leaved" value="${todayStr()}" data-keep="1"><button class="btn" data-a="leave" data-e="${e.id}">Confirmă plecarea</button><button class="btn g" data-a="ask" data-k="">Renunță</button></div><div class="mut" style="margin-top:6px">Omul dispare din pontaj după această zi. Tot ce a lucrat rămâne salvat.</div>`
+   :`<button class="btn g s" data-a="ask" data-k="leave:${e.id}">A plecat din firmă</button>`}
+  ${hasAny(e.id)?"":(confirmDel==="del:"+e.id?`<div class="row" style="margin-top:8px"><input id="delw" placeholder="scrie STERGE" data-keep="1" style="width:150px"><button class="btn r" data-a="dele" data-e="${e.id}">Șterge definitiv</button><button class="btn g" data-a="ask" data-k="">Renunță</button></div>`:`<button class="btn r s" style="margin-left:8px" data-a="ask" data-k="del:${e.id}">Șterge (adăugat din greșeală)</button>`)}</div></div>`;
+  const cur=S.emps.filter(e=>!isFormer(e)),old=S.emps.filter(isFormer);
+  h+=cur.map(card).join("")+`</div>
+  <div style="border-top:1px solid var(--line);margin-top:6px;padding-top:6px"><b>Angajat nou</b><div class="grid2"><div><label class="f">Nume scurt</label><input id="newemp" data-keep="1" style="width:100%"></div><div><label class="f">Nume complet</label><input id="newfull" data-keep="1" style="width:100%"></div>
+  <div><label class="f">Data angajării</label><input type="date" id="newstart" value="${todayStr()}" data-keep="1" style="width:100%"></div><div><label class="f">Salariu om (lei/lună)</label><input type="number" id="newsal" inputmode="decimal" data-keep="1" style="width:100%"></div>
+  <div><label class="f">Om + taxe (lei/lună)</label><input type="number" id="newcost" inputmode="decimal" data-keep="1" style="width:100%"></div></div><div class="row" style="margin-top:10px"><button class="btn" data-a="adde">Adaugă angajatul</button></div></div></div>`;
+  if(old.length)h+=`<div class="card"><h3>Foști angajați</h3><p class="mut">Rămân în baza de date, cu tot istoricul. Nu mai apar în pontaj după data plecării.</p><div class="list">${old.map(card).join("")}</div></div>`;
+  h+=`<div class="card"><h3>Reguli de calcul</h3><div class="grid2"><div><label class="f">Zile pe lună la calcul</label><input type="number" step="1" id="s_zl" data-keep="1" value="${S.zl==null?21:S.zl}" style="width:100%"></div><div><label class="f">Diurnă pe zi de deplasare (lei)</label><input type="number" step="0.01" inputmode="decimal" id="s_diu" data-keep="1" value="${S.diurna||""}" placeholder="ex. 50" style="width:100%"></div><div><label class="f">Zi lucrată în weekend/sărbătoare × zi</label><input type="number" step="0.1" id="s_mult" data-keep="1" value="${S.mult||0}" style="width:100%"></div></div>
+  <div class="mut" style="margin-top:8px">Valoarea unei zile = salariul ÷ zilele pe lună. În tabelele tale împarți la <b>21</b>; pune 0 dacă vrei zilele lucrătoare reale ale fiecărei luni. Diurna: în listele tale de plată din 2026 apare 50 lei/zi (în actele pentru contabilitate 57,50). Weekend: 0 = nu se adaugă nimic automat; sâmbetele le treci ca „Suplimentar” în fila Salarii, cu suma dorită.</div></div>`;
+  const hl=holList(+y);
+  h+=`<div class="card"><h3>Zile libere legale ${y}</h3><div class="row"><button class="btn g s" data-a="hy" data-n="-1">‹ ${+y-1}</button><button class="btn g s" data-a="hy" data-n="1">${+y+1} ›</button></div><p class="mut">Un rând pe zi: <b>AAAA-LL-ZZ Denumire</b>. Sursele diferă (16 sau 17 zile libere în 2026), așa că verifică lista. Pentru anii fără listă, adaugă tu zilele.</p><textarea id="s_hol" rows="10" data-keep="1" style="width:100%" data-y="${y}">${hl.map(x=>x.d+" "+x.n).join("\n")}</textarea><div class="row" style="margin-top:8px"><button class="btn" data-a="savehol">Salvează lista ${y}</button></div></div>`;
+  h+=`<div class="card"><h3>Cont</h3><div class="mut">Ești intrat cu <b>${esc(ME&&ME.email||"")}</b>. Datele sunt aceleași pe telefon și pe laptop.</div><div class="row" style="margin-top:8px"><a class="btn g" href="../" style="text-decoration:none">Toate aplicațiile</a><button class="btn g" data-a="logout">Ieși din cont</button></div></div>`;
+  h+=`<div class="card"><h3>Copie de siguranță</h3><div class="mut">Descarcă toate datele într-un fișier, ca să le ai și în afara aplicației.</div><div class="row" style="margin-top:8px"><button class="btn g" data-a="backup">Descarcă copie (JSON)</button></div></div>`;
+  return h}
+
+/* ============ evenimente ============ */
+function onClick(ev){const b=ev.target.closest("button,input[type=checkbox]");if(!b)return;
+  if(b.closest("nav")){tab=b.dataset.t;confirmDel=null;render();window.scrollTo(0,0);return}
+  const a=b.dataset.a;if(!a||b.tagName==="INPUT"&&b.type==="checkbox"&&ev.type==="click"&&a!=="x"&&false)return;
+  const e=b.dataset.e;
+  switch(a){
+   case"day":curDay=addDays(curDay,+b.dataset.n);render();break;
+   case"gotoday":curDay=b.dataset.d;render();break;
+   case"today":curDay=todayStr();render();break;
+   case"allP":S.emps.filter(x=>worksOn(x,curDay)).forEach(x=>{if(!eff(x.id,curDay).s)markQuiet(x.id,curDay,"P")});saveMonth(curDay.slice(0,7));render();break;
+   case"mark":toggleMark(e,curDay,b.dataset.c);break;
+   case"depon":{const on=b.checked;const emp=S.emps.find(x=>x.id===e);setDep(e,curDay,on,num(emp&&emp.diurna)||num(S.diurna),"");break}
+   case"cell":{const cur=eff(e,b.dataset.d),order=["","P","A","CO","CM","CFP"];let i=order.indexOf(cur.src==="m"?cur.s:"");if(cur.src==="l"&&!cur.s)i=0;
+      const nxt=order[(i+1)%order.length];setMark(e,b.dataset.d,nxt);break}
+   case"ym":{const p=curYM.split("-").map(Number);const t=new Date(p[0],p[1]-1+ +b.dataset.n,1);curYM=t.getFullYear()+"-"+pad(t.getMonth()+1);openEmp=null;render();break}
+   case"tr":tr=b.dataset.v;render();break;
+   case"open":openEmp=openEmp===e?null:e;render();break;
+   case"paid":{const m=monthDoc(curYM);m.paid[e]=m.paid[e]||{};m.paid[e]["t"+tr]=b.checked;saveMonth(curYM);break}
+   case"addadv":{const d=$("#advd").value,s=num($("#advs").value);if(!d||!s||d.slice(0,7)!==curYM){toast("Alege o dată din luna "+curYM+" și o sumă");return}
+      const m=monthDoc(curYM);m.adv[e]=(m.adv[e]||[]).concat([{d:+d.slice(8),sum:r2(s),note:$("#advn").value.trim()}]).sort((x,y)=>x.d-y.d);saveMonth(curYM);render();break}
+   case"addadv2":{const e2=$("#av_e").value,k=$("#av_k").value==="sup"?"sup":"adv",d=$("#av_d").value,s=num($("#av_s").value);if(!e2||!d||!s||d.slice(0,7)!==curYM){toast("Alege omul, o dată din luna afișată și suma");return}
+      const m=monthDoc(curYM);m[k][e2]=(m[k][e2]||[]).concat([{d:+d.slice(8),sum:r2(s),note:$("#av_n").value.trim()}]).sort((x,y)=>x.d-y.d);saveMonth(curYM);render();toast(k==="adv"?"Avans adăugat":"Suplimentar adăugat");break}
+   case"delent":{const m=monthDoc(curYM),k=b.dataset.k==="sup"?"sup":"adv";(m[k][e]||[]).splice(+b.dataset.i,1);confirmDel=null;saveMonth(curYM);render();break}
+   case"deladv":{const m=monthDoc(curYM);m.adv[e].splice(+b.dataset.i,1);confirmDel=null;saveMonth(curYM);render();break}
+   case"adddep":{const d=$("#depd").value,s=num($("#deps").value);if(!d||d.slice(0,7)!==curYM){toast("Alege o dată din luna "+curYM);return}
+      const m=monthDoc(curYM),dd=+d.slice(8);m.dep[e]=(m.dep[e]||[]).filter(x=>x.d!==dd).concat([{d:dd,sum:r2(s),loc:$("#depl").value.trim()}]).sort((x,y)=>x.d-y.d);saveMonth(curYM);render();break}
+   case"deldep":{const m=monthDoc(curYM);m.dep[e].splice(+b.dataset.i,1);confirmDel=null;saveMonth(curYM);render();break}
+   case"addl":addLeave();break;
+   case"addrate":{const emp=S.emps.find(x=>x.id===e),td=todayStr();if(emp.rates.some(x=>x.from===td)){toast("Ai deja o schimbare azi. Modific-o pe aceea.");break}const c=rate(emp,td);emp.rates.push({from:td,sal:c.sal,cost:c.cost});emp.rates.sort((a,b)=>a.from<b.from?-1:1);saveSettings();render();break}
+   case"delrate":{const emp=S.emps.find(x=>x.id===e);if(+b.dataset.i>0){emp.rates.splice(+b.dataset.i,1);confirmDel=null;saveSettings();render()}break}
+   case"addsite":{const n=$("#newsite").value.trim();if(!n){toast("Scrie numele șantierului");return}if((S.sites||[]).some(x=>x.nume.toLowerCase()===n.toLowerCase())){toast("Există deja un șantier cu acest nume");return}
+      S.sites.push({id:"s"+Date.now().toString(36),nume:n,st:"",start:todayStr()});saveSettings();render();break}
+   case"opensite":openSite=openSite===b.dataset.id?null:b.dataset.id;render();break;
+   case"finsite":{const s=S.sites.find(x=>x.id===b.dataset.id);s.st="fin";s.end=todayStr();saveSettings();render();toast("Șantier finalizat. Rămâne în istoric.");break}
+   case"reopensite":{const s=S.sites.find(x=>x.id===b.dataset.id);s.st="";s.end="";saveSettings();render();break}
+   case"arhsite":{const s=S.sites.find(x=>x.id===b.dataset.id);s.arh=true;confirmDel=null;if(openSite===s.id)openSite=null;saveSettings();render();toast("Mutat în arhivă. Îl poți pune înapoi oricând.");break}
+   case"unarh":{const s=S.sites.find(x=>x.id===b.dataset.id);delete s.arh;saveSettings();render();break}
+   case"delsite":{const id=b.dataset.id;if(siteReport(id).days>0){toast("Are zile înregistrate, rămâne în arhivă.");break}if(!okWord("delsw")){toast("Scrie STERGE în căsuță ca să confirmi");break}S.sites=S.sites.filter(x=>x.id!==id);confirmDel=null;saveSettings();render();break}
+   case"xsite":exportSite(b.dataset.id);break;
+   case"askdel":confirmDel=b.dataset.id;render();break;
+   case"dell":L=L.filter(x=>x.id!==b.dataset.id);confirmDel=null;saveLeaves();render();break;
+   case"adde":{const n=$("#newemp").value.trim();if(!n){toast("Scrie numele angajatului");return}if(S.emps.some(x=>x.nume.toLowerCase()===n.toLowerCase())){toast("Există deja un angajat cu acest nume scurt");return}
+      S.emps.push({id:"e"+Date.now().toString(36),nume:n,full:$("#newfull").value.trim(),start:$("#newstart").value||"",co:20,diurna:0,rates:[{from:"2000-01-01",sal:num($("#newsal").value),cost:num($("#newcost").value)}]});saveSettings();render();toast("Angajat adăugat");break}
+   case"ask":confirmDel=b.dataset.k||null;render();break;
+   case"leave":{const d=$("#leaved").value;if(!d){toast("Alege ultima zi de lucru");break}const x=S.emps.find(z=>z.id===e);if(x.start&&d<x.start){toast("Data plecării e înaintea angajării");break}x.end=d;confirmDel=null;saveSettings();render();toast("Salvat. Rămâne în istoric.");break}
+   case"rehire":{const x=S.emps.find(z=>z.id===e);delete x.end;saveSettings();render();break}
+   case"dele":{if(hasAny(e)){toast("Are istoric, nu se poate șterge.");break}if(!okWord("delw")){toast("Scrie STERGE în căsuță ca să confirmi");break}S.emps=S.emps.filter(x=>x.id!==e);confirmDel=null;saveSettings();render();break}
+   case"hy":{const p=curYM.split("-");curYM=(+p[0]+ +b.dataset.n)+"-"+p[1];render();break}
+   case"savehol":{const t=$("#s_hol"),y=t.dataset.y;const out=[];let bad=0;t.value.split("\n").forEach(l=>{l=l.trim();if(!l)return;const m=/^(\d{4}-\d{2}-\d{2})\s*(.*)$/.exec(l);if(m&&m[1].slice(0,4)===y)out.push({d:m[1],n:m[2]});else bad++});
+      S.holidays=S.holidays||{};S.holidays[y]=out;saveSettings();render();toast(bad?"Salvat. "+bad+" rânduri ignorate (format greșit)":"Lista "+y+" salvată");break}
+   case"backup":doBackup();break;
+   case"logout":if(store&&store.pending()){toast("Mai sunt date nesalvate. Așteaptă „salvat ✓” și încearcă din nou.");break}SCV.signOut().then(()=>location.replace(SCV.base));break;
+   case"dblsal":S.emps.forEach(x=>(x.rates||[]).forEach(r=>{r.sal=r2(num(r.sal)*2)}));S.okSal=true;saveSettings();render();toast("Salariile au fost dublate. Verifică-le.");break;
+   case"oksal":S.okSal=true;saveSettings();render();break;
+   case"xacc":exportAcc();break;
+   case"xpay":exportPay();break;
+  }}
+document.addEventListener("click",ev=>{inClick=true;try{onClick(ev)}finally{inClick=false}});
+document.addEventListener("change",ev=>{const t=ev.target,a=t.dataset&&t.dataset.a;
+  if(t.id==="dpick"){if(t.value){curDay=t.value;render(true)}return}
+  if(t.id==="daysite"){daySite=t.value;S.lastSite=t.value;saveSettings();render();return}
+  if(!a)return;const e=t.dataset.e;const emp=S.emps.find(x=>x.id===e);
+  switch(a){
+   case"depsum":{const d=getDep(e,curDay);if(d)setDep(e,curDay,true,num(t.value),d.loc);break}
+   case"deploc":{const d=getDep(e,curDay);if(d)setDep(e,curDay,true,d.sum,t.value.trim());break}
+   case"e_start":emp.start=t.value||"";saveSettings();break;
+   case"e_full":emp.full=t.value.trim();saveSettings();break;
+   case"e_nume":if(t.value.trim()){emp.nume=t.value.trim();saveSettings();render()}break;
+   case"r_sal":emp.rates[+t.dataset.i].sal=num(t.value);saveSettings();break;
+   case"r_cost":emp.rates[+t.dataset.i].cost=num(t.value);saveSettings();break;
+   case"r_date":{const i=+t.dataset.i;if(!t.value||i===0)break;if(emp.rates.some((x,j)=>j!==i&&x.from===t.value)){toast("Există deja o schimbare la această dată");break}emp.rates[i].from=t.value;emp.rates.sort((a,b)=>a.from<b.from?-1:1);saveSettings();render(true);break}
+   case"esite":setSite(e,curDay,t.value);S.lastSite=t.value||S.lastSite;saveSettings();break;
+   case"e_co":emp.co=num(t.value);saveSettings();break;
+   case"e_diu":emp.diurna=num(t.value);saveSettings();break;
+  }
+  if(t.id==="s_zl"){S.zl=Math.max(0,Math.round(num(t.value)));saveSettings()}
+  if(t.id==="s_diu"){S.diurna=num(t.value);saveSettings()}
+  if(t.id==="s_mult"){S.mult=num(t.value);saveSettings()}
+});
+function addLeave(){const emp=$("#lc_e").value,tip=$("#lc_t").value,a=$("#lc_a").value,b=$("#lc_b").value;
+  if(!emp||!a||!b){toast("Completează angajatul și datele");return}if(a>b){toast("Data de început e după cea de sfârșit");return}
+  const over=L.find(l=>l.emp===emp&&!(l.to<a||l.from>b));if(over){toast("Se suprapune cu alt concediu al aceluiași om");return}
+  L.push({id:"l"+Date.now().toString(36),emp,tip,from:a,to:b,nr:$("#lc_n").value.trim(),cod:$("#lc_c").value.trim(),note:$("#lc_o").value.trim()});saveLeaves();render();toast("Concediu adăugat")}
+
+/* ============ export ============ */
+const XF=(c,sz)=>({name:"Calibri",size:sz||10,bold:!!c});
+const BORD={top:{style:"thin",color:{argb:"FFBBBBBB"}},left:{style:"thin",color:{argb:"FFBBBBBB"}},bottom:{style:"thin",color:{argb:"FFBBBBBB"}},right:{style:"thin",color:{argb:"FFBBBBBB"}}};
+const FILL=a=>({type:"pattern",pattern:"solid",fgColor:{argb:a}});
+const CLR={P:"FF1D8E4A",A:"FFC4322B",CO:"FF2563EB",CM:"FF7C3AED",CFP:"FFB45309"};
+const needXl=()=>SCV.needXl();
+const XLSX_MIME="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+async function saveXlsx(wb,name){try{const buf=await wb.xlsx.writeBuffer();const r=await SCV.saveFile(name,buf,XLSX_MIME);if(r!=="cancelled")toast(r==="shared"?"Fișier trimis":"Fișier descărcat")}catch(e){toast("Nu s-a putut face fișierul: "+((e&&e.message)||e))}}
+function head(ws,row,vals){const r=ws.getRow(row);vals.forEach((v,i)=>{const c=r.getCell(i+1);c.value=v;c.font={name:"Calibri",size:10,bold:true,color:{argb:"FFFFFFFF"}};c.fill=FILL("FF0B6E8C");c.alignment={horizontal:"center",vertical:"middle",wrapText:true};c.border=BORD})}
+async function exportAcc(){
+  const p=curYM.split("-").map(Number),N=dim(p[0],p[1]),emps=activeEmps(curYM);try{await needXl()}catch(e){toast(e.message);return}const wb=new ExcelJS.Workbook();wb.creator="SCV AQUA PREMIUM INSTAL";
+  const ws=wb.addWorksheet("Pontaj",{pageSetup:{paperSize:9,orientation:"landscape",fitToPage:true,fitToWidth:1,fitToHeight:0}});
+  ws.mergeCells(1,1,1,N+8);ws.getCell(1,1).value="PONTAJ "+MN[p[1]-1].toUpperCase()+" "+p[0]+" – SCV AQUA PREMIUM INSTAL S.R.L.";ws.getCell(1,1).font=XF(1,13);
+  head(ws,3,["Angajat"].concat(Array.from({length:N},(_,i)=>i+1),["Zile lucr. lună","Prezent","Absent","C. odihnă","C. medical","Fără salariu","Zile lucrate weekend/sărb."]));
+  ws.getColumn(1).width=26;for(let i=2;i<=N+1;i++)ws.getColumn(i).width=4.2;for(let i=N+2;i<=N+8;i++)ws.getColumn(i).width=11;
+  const r2h=ws.getRow(4);r2h.getCell(1).value="";for(let d=1;d<=N;d++){const c=r2h.getCell(d+1);c.value=DN[dowOf(p[0],p[1],d)];c.font={name:"Calibri",size:8,color:{argb:"FF666666"}};c.alignment={horizontal:"center"}}
+  let r=5;emps.forEach(e=>{const row=ws.getRow(r);row.getCell(1).value=fn(e);row.getCell(1).font=XF(1);row.getCell(1).border=BORD;
+    for(let d=1;d<=N;d++){const s=DS(p[0],p[1],d),dt=dayType(s),ef=eff(e.id,s),c=row.getCell(d+1);c.border=BORD;c.alignment={horizontal:"center"};c.font={name:"Calibri",size:9,bold:true,color:{argb:"FFFFFFFF"}};
+      if(ef.s){c.value=ef.s==="CFP"?"FS":ef.s;c.fill=FILL(CLR[ef.s])}else if(dt.t==="H"){c.value="S";c.fill=FILL("FFF6D7D4");c.font={name:"Calibri",size:9,color:{argb:"FF8A2A24"}}}else if(dt.t==="W"){c.fill=FILL("FFE5E9ED")}}
+    const st=monthStats(e,curYM);[st.work,st.P,st.A,st.CO,st.CM,st.CFP,st.ex].forEach((v,i)=>{const c=row.getCell(N+2+i);c.value=v;c.border=BORD;c.alignment={horizontal:"center"};c.font=XF()});r++});
+  ws.getCell(r+1,1).value="Legendă: P = prezent, A = absent, CO = concediu de odihnă, CM = concediu medical, FS = concediu fără salariu, S = sărbătoare legală. Zilele colorate gri sunt weekend.";ws.getCell(r+1,1).font={name:"Calibri",size:9,italic:true};
+  const wc=wb.addWorksheet("Concedii",{pageSetup:{paperSize:9,orientation:"landscape",fitToPage:true,fitToWidth:1,fitToHeight:0}});
+  wc.getCell(1,1).value="CONCEDII – "+MN[p[1]-1]+" "+p[0];wc.getCell(1,1).font=XF(1,13);
+  head(wc,3,["Angajat","Tip concediu","De la","Până la","Zile lucrătoare în lună","Zile lucrătoare total","Nr. certificat medical","Cod indemnizație","Observații"]);[26,18,12,12,14,14,20,14,34].forEach((w,i)=>wc.getColumn(i+1).width=w);
+  const first=DS(p[0],p[1],1),last=DS(p[0],p[1],N);let rr=4;
+  L.filter(l=>!(l.to<first||l.from>last)).sort((a,b)=>a.from<b.from?-1:1).forEach(l=>{const e=S.emps.find(x=>x.id===l.emp);
+    const vals=[fn(e),l.tip==="CO"?"Concediu de odihnă":l.tip==="CM"?"Concediu medical":"Concediu fără salariu",roDate(l.from),roDate(l.to),workdaysBetween(l.from<first?first:l.from,l.to>last?last:l.to),workdaysBetween(l.from,l.to),l.nr||"",l.cod||"",l.note||""];
+    vals.forEach((v,i)=>{const c=wc.getRow(rr).getCell(i+1);c.value=v;c.border=BORD;c.font=XF()});rr++});
+  if(rr===4){wc.getCell(4,1).value="Niciun concediu în această lună.";wc.getCell(4,1).font={name:"Calibri",size:10,italic:true}}
+  const wd=wb.addWorksheet("Deplasari si avansuri");wd.getCell(1,1).value="DEPLASĂRI, SUPLIMENTAR ȘI AVANSURI – "+MN[p[1]-1]+" "+p[0];wd.getCell(1,1).font=XF(1,13);
+  head(wd,3,["Angajat","Tip","Data","Sumă (lei)","Detalii"]);[26,14,12,14,30].forEach((w,i)=>wd.getColumn(i+1).width=w);
+  let rd=4;const md=months[curYM]||{};emps.forEach(e=>{((md.dep||{})[e.id]||[]).forEach(x=>{[fn(e),"Deplasare",pad(x.d)+"."+pad(p[1])+"."+p[0],num(x.sum),x.loc||""].forEach((v,i)=>{const c=wd.getRow(rd).getCell(i+1);c.value=v;c.border=BORD;c.font=XF();if(i===3)c.numFmt="#,##0.00"});rd++});
+    ((md.sup||{})[e.id]||[]).forEach(x=>{[fn(e),"Suplimentar",pad(x.d)+"."+pad(p[1])+"."+p[0],num(x.sum),x.note||""].forEach((v,i)=>{const c=wd.getRow(rd).getCell(i+1);c.value=v;c.border=BORD;c.font=XF();if(i===3)c.numFmt="#,##0.00"});rd++});
+    ((md.adv||{})[e.id]||[]).forEach(x=>{[fn(e),"Avans",pad(x.d)+"."+pad(p[1])+"."+p[0],num(x.sum),x.note||""].forEach((v,i)=>{const c=wd.getRow(rd).getCell(i+1);c.value=v;c.border=BORD;c.font=XF();if(i===3)c.numFmt="#,##0.00"});rd++})});
+  await saveXlsx(wb,"Pontaj "+curYM+".xlsx")}
+async function exportPay(){
+  const p=curYM.split("-").map(Number),N=dim(p[0],p[1]),emps=activeEmps(curYM);try{await needXl()}catch(e){toast(e.message);return}const wb=new ExcelJS.Workbook();wb.creator="SCV AQUA PREMIUM INSTAL";
+  const ws=wb.addWorksheet("Plati "+curYM,{pageSetup:{paperSize:9,orientation:"landscape",fitToPage:true,fitToWidth:1,fitToHeight:0}});
+  ws.getCell(1,1).value="PLĂȚI "+MN[p[1]-1].toUpperCase()+" "+p[0]+" (estimare – statul oficial îl face contabilul)";ws.getCell(1,1).font=XF(1,13);
+  const H=["Angajat","Salariu lunar","Valoare zi","","Tranșa 1: zile scăzute","Cuvenit","Suplimentar","Deplasări","Avansuri","De plătit","","Tranșa 2: zile scăzute","Cuvenit","Suplimentar","Deplasări","Avansuri","De plătit","","Total lună de plătit"];
+  head(ws,3,H);[26,13,11,2,13,13,12,12,12,13,2,13,13,12,12,12,13,2,15].forEach((w,i)=>ws.getColumn(i+1).width=w);
+  let r=4;const tot=new Array(19).fill(0);
+  emps.forEach(e=>{const a=calc(e,curYM,1,15),b=calc(e,curYM,16,N);const v=[fn(e),rate(e,DS(p[0],p[1],N)).sal,a.val,null,a.un+a.cm,a.cuv,a.sup,a.dep,a.adv,a.pay,null,b.un+b.cm,b.cuv,b.sup,b.dep,b.adv,b.pay,null,r2(a.pay+b.pay)];
+    v.forEach((x,i)=>{const c=ws.getRow(r).getCell(i+1);if(x===null)return;c.value=x;c.border=BORD;c.font=XF(i===0||i===9||i===16||i===18);if(typeof x==="number"&&![4,11].includes(i)){c.numFmt="#,##0.00";tot[i]+=x}});r++});
+  const tr_=ws.getRow(r);tr_.getCell(1).value="TOTAL";tr_.getCell(1).font=XF(1);
+  [5,6,7,8,9,12,13,14,15,16,18].forEach(i=>{const c=tr_.getCell(i+1);c.value=r2(tot[i]);c.numFmt="#,##0.00";c.font=XF(1);c.fill=FILL("FFFEF3C7");c.border=BORD});
+  ws.getCell(r+2,1).value="Fiecare tranșă = jumătate din salariul lunar, minus zilele absente, fără salariu și medicale (la salariu ÷ "+divisor(curYM)+"). De plătit = cuvenit + suplimentar + deplasări − avansuri.";ws.getCell(r+2,1).font={name:"Calibri",size:9,italic:true};
+  await saveXlsx(wb,"Plati "+curYM+".xlsx")}
+async function exportSite(id){const s=S.sites.find(x=>x.id===id),R=siteReport(id);if(!s)return;
+  try{await needXl()}catch(e){toast(e.message);return}const wb=new ExcelJS.Workbook();wb.creator="SCV AQUA PREMIUM INSTAL";
+  const ws=wb.addWorksheet("Raport",{pageSetup:{paperSize:9,orientation:"portrait",fitToPage:true,fitToWidth:1,fitToHeight:0}});
+  [28,12,18,18].forEach((w,i)=>ws.getColumn(i+1).width=w);
+  ws.getCell(1,1).value="RAPORT ȘANTIER: "+s.nume;ws.getCell(1,1).font=XF(1,14);
+  ws.getCell(2,1).value="Status: "+(s.st==="fin"?"finalizat"+(s.end?" la "+roDate(s.end):""):"în lucru")+(R.days?" • perioada "+roDate(R.first)+" – "+roDate(R.last):"");ws.getCell(2,1).font=XF();
+  head(ws,4,["Angajat","Zile","Cost salariu (lei)","Cost cu taxe (lei)"]);let r=5;
+  Object.values(R.byEmp).sort((a,b)=>b.days-a.days).forEach(x=>{[x.name,x.days,r2(x.c1),r2(x.c2)].forEach((v,i)=>{const c=ws.getRow(r).getCell(i+1);c.value=v;c.border=BORD;c.font=XF();if(i>1)c.numFmt="#,##0.00"});r++});
+  [["TOTAL",R.days,R.c1,R.c2]].forEach(v=>v.forEach((x,i)=>{const c=ws.getRow(r).getCell(i+1);c.value=x;c.font=XF(1);c.border=BORD;c.fill=FILL("FFFEF3C7");if(i>1)c.numFmt="#,##0.00"}));
+  r+=2;head(ws,r,["Luna","Zile-om","Cost salarii (lei)","Cost cu taxe (lei)"]);r++;
+  Object.keys(R.byMonth).sort().forEach(ym=>{const p=ym.split("-"),x=R.byMonth[ym];[MN[+p[1]-1]+" "+p[0],x.days,r2(x.c1),r2(x.c2)].forEach((v,i)=>{const c=ws.getRow(r).getCell(i+1);c.value=v;c.border=BORD;c.font=XF();if(i>1)c.numFmt="#,##0.00"});r++});
+  r++;ws.getCell(r,1).value="Cost = (salariul lunar ÷ zilele lucrătoare din lună) × zilele prezente pe șantier. Estimare internă, nu stat de plată.";ws.getCell(r,1).font={name:"Calibri",size:9,italic:true};
+  const wz=wb.addWorksheet("Zile");[14,28].forEach((w,i)=>wz.getColumn(i+1).width=w);head(wz,1,["Data","Angajat"]);
+  R.list.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:a.name>b.name?1:-1).forEach((x,i)=>{[roDate(x.d),x.name].forEach((v,j)=>{const c=wz.getRow(i+2).getCell(j+1);c.value=v;c.border=BORD;c.font=XF()})});
+  await saveXlsx(wb,"Raport santier "+s.nume.replace(/[\\/:*?"<>|]+/g,"").trim()+".xlsx")}
+async function doBackup(){try{const r=await SCV.saveFile("copie prezenta "+todayStr()+".json",JSON.stringify({exportat:todayStr(),setari:S,concedii:L,luni:months},null,1),"application/json");if(r!=="cancelled")toast("Copie făcută")}catch(e){toast("Nu s-a putut: "+((e&&e.message)||e))}}
+
+/* ============ pornire ============ */
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.dataset&&e.target.dataset.keep&&e.target.tagName==="INPUT")e.target.blur()});
+function applyDoc(path,data){
+  const d=data==null?null:JSON.parse(JSON.stringify(data));
+  if(path==="app/settings"){S=Object.assign({emps:[],holidays:{},mult:0,diurna:0,sites:[],lastSite:""},d||{});S.emps=S.emps||[];normS()}
+  else if(path==="app/concedii"){L=(d&&d.list)||[]}
+  else if(path.indexOf("luni/")===0){months[path.slice(5)]=d||{}}
+}
+(async function(){
+  const msg=h=>{if(!ready)$("#main").innerHTML='<div class="card empty">'+h+'</div>'};
+  msg("Se conectează…");
+  try{
+    ME=await SCV.requireUser("prezenta");if(!ME)return;
+    store=SCV.store("prezenta",{onStatus:setSaveLbl,onRemote:(p,d)=>{applyDoc(p,d);render()},onAuthLost:()=>toast("Sesiunea a expirat. Intră din nou din pagina principală.")});
+    msg("Se încarcă datele…");
+    let r=await store.load();
+    if(!Object.keys(r.docs).length&&!r.offline){const n=await SCV.claimSeed();if(n)r=await store.load()}
+    Object.keys(r.docs).forEach(p=>applyDoc(p,r.docs[p]));
+    normS();
+    ready=true;render();store.start();
+    if(r.offline)setSaveLbl("fără internet – lucrezi pe datele păstrate pe acest aparat",true);
+  }catch(e){msg("Nu pot încărca datele: "+esc((e&&e.message)||e)+'<br><br><button class="btn" onclick="location.reload()">Încearcă din nou</button>')}
+})();
+</script>
+</body>
+</html>
