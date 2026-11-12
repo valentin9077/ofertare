@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Prezență SCV</title>
 <meta name="robots" content="noindex,nofollow">
-<meta name="theme-color" content="#0B6B86">
+<meta name="theme-color" content="#F2F4F7">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Prezență">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://vympzujixmklqfyuxywm.supabase.co; img-src 'self' data: blob:; font-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'">
@@ -14,161 +15,103 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png">
 <link rel="stylesheet" href="../lib/fonts.css">
+<link rel="stylesheet" href="../lib/ui.css?v=1">
 <style>
-/* Registru de pontaj: hârtie rece, cerneală închisă, un singur accent albastru-apă. Titluri în Barlow Condensed ca pe plăcuțele de șantier. */
-:root{--bg:#F1F3F4;--surface:#FFFFFF;--ink:#16212B;--mut:#5B6872;--line:#DADFE3;--acc:#0B6B86;--acc-ink:#FFFFFF;--pos:#1E7A46;--pos-bg:#E2F0E7;--neg:#B3261E;--neg-bg:#FBE8E6;--leave-bg:#E7EBEF;--warn:#8A5A00;--warn-bg:#FFF3D0;
---f-body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--f-head:"Barlow Condensed","Barlow",system-ui,sans-serif}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0E151B;--surface:#16212A;--ink:#E6ECF0;--mut:#98A6B1;--line:#283541;--acc:#4DB3D1;--acc-ink:#04202A;--pos:#62CC8D;--pos-bg:#16331F;--neg:#FF8F86;--neg-bg:#3A1C1A;--leave-bg:#22303B;--warn:#F0C25E;--warn-bg:#382E10}}
-:root[data-theme="dark"]{color-scheme:dark;--bg:#0E151B;--surface:#16212A;--ink:#E6ECF0;--mut:#98A6B1;--line:#283541;--acc:#4DB3D1;--acc-ink:#04202A;--pos:#62CC8D;--pos-bg:#16331F;--neg:#FF8F86;--neg-bg:#3A1C1A;--leave-bg:#22303B;--warn:#F0C25E;--warn-bg:#382E10}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.35;padding-bottom:78px}
-button,input,select,textarea{font:inherit;color:inherit}
-button{cursor:pointer;border:none;background:none}
-:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-header{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;gap:12px;min-height:56px}
-.brand{display:flex;align-items:baseline;gap:10px}
-.brand .mark{width:10px;height:22px;background:var(--acc);align-self:center;border-radius:1px}
-.brand b{font-family:var(--f-head);font-size:24px;font-weight:700;letter-spacing:.02em}
-.brand span{color:var(--mut);font-size:14px}
-#save{margin-left:auto;font-size:12px;color:var(--mut);text-align:right}
-#save.bad{color:var(--neg);font-weight:600}
-main{max-width:940px;margin:0 auto;padding:16px}
-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--line);display:flex;z-index:30;padding-bottom:env(safe-area-inset-bottom)}
-nav button{flex:1;padding:15px 1px 13px;font-size:13px;font-weight:600;color:var(--mut);border-top:3px solid transparent;font-family:var(--f-head);letter-spacing:.03em;font-size:15px;text-transform:uppercase}
-nav button.on{color:var(--ink);border-top-color:var(--acc)}
-@media(min-width:900px){body{padding-bottom:24px}nav{top:0;bottom:auto;left:auto;right:56px;width:auto;border:none;background:none;height:56px;padding:0}nav button{flex:none;padding:0 14px;border-top:none;border-bottom:3px solid transparent;height:56px}nav button.on{border-bottom-color:var(--acc)}#save{margin-left:0;position:fixed;right:16px;top:20px}}
-h2{font-family:var(--f-head);font-size:28px;font-weight:700;margin:0;line-height:1.05;text-wrap:balance}
-.eyebrow{font-family:var(--f-head);text-transform:uppercase;letter-spacing:.08em;color:var(--mut);font-weight:600;font-size:14px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px;margin-bottom:14px}
-.card h3{margin:0 0 10px;font-family:var(--f-head);font-size:19px;font-weight:700;letter-spacing:.02em;text-transform:uppercase}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.sp{flex:1}
-.mut{color:var(--mut);font-size:14px}
-.btn{padding:10px 15px;border-radius:5px;background:var(--acc);color:var(--acc-ink);font-weight:600;border:1px solid var(--acc)}
-.btn.g{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
-.btn.g:hover{border-color:var(--mut)}
-.btn.r{background:var(--surface);color:var(--neg);border:1px solid var(--line)}
-.btn.s{padding:7px 11px;font-size:14px}
-input,select,textarea{padding:9px 10px;border:1px solid var(--line);border-radius:5px;background:var(--surface);max-width:100%}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 2px color-mix(in srgb,var(--acc) 25%,transparent)}
-input[type=checkbox]{width:20px;height:20px;vertical-align:-4px;accent-color:var(--acc)}
-label.f{display:block;font-size:12px;font-weight:600;color:var(--mut);margin:10px 0 4px;text-transform:uppercase;letter-spacing:.05em}
-.dh{display:flex;align-items:flex-end;gap:12px;margin-bottom:12px;flex-wrap:wrap}
-.dh .sp{flex:1}
-.nv{display:flex;gap:6px}
-.nv.w{width:100%}
-.ib{height:40px;min-width:40px;padding:0 12px;border:1px solid var(--line);border-radius:5px;background:var(--surface);font-weight:600}
-.strip{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:14px}
-.dc{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 7px;border:1px solid var(--line);border-radius:5px;background:var(--surface);position:relative}
-.dc span{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);font-weight:600}
-.dc b{font-family:var(--f-head);font-size:21px;line-height:1}
-.dc i{width:6px;height:6px;border-radius:50%;border:1px solid var(--mut);margin-top:3px}
-.dc i.ok{background:var(--pos);border-color:var(--pos)}
-.dc.off{background:transparent}.dc.off b{color:var(--mut)}
-.dc.on{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
-.sum{display:flex;gap:16px;flex-wrap:wrap;font-size:15px;color:var(--mut);margin:2px 0 8px}
-.sum b{color:var(--ink);font-family:var(--f-head);font-size:20px}
-.sum .warn b{color:var(--warn)}
-.bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:14px}
-.bar i{display:block;height:100%;background:var(--pos)}
-.note{padding:9px 12px;background:var(--leave-bg);border-radius:5px;font-size:14px;margin-bottom:12px}
-.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
-.ctl label{font-size:12px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;width:100%}
-.ctl select{flex:1;min-width:140px}
-.roster{background:var(--surface);border:1px solid var(--line);border-radius:6px}
-.r{padding:11px 12px;border-bottom:1px solid var(--line)}
-.r:last-child{border-bottom:none}
+/* Prezență – ce are în plus față de lib/ui.css (acolo stau culorile, literele, butoanele, cardurile, bara de jos). */
+.dh{display:flex;align-items:center;gap:10px;margin:6px 2px 14px}
+/* cardul închis de sus: data, șantierul zilei, câți sunt prezenți */
+.hrow{display:flex;align-items:center;gap:6px}
+.hrow .hib{width:30px;height:30px}
+.hdate{position:relative;font-size:15px;font-weight:600;color:#fff;padding:0 2px;white-space:nowrap}
+.hdate input{position:absolute;left:-4px;top:-8px;width:calc(100% + 8px);height:calc(100% + 16px);min-height:0;padding:0;border:0;opacity:0}
+.hft{display:flex;align-items:center;justify-content:space-between;gap:10px 12px;flex-wrap:wrap}
+.hft .lg{flex:1;min-width:150px}
+.hpill{position:relative}
+.hpill span{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hpill select{position:absolute;left:0;top:0;width:100%;height:100%;min-height:0;padding:0;border:0;opacity:0}
+.hero .hx{margin-top:12px;font-size:13px;color:#C9D8EA}
+.hgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.hgrid small{display:block;font-size:12px;font-weight:500;color:var(--onnavy2);line-height:1.25}
+.hgrid b{display:block;font-size:16px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+.qa button{width:84px;white-space:nowrap}
+/* rândul unui om, în Azi */
+.rb{display:flex;align-items:center;gap:12px;flex:1;min-width:0;text-align:left;min-height:46px}
+/* fișa de marcare */
+.shh{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.shh .who{flex:1;min-width:0}.shh .who b{display:block;font-size:18px;font-weight:700}.shh .who small{color:var(--mut);font-size:13px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.opt{display:flex;align-items:center;gap:9px;min-height:54px;padding:0 14px;border-radius:16px;background:var(--bg);font-weight:600;font-size:15px;text-align:left;color:var(--ink2);line-height:1.2}
+.opt:nth-child(1),.opt:nth-child(2){min-height:64px;font-size:16.5px;font-weight:700}
+.opt:last-child:nth-child(odd){grid-column:1/-1}
+.opt.on{box-shadow:inset 0 0 0 2px currentColor}
+.opt.dash{box-shadow:inset 0 0 0 2px var(--line)}
+.ck{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:500;color:var(--ink2)}
+.sfl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.sfl input[type=number]{width:110px}.sfl input[type=text]{flex:1;min-width:120px}
+/* salarii */
+.roster{background:var(--surface);border-radius:var(--r-card);box-shadow:var(--sh1);margin-bottom:14px;overflow:hidden}
+.pr{padding:14px 16px;border-bottom:1px solid var(--line2)}
+.pr:last-child{border-bottom:0}
 .r1{display:flex;align-items:center;gap:10px}
-.av{width:38px;height:38px;border-radius:50%;background:var(--leave-bg);display:flex;align-items:center;justify-content:center;font-family:var(--f-head);font-weight:700;font-size:16px;flex:none}
-@media(max-width:420px){.av{display:none}}
-.who{flex:1;min-width:0}
-.who b{font-size:18px;font-weight:600;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.who small{color:var(--mut);font-size:13px}
-.seg{display:flex;gap:4px}
-.seg button{width:42px;height:42px;border:1px solid var(--line);border-radius:5px;background:var(--surface);font-family:var(--f-head);font-weight:700;font-size:16px;color:var(--mut);letter-spacing:.02em}
-.seg button.on{border-width:2px;color:inherit}
-.seg button.dash{border-style:dashed}
-.c-P{background:var(--pos-bg)!important;color:var(--pos)!important;border-color:var(--pos)!important}
-.c-A{background:var(--neg-bg)!important;color:var(--neg)!important;border-color:var(--neg)!important}
-.c-CO,.c-CM,.c-CFP{background:var(--leave-bg)!important;color:var(--ink)!important;border-color:var(--mut)!important}
-.r2{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:9px;font-size:15px}
-.r2 select{flex:1;min-width:130px;padding:7px 9px}
-.r2 input[type=number]{width:88px;padding:7px 9px}
-.r2 input[type=text]{width:130px;padding:7px 9px}
-.r2 label.ck{display:flex;align-items:center;gap:6px;color:var(--mut)}
+.r1 .who{flex:1;min-width:0}
+.r1 .who b{font-size:16.5px;font-weight:700;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r1 .who small{color:var(--mut);font-size:13px}
 .amt{text-align:right;flex:none}
-.amt b{font-family:var(--f-head);font-size:24px;display:block;line-height:1;font-variant-numeric:tabular-nums}
+.amt b{font-size:22px;font-weight:800;display:block;line-height:1.1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .amt small{color:var(--mut);font-size:12px}
-.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 10px;margin-top:10px;font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
-.kv b{display:block;font-size:15px;color:var(--ink);text-transform:none;letter-spacing:0;font-variant-numeric:tabular-nums}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;font-size:12px;font-weight:500;color:var(--mut)}
+.kv b{display:block;font-size:14.5px;color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums;margin-top:1px}
 .kv i{font-style:normal}
 @media(min-width:700px){.kv{grid-template-columns:repeat(6,1fr)}}
-.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-@media(max-width:600px){.tiles{grid-template-columns:1fr 1fr}}
-.tiles>div{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
-.tiles>div:first-child{border-color:var(--acc);box-shadow:inset 3px 0 0 var(--acc)}
-.tiles span{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}
-.tiles b{font-family:var(--f-head);font-size:26px;font-variant-numeric:tabular-nums;display:block;line-height:1.15}
-.tiles small{color:var(--mut);font-size:12px}
-.tw{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px}
-table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
-th,td{padding:8px 9px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
-th{background:var(--bg);font-family:var(--f-head);font-size:13px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
-td.n,th.n{text-align:left;position:sticky;left:0;background:var(--surface);font-weight:600;border-right:1px solid var(--line);z-index:2}
-th.n{background:var(--bg)}
+.r2{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px;font-size:15px}
+.r2 label.ck{color:var(--mut)}
+/* tabele */
+td.n,th.n{text-align:left;position:sticky;left:0;background:var(--surface);font-weight:600;z-index:2;box-shadow:inset -1px 0 0 var(--line2)}
 td.num{text-align:right}
 tr.tot td{font-weight:700;background:var(--bg)}
-tr:last-child td{border-bottom:none}
-.cell{min-width:30px;height:30px;border-radius:4px;font-family:var(--f-head);font-weight:700;font-size:13px;display:inline-flex;align-items:center;justify-content:center;border:1px solid transparent}
-.cell.e{background:transparent;color:var(--line);border:1px dashed var(--line)}
-.cell.W{background:var(--bg);color:var(--mut)}.cell.H{background:var(--warn-bg);color:var(--warn)}
-.cell.l{border-style:dashed}
-.mono{font-variant-numeric:tabular-nums}
-.neg{color:var(--neg);font-weight:700}
-.warn{color:var(--warn);font-weight:700}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin:0 0 12px;color:var(--mut)}
-.legend b{font-family:var(--f-head);color:var(--ink);font-size:15px;margin-right:3px}
+.cell{min-width:32px;height:32px;border-radius:9px;font-weight:700;font-size:12.5px;display:inline-flex;align-items:center;justify-content:center}
+.cell.e{background:transparent;box-shadow:inset 0 0 0 1.5px var(--line2);color:transparent}
+.cell.W{background:var(--bg);box-shadow:none}
+.cell.H{background:var(--warn-bg);color:var(--warn)}
+.cell.l{box-shadow:inset 0 0 0 1.5px currentColor}
+.legend{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:13px;margin:0 2px 12px;color:var(--mut)}
+.legend b{color:var(--ink);font-weight:700;margin-right:4px}
 .legend i{display:none}
-.pill{display:inline-block;padding:2px 9px;border-radius:3px;font-family:var(--f-head);font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:var(--leave-bg);color:var(--ink)}
-.banner{padding:10px 12px;border-radius:5px;font-weight:600;margin-bottom:12px;font-size:15px;background:var(--leave-bg)}
-.banner.no{background:var(--warn-bg);color:var(--warn)}
-.list .it{display:flex;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.mono{font-variant-numeric:tabular-nums}
+.list .it{display:flex;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line2);flex-wrap:wrap}
 .list .it:last-child{border-bottom:none}
-.emp{border:1px solid var(--line);border-radius:6px;padding:12px;margin-bottom:10px;background:var(--surface)}
-.emp.open{border-color:var(--acc)}
-.emph{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:2px 0;margin:0;text-align:left;cursor:pointer;flex-wrap:wrap}
-.emph b{font-size:18px}
-.emph .chev{color:var(--mut);font-size:14px;margin-left:4px}
-@media (pointer:coarse){input,select,textarea{font-size:16px}}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+/* setări */
+.emp{border-radius:18px;padding:12px 14px;margin-bottom:10px;background:var(--bg)}
+.emp.open{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--navy2)}
+.emph{display:flex;align-items:center;gap:10px;width:100%;text-align:left;flex-wrap:wrap;min-height:34px}
+.emph b{font-size:16.5px;font-weight:700}
+.emph .chev{color:var(--mut);font-size:13px;margin-left:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
 .pr .grid2{grid-template-columns:1fr}
 @media(min-width:700px){.pr .grid2{grid-template-columns:1fr 1fr}}
 .grid3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px}
 @media(max-width:520px){.grid3{grid-template-columns:1fr 1fr}}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:88px;background:var(--ink);color:var(--surface);padding:11px 16px;border-radius:5px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:99;max-width:90%}
-.toast.on{opacity:1}
-.empty{text-align:center;color:var(--mut);padding:30px 10px}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
-<header><div class="brand"><span class="mark"></span><b>Prezență</b><span>SCV</span></div><span id="save"></span></header>
+<header class="top"><div class="tt"><small id="hsm">Prezență SCV</small><b id="hbg"></b></div><span id="save" class="st"></span></header>
 <main id="main"><div class="empty">Se încarcă…</div></main>
-<nav id="nav">
-<button data-t="azi" class="on">Azi</button>
-<button data-t="luna">Luna</button>
-<button data-t="sal">Salarii</button>
-<button data-t="conc">Concedii</button>
-<button data-t="sit">Șantiere</button>
-<button data-t="set">Setări</button>
+<nav id="nav" class="fnav">
+<button data-t="azi" class="on"><i data-ic="clock" data-s="21"></i><span>Azi</span></button>
+<button data-t="luna"><i data-ic="calendar-days" data-s="21"></i><span>Luna</span></button>
+<button data-t="sal"><i data-ic="banknote" data-s="21"></i><span>Salarii</span></button>
+<button data-t="conc"><i data-ic="tree-palm" data-s="21"></i><span>Concedii</span></button>
+<button data-t="sit"><i data-ic="building-2" data-s="21"></i><span>Șantiere</span></button>
+<button data-t="set"><i data-ic="settings" data-s="21"></i><span>Setări</span></button>
 </nav>
 <div class="toast" id="toast"></div>
 
 <script src="../lib/vendor/supabase.js"></script>
-<script src="../lib/scv.js?v=5"></script>
+<script src="../lib/icons.js?v=1"></script>
+<script src="../lib/scv.js?v=6"></script>
 <script>
 "use strict";
+SCVI.fill(document);
 /* ============ utilitare ============ */
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -291,30 +234,64 @@ let inClick=false;
 function render(force){if(!ready)return;
   document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===tab));
   const f=document.activeElement;if(f&&/INPUT|TEXTAREA|SELECT/.test(f.tagName)&&f.dataset.keep){if(!(force||inClick))return;f.blur()}
+  if(tab!=="azi")sheetEmp=null;hdr();
   const fn={azi:vAzi,luna:vLuna,sal:vSal,conc:vConc,sit:vSit,set:vSet}[tab];$("#main").innerHTML=fn()}
+
+/* ---------- piese de desen ---------- */
+let sheetEmp=null;   /* omul a cărui fișă de marcare e deschisă (în Azi) */
+const IC=(n,z,w)=>window.SCVI?SCVI.icon(n,z,w):"";
+const STI={P:"check",A:"x",CO:"tree-palm",CM:"stethoscope",CFP:"ban"};
+const STS={P:"Prezent",A:"Absent",CO:"Concediu",CM:"Medical",CFP:"Fără salariu"};
+const avK=id=>"k"+(Math.max(0,S.emps.findIndex(e=>e.id===id))%8);
+const ini=n=>esc(String(n||"?").trim().slice(0,2).toUpperCase());
+const cap=t=>t.charAt(0).toUpperCase()+t.slice(1);
+function greet(){const h=new Date().getHours();return h<11?"Bună dimineața":h<18?"Bună ziua":"Bună seara"}
+const TABN={luna:"Luna",sal:"Salarii",conc:"Concedii",sit:"Șantiere",set:"Setări"};
+/* antetul: în Azi salută; în rest spune pe ce ecran ești */
+function hdr(){const a=$("#hsm"),b=$("#hbg");if(!a||!b)return;
+  if(tab==="azi"){a.textContent=S.owner?greet()+",":greet();b.textContent=S.owner||"Prezență SCV"}
+  else{a.textContent="Prezență SCV";b.textContent=TABN[tab]||""}}
 
 function vAzi(){
   const dt=dayType(curDay),p=parseDS(curDay),w=dowOf(p.y,p.m,p.d);
   const emps=S.emps.filter(e=>worksOn(e,curDay));
   if(!emps.length)return `<div class="card empty">Nu ai angajați. Adaugă-i în Setări.</div>`;
-  const cnt={P:0,A:0,CO:0,CM:0,CFP:0,n:0};emps.forEach(e=>{const s=eff(e.id,curDay).s;if(s)cnt[s]++;else cnt.n++});
-  const start=addDays(curDay,-((w+6)%7));let strip="";
-  for(let i=0;i<7;i++){const d=addDays(start,i),q=parseDS(d),ty=dayType(d),all=emps.every(e=>eff(e.id,d).s);
-    strip+=`<button class="dc${d===curDay?" on":""}${ty.work?"":" off"}" data-a="gotoday" data-d="${d}" aria-label="${q.d} ${MN[q.m-1]}"><span>${DN[dowOf(q.y,q.m,q.d)]}</span><b>${q.d}</b><i class="${all?"ok":""}"></i></button>`}
-  let h=`<div class="dh"><div><div class="eyebrow">${DNL[w]}</div><h2>${p.d} ${MN[p.m-1]} ${p.y}</h2></div><div class="nv w"><button class="ib" data-a="day" data-n="-1" aria-label="Ziua dinainte">‹</button><button class="ib" data-a="today">Azi</button><button class="ib" data-a="day" data-n="1" aria-label="Ziua următoare">›</button>
-  <input type="date" id="dpick" value="${curDay}" data-keep="1" aria-label="Alege data" style="height:40px;flex:1;min-width:0"></div></div><div class="strip">${strip}</div>`;
-  if(!dt.work)h+=`<div class="note">${dt.t==="H"?"Sărbătoare legală: "+esc(dt.n):"Weekend"}. Nu e zi lucrătoare, dar poți marca cine a lucrat.</div>`;
-  h+=`<div class="sum"><span><b>${cnt.P}</b> prezenți</span><span><b>${cnt.A}</b> absenți</span><span><b>${cnt.CO+cnt.CM+cnt.CFP}</b> în concediu</span><span class="${cnt.n?"warn":""}"><b>${cnt.n}</b> nemarcați</span></div><div class="bar"><i style="width:${(emps.length-cnt.n)/emps.length*100}%"></i></div>
-  <div class="ctl"><label for="daysite">Șantier implicit pentru azi</label><select id="daysite">${siteOpts(defSite())}</select><button class="btn" data-a="allP">Toți prezenți</button></div>
+  const cnt={P:0,A:0,CO:0,CM:0,CFP:0,n:0};const sts=emps.map(e=>{const x=eff(e.id,curDay).s;if(x)cnt[x]++;else cnt.n++;return x});
+  const conc=cnt.CO+cnt.CM+cnt.CFP,lg=[];
+  if(cnt.A)lg.push(`<span><b style="background:var(--neg-dot)"></b>${cnt.A} ${cnt.A===1?"absent":"absenți"}</span>`);
+  if(conc)lg.push(`<span><b style="background:var(--warn-dot)"></b>${conc} în concediu</span>`);
+  if(cnt.n)lg.push(`<span><b style="background:#6E89B0"></b>${cnt.n} ${cnt.n===1?"nemarcat":"nemarcați"}</span>`);
+  if(!lg.length)lg.push(`<span>Toți sunt marcați.</span>`);
+  let h=`<section class="hero"><div class="hrow"><button class="hib" data-a="day" data-n="-1" aria-label="Ziua dinainte">${IC("chevron-left",18,2.4)}</button>
+  <label class="hdate">${cap(DN[w])}, ${p.d} ${MN[p.m-1]}${p.y!==+todayStr().slice(0,4)?" "+p.y:""}<input type="date" id="dpick" value="${curDay}" data-keep="1" aria-label="Alege data"></label>
+  <button class="hib" data-a="day" data-n="1" aria-label="Ziua următoare">${IC("chevron-right",18,2.4)}</button></div>
+  <div class="hb">${cnt.P} din ${emps.length}<span>prezenți</span></div>
+  <div class="segb">${sts.map(x=>`<i class="${x||""}"></i>`).join("")}</div>
+  <div class="hft"><div class="lg">${lg.join("")}</div><label class="hpill">${IC("map-pin",14,2.2)}<span>${esc(siteName(defSite()))}</span>${IC("chevron-down",13,2.6)}<select id="daysite" aria-label="Șantierul zilei">${siteOpts(defSite())}</select></label></div>
+  ${dt.work?"":`<div class="hx">${dt.t==="H"?"Sărbătoare legală: "+esc(dt.n):"Weekend"}. Nu e zi lucrătoare, dar poți marca cine a lucrat.</div>`}
+  ${curDay===todayStr()?"":`<button class="hpill" data-a="today" style="margin-top:12px">Înapoi la azi</button>`}</section>
+  <div class="qa"><button class="pr" data-a="allP"><span class="qi">${IC("check-check",24,2)}</span>Toți prezenți</button>
+  <button data-a="tab" data-t="conc"><span class="qi">${IC("tree-palm",23,1.9)}</span>Concediu</button>
+  <button data-a="tab" data-t="sal"><span class="qi">${IC("wallet",23,1.9)}</span>Avans</button>
+  <button data-a="xacc"><span class="qi">${IC("file-down",23,1.9)}</span>Export</button></div>
   ${activeSites().length?"":'<div class="note">Nu ai niciun șantier în lucru. Adaugă unul în fila Șantiere.</div>'}
-  <div class="legend"><span><b>P</b>prezent</span><span><b>A</b>absent</span><span><b>CO</b>concediu de odihnă</span><span><b>CM</b>concediu medical</span><span><b>FS</b>fără salariu</span></div><div class="roster">`;
+  <div class="sh"><b>Echipa</b><span>${emps.length} ${emps.length===1?"om":"oameni"}</span></div><div class="lst">`;
   emps.forEach(e=>{const ef=eff(e.id,curDay),dep=getDep(e.id,curDay),site=siteOf(e.id,curDay);
-    h+=`<div class="r"><div class="r1"><span class="av">${esc(e.nume.slice(0,2).toUpperCase())}</span><div class="who"><b>${esc(e.nume)}</b><small>${ef.src==="l"?"din concedii":ef.s==="P"?esc(site?siteName(site):"fără șantier"):ef.s?ST[ef.s].n:"nemarcat"}</small></div>
-    <div class="seg">${CODES.map(c=>`<button class="${ef.s===c?"on c-"+c:""}${ef.s===c&&ef.src==="l"?" dash":""}" data-a="mark" data-e="${e.id}" data-c="${c}" title="${ST[c].n}" aria-label="${ST[c].n}">${c==="CFP"?"FS":c}</button>`).join("")}</div></div>
-    <div class="r2">${ef.s==="P"?`<select data-a="esite" data-e="${e.id}" aria-label="Șantier">${siteOpts(site)}</select>`:""}
-    <label class="ck"><input type="checkbox" data-a="depon" data-e="${e.id}" ${dep?"checked":""}> Deplasare</label>
-    ${dep?`<input type="number" step="0.01" inputmode="decimal" value="${dep.sum}" data-a="depsum" data-e="${e.id}" data-keep="1" aria-label="Sumă deplasare"> lei <input type="text" placeholder="unde" value="${esc(dep.loc||"")}" data-a="deploc" data-e="${e.id}" data-keep="1">`:""}</div></div>`});
-  return h+`</div>`}
+    const sub=ef.src==="l"?"din concedii":ef.s==="P"?(site?siteName(site):"fără șantier"):ef.s?ST[ef.s].n.toLowerCase():"nemarcat";
+    h+=`<div class="r li"><button class="rb" data-a="who" data-e="${e.id}" aria-label="${esc(e.nume)}: marchează"><span class="av ${avK(e.id)}">${ini(e.nume)}</span><span class="who"><b>${esc(e.nume)}</b><small>${esc(sub)}${dep?", deplasare "+money(num(dep.sum))+" lei":""}</small></span></button>
+    <button class="chip ${ef.s?"on c-"+ef.s:"none"}" data-a="who" data-e="${e.id}">${ef.s?IC(STI[ef.s],15,2.6)+STS[ef.s]:"Marchează"}</button></div>`});
+  return h+`</div>`+sheetHtml()}
+
+/* Fișa unui om pe ziua aleasă: starea, șantierul, deplasarea. Se închide singură după ce alegi starea. */
+function sheetHtml(){const e=sheetEmp&&S.emps.find(x=>x.id===sheetEmp);if(!e)return "";
+  const ef=eff(e.id,curDay),dep=getDep(e.id,curDay),site=siteOf(e.id,curDay),p=parseDS(curDay),w=dowOf(p.y,p.m,p.d);
+  return `<button class="scrim" data-a="sheetx" aria-label="Închide"></button><div class="sheet" role="dialog" aria-label="Marchează prezența">
+  <div class="shh"><span class="av ${avK(e.id)}">${ini(e.nume)}</span><div class="who"><b>${esc(e.nume)}</b><small>${DNL[w]}, ${p.d} ${MN[p.m-1]}${ef.src==="l"?" – din concedii":""}</small></div><button class="ibn" data-a="sheetx" aria-label="Închide" style="background:var(--bg);box-shadow:none">${IC("x",18,2.4)}</button></div>
+  <div class="opts">${CODES.map(c=>`<button class="opt${ef.s===c?" on c-"+c:""}${ef.s===c&&ef.src==="l"?" dash":""}" data-a="mark" data-e="${e.id}" data-c="${c}" aria-label="${ST[c].n}">${IC(STI[c],20,2.4)}<span>${ST[c].n}</span></button>`).join("")}</div>
+  ${ef.s==="P"?`<label class="f">Șantier</label><select data-a="esite" data-e="${e.id}" aria-label="Șantier" style="width:100%">${siteOpts(site)}</select>`:""}
+  <div class="sfl"><label class="ck"><input type="checkbox" data-a="depon" data-e="${e.id}" ${dep?"checked":""}> Deplasare</label>
+  ${dep?`<input type="number" step="0.01" inputmode="decimal" value="${dep.sum}" data-a="depsum" data-e="${e.id}" data-keep="1" aria-label="Sumă deplasare"> lei <input type="text" placeholder="unde" value="${esc(dep.loc||"")}" data-a="deploc" data-e="${e.id}" data-keep="1">`:""}</div>
+  <div class="row" style="margin-top:16px">${ef.s&&ef.src!=="l"?`<button class="btn g" data-a="unmark" data-e="${e.id}">Șterge marcajul</button>`:""}<span class="sp"></span><button class="btn" data-a="sheetx">Gata</button></div></div>`}
 
 function vLuna(){
   const p=curYM.split("-").map(Number),N=dim(p[0],p[1]),emps=activeEmps(curYM);
@@ -332,26 +309,27 @@ function vLuna(){
   return h+`</tbody></table></div><p class="mut">Zile lucrătoare în lună: <b>${workDaysInMonth(curYM)}</b>. „Nemarc." = zile lucrătoare fără nicio marcare (se plătesc ca prezent, dar verifică-le).</p>`}
 
 function ymBar(){const p=curYM.split("-").map(Number);
-  return `<div class="dh"><div><div class="eyebrow">Luna</div><h2>${MN[p[1]-1]} ${p[0]}</h2></div><div class="sp"></div><div class="nv"><button class="ib" data-a="ym" data-n="-1" aria-label="Luna dinainte">‹</button><button class="ib" data-a="ym" data-n="1" aria-label="Luna următoare">›</button></div></div>`}
+  return `<div class="dh"><h2>${cap(MN[p[1]-1])} ${p[0]}</h2><div class="sp"></div><button class="ibn" data-a="ym" data-n="-1" aria-label="Luna dinainte">${IC("chevron-left",18,2.4)}</button><button class="ibn" data-a="ym" data-n="1" aria-label="Luna următoare">${IC("chevron-right",18,2.4)}</button></div>`}
 
 function vSal(){
   const p=curYM.split("-").map(Number),N=dim(p[0],p[1]),emps=activeEmps(curYM);
   const d1=tr==="2"?16:1,d2=tr==="1"?15:N;
   const lbl=tr==="1"?"Tranșa 1 (1–15)":tr==="2"?`Tranșa 2 (16–${N})`:"Toată luna";
-  let h=ymBar()+`<div class="row" style="margin-bottom:10px">${[["1","Tranșa 1 (1–15)"],["2","Tranșa 2 (16–"+N+")"],["m","Toată luna"]].map(x=>`<button class="btn ${tr===x[0]?"":"g"} s" data-a="tr" data-v="${x[0]}">${x[1]}</button>`).join("")}</div>`;
+  let h=ymBar()+`<div class="seg2">${[["1","1 – 15"],["2","16 – "+N],["m","Toată luna"]].map(x=>`<button class="${tr===x[0]?"on":""}" data-a="tr" data-v="${x[0]}">${x[1]}</button>`).join("")}</div>`;
   if(!emps.length)return h+`<div class="card empty">Niciun angajat.</div>`;
   const tot={cuv:0,cuv2:0,dep:0,adv:0,pay:0};
   {const T=emps.map(e=>calc(e,curYM,d1,d2)),sm=k=>money(r2(T.reduce((a,c)=>a+c[k],0)));
-   h+=`<div class="tiles"><div><span>De plătit</span><b>${sm("pay")}</b><small>lei · ${lbl}</small></div><div><span>Cost cu taxe</span><b>${T.some(c=>c.cuv2>0)?sm("cuv2"):"–"}</b><small>${T.some(c=>c.cuv2>0)?"lei · salariu om + taxe":"lipsește „om + taxe” (Setări)"}</small></div><div><span>Suplimentar + deplasări</span><b>${money(r2(T.reduce((a,c)=>a+c.sup+c.dep,0)))}</b><small>lei · se adaugă</small></div><div><span>Avansuri</span><b>${sm("adv")}</b><small>lei · se scad</small></div></div>`}
+   h+=`<section class="hero"><div class="hl">De plătit, ${lbl.charAt(0).toLowerCase()+lbl.slice(1)}</div><div class="hb">${sm("pay")}<span>lei</span></div>
+   <div class="hgrid"><div><small>Cost cu taxe</small><b>${T.some(c=>c.cuv2>0)?sm("cuv2"):"lipsește"}</b></div><div><small>Suplimentar și deplasări</small><b>+ ${money(r2(T.reduce((a,c)=>a+c.sup+c.dep,0)))}</b></div><div><small>Avansuri</small><b>− ${sm("adv")}</b></div></div></section>`}
   {const md=months[curYM]||{},all=[];["adv","sup"].forEach(k=>emps.forEach(e=>((md[k]||{})[e.id]||[]).forEach((x,i)=>all.push({k,e,x,i}))));all.sort((a,b)=>a.x.d-b.x.d);
    const defd=todayStr().slice(0,7)===curYM?todayStr():DS(p[0],p[1],1);
    h+=`<div class="card"><h3>Avansuri și suplimentar în ${MN[p[1]-1]}</h3><div class="row"><select id="av_e" data-keep="1" style="flex:1;min-width:120px" aria-label="Angajat">${emps.map(e=>`<option value="${e.id}">${esc(e.nume)}</option>`).join("")}</select><select id="av_k" data-keep="1" aria-label="Fel"><option value="adv">Avans (se scade)</option><option value="sup">Suplimentar (se adaugă)</option></select><input type="date" id="av_d" value="${defd}" data-keep="1" aria-label="Data"><input type="number" id="av_s" inputmode="decimal" step="0.01" placeholder="suma (lei)" data-keep="1" style="width:110px"><input type="text" id="av_n" placeholder="notă (ex. sâmbătă)" data-keep="1" style="width:150px"><button class="btn" data-a="addadv2">Adaugă</button></div>
    <div class="list" style="margin-top:8px">${all.map(o=>`<div class="it"><span class="mono">${pad(o.x.d)}.${pad(p[1])}</span><b>${esc(o.e.nume)}</b><span class="pill">${o.k==="adv"?"avans":"suplimentar"}</span><span class="mono">${o.k==="adv"?"−":"+"}${money(num(o.x.sum))} lei</span><span class="mut">${esc(o.x.note||"")}</span><span class="sp"></span>${confirmDel===o.k+":"+o.e.id+":"+o.i?`<button class="btn r s" data-a="delent" data-k="${o.k}" data-e="${o.e.id}" data-i="${o.i}">Sigur? Șterge</button>`:`<button class="btn g s" data-a="ask" data-k="${o.k}:${o.e.id}:${o.i}">Șterge</button>`}</div>`).join("")||'<div class="mut">Nimic trecut în această lună. Avansul se scade din tranșa în care a fost dat. Suplimentarul (sâmbete, ore în plus) se adaugă la tranșa în care e trecut.</div>'}</div></div>`}
   h+=`<div class="roster">`;
   emps.forEach(e=>{const rt=rate(e,DS(p[0],p[1],d2)),c=calc(e,curYM,d1,d2),chg=rate(e,DS(p[0],p[1],d1)).sal!==rt.sal,md=months[curYM]||{},paid=((md.paid||{})[e.id]||{})["t"+tr];
-    h+=`<div class="r pr"><div class="r1"><div class="who"><b>${esc(e.nume)}</b><small>${rt.sal?"salariu "+money(rt.sal)+" lei":'<span class="warn">salariu lipsă</span>'}${chg?" (schimbat în perioadă)":""}${c.nm?` · <span class="warn">${c.nm===1?"o zi nemarcată":c.nm+" zile nemarcate"}</span>`:""}</small></div>
+    h+=`<div class="r pr"><div class="r1"><div class="who"><b>${esc(e.nume)}</b><small>${rt.sal?"salariu "+money(rt.sal)+" lei":'<span class="warn">salariu lipsă</span>'}${chg?" (schimbat în perioadă)":""}${c.nm?`, <span class="warn">${c.nm===1?"o zi nemarcată":c.nm+" zile nemarcate"}</span>`:""}</small></div>
     <div class="amt${c.pay<0?" neg":""}"><b>${money(c.pay)}</b><small>de plătit</small></div></div>
-    <div class="kv"><span>Cuvenit<b>${money(c.cuv)}</b></span><span>Cu taxe<b>${rt.cost?money(c.cuv2):'<i class="warn">lipsă</i>'}</b></span><span>Suplimentar<b>${money(c.sup)}</b></span><span>Deplasări<b>${money(c.dep)}</b></span><span>Avans<b>${c.adv?"−"+money(c.adv):"0,00"}</b></span><span>Zile scăzute<b>${c.un+c.cm}${c.cm?" ("+c.cm+" med.)":""}${c.out?" · "+c.out+" neangajat":""}</b></span></div>
+    <div class="kv"><span>Cuvenit<b>${money(c.cuv)}</b></span><span>Cu taxe<b>${rt.cost?money(c.cuv2):'<i class="warn">lipsă</i>'}</b></span><span>Suplimentar<b>${money(c.sup)}</b></span><span>Deplasări<b>${money(c.dep)}</b></span><span>Avans<b>${c.adv?"−"+money(c.adv):"0,00"}</b></span><span>Zile scăzute<b>${c.un+c.cm}${c.cm?" ("+c.cm+" med.)":""}${c.out?", "+c.out+" neangajat":""}</b></span></div>
     <div class="r2">${tr!=="m"?`<label class="ck"><input type="checkbox" data-a="paid" data-e="${e.id}" ${paid?"checked":""}> Plătit</label>`:""}<span class="sp"></span><button class="btn g s" data-a="open" data-e="${e.id}">${openEmp===e.id?"Ascunde":"Avansuri și deplasări"}</button></div>
     ${openEmp===e.id?`<div style="margin-top:10px">${empPanel(e)}</div>`:""}</div>`});
   h+=`</div>`;
@@ -386,9 +364,9 @@ function vSit(){
   const sites=(S.sites||[]).filter(x=>!x.arh).slice().sort((a,b)=>(a.st==="fin")-(b.st==="fin")||(a.nume>b.nume?1:-1));
   if(!sites.length)h+=`<div class="card empty">Niciun șantier în listă.</div>`;
   sites.forEach(s=>{const R=siteReport(s.id),fin=s.st==="fin";
-    h+=`<div class="card"><div class="row"><b style="font-size:17px">${esc(s.nume)}</b><span class="sp"></span><span class="pill" ${fin?"":'style="background:#111;color:#fff"'}>${fin?"Finalizat"+(s.end?" "+roDate(s.end):""):"În lucru"}</span></div>
-    <div class="mut" style="margin:6px 0">${R.days?`Perioadă: ${roDate(R.first)} – ${roDate(R.last)} • ${R.days} zile-om<br>Cost salarii: <b>${money(R.c1)} lei</b> • cu taxe: ${R.c2>0?`<b>${money(R.c2)} lei</b>`:'<span class="warn">lipsește „om + taxe” (Setări)</span>'}`:"Nicio zi înregistrată încă."}</div>
-    <div class="row"><button class="btn g s" data-a="opensite" data-id="${s.id}">${openSite===s.id?"▲ Ascunde":"▼ Cine a lucrat / cost"}</button>
+    h+=`<div class="card"><div class="row"><b style="font-size:17px">${esc(s.nume)}</b><span class="sp"></span><span class="pill" ${fin?"":'style="background:var(--pos-bg);color:var(--pos)"'}>${fin?"Finalizat"+(s.end?" "+roDate(s.end):""):"În lucru"}</span></div>
+    <div class="mut" style="margin:6px 0">${R.days?`${roDate(R.first)} – ${roDate(R.last)}, ${R.days} zile-om<br>Cost salarii: <b>${money(R.c1)} lei</b>, cu taxe: ${R.c2>0?`<b>${money(R.c2)} lei</b>`:'<span class="warn">lipsește „om + taxe” (Setări)</span>'}`:"Nicio zi înregistrată încă."}</div>
+    <div class="row"><button class="btn g s" data-a="opensite" data-id="${s.id}">${openSite===s.id?"Ascunde":"Cine a lucrat și cât a costat"}</button>
     <button class="btn g s" data-a="${fin?"reopensite":"finsite"}" data-id="${s.id}">${fin?"Redeschide":"Finalizează"}</button><span class="sp"></span>
     ${confirmDel==="arh:"+s.id?`<button class="btn r s" data-a="arhsite" data-id="${s.id}">Sigur? Mută în arhivă</button><button class="btn g s" data-a="ask" data-k="">Renunță</button>`:`<button class="btn g s" data-a="ask" data-k="arh:${s.id}">Scoate din listă</button>`}</div>`;
     if(openSite===s.id&&R.days){
@@ -409,11 +387,11 @@ function vSit(){
 function countYear(emp,y,code){let c=0;for(let m=1;m<=12;m++)for(let d=1;d<=dim(y,m);d++){const s=DS(y,m,d);if(dayType(s).work&&eff(emp,s).s===code)c++}return c}
 
 /* rezumatul unui angajat (salariul de azi) – apare în capul fișei lui din Setări */
-function empSum(e){const rt=rate(e,todayStr());return (rt.sal?money(rt.sal)+" lei":'<span class="warn">salariu lipsă</span>')+" · "+(rt.cost?"cu taxe "+money(rt.cost):'<span class="warn">om + taxe lipsă</span>')}
+function empSum(e){const rt=rate(e,todayStr());return (rt.sal?money(rt.sal)+" lei":'<span class="warn">salariu lipsă</span>')+", "+(rt.cost?"cu taxe "+money(rt.cost):'<span class="warn">om + taxe lipsă</span>')}
 function updEmph(e){const el=e&&document.querySelector('button.emph[data-e="'+e.id+'"] .mut');if(el)el.innerHTML=empSum(e)}
 function vSet(){
   const y=curYM.slice(0,4);
-  let h=S.okSal?"":`<div class="banner no" style="font-weight:500"><b>Verifică salariile.</b> Aici se trece salariul pe <b>lună</b>, iar aplicația plătește jumătate la fiecare tranșă (7.000 pe lună → 3.500 pe 15 și 3.500 la sfârșit). Dacă ai trecut suma pe chenzină, apasă pe dublare.<div class="row" style="margin-top:8px"><button class="btn s" data-a="dblsal">Am trecut pe chenzină – dublează toate salariile</button><button class="btn g s" data-a="oksal">Sunt deja pe lună</button></div></div>`;
+  let h=S.okSal?"":`<div class="banner no" style="font-weight:500"><b>Verifică salariile.</b> Aici se trece salariul pe <b>lună</b>, iar aplicația plătește jumătate la fiecare tranșă (7.000 pe lună → 3.500 pe 15 și 3.500 la sfârșit). Dacă ai trecut suma pe chenzină, apasă pe dublare.<div class="row" style="margin-top:8px"><button class="btn s" data-a="dblsal">Dublează toate salariile</button><button class="btn g s" data-a="oksal">Sunt deja pe lună</button></div></div>`;
   h+=`<div class="card"><h3>Angajați</h3><p class="mut">Atinge un nume ca să-i deschizi fișa. <b>Salariu om</b> = ce îi plătești omului pe lună (după el se calculează tranșele). <b>Om + taxe</b> = cât te costă în total, îl treci tu manual (după el se calculează costul pe șantier). Când i se schimbă salariul, apeși „+ Salariu nou de la o dată”, alegi data și suma. Zilele dinainte rămân cu salariul vechi. În tabelul tău de cheltuieli, „om + taxe” este salariul + statul (de exemplu 7.000 + 4.967 = 11.967), la care poți adăuga partea de cheltuieli ale firmei.</p><div class="list">`;
   const card=e=>{const op=openSet.has(e.id)||(!!confirmDel&&confirmDel.split(":")[1]===e.id);
   return `<div class="emp${op?" open":""}"><button class="emph" data-a="tgle" data-e="${e.id}" aria-expanded="${op}"><b>${esc(e.nume)}</b><span class="mut">${empSum(e)}</span><span class="sp"></span>${isFormer(e)?`<span class="pill">Plecat ${roDate(e.end)}</span>`:e.end?`<span class="pill">Pleacă ${roDate(e.end)}</span>`:""}<span class="chev" aria-hidden="true">${op?"▴":"▾"}</span></button>${op?`
@@ -436,6 +414,7 @@ function vSet(){
   <div><label class="f">Data angajării</label><input type="date" id="newstart" value="${todayStr()}" data-keep="1" style="width:100%"></div><div><label class="f">Salariu om (lei/lună)</label><input type="number" id="newsal" inputmode="decimal" data-keep="1" style="width:100%"></div>
   <div><label class="f">Om + taxe (lei/lună)</label><input type="number" id="newcost" inputmode="decimal" data-keep="1" style="width:100%"></div></div><div class="row" style="margin-top:10px"><button class="btn" data-a="adde">Adaugă angajatul</button></div></div></div>`;
   if(old.length)h+=`<div class="card"><h3>Foști angajați</h3><p class="mut">Rămân în baza de date, cu tot istoricul. Nu mai apar în pontaj după data plecării.</p><div class="list">${old.map(card).join("")}</div></div>`;
+  h+=`<div class="card"><h3>Salutul de sus</h3><label class="f" style="margin-top:0">Numele tău (apare în Azi: „Bună dimineața, …”)</label><input id="s_own" data-keep="1" value="${esc(S.owner||"")}" placeholder="ex. Valentin" style="width:100%"></div>`;
   h+=`<div class="card"><h3>Reguli de calcul</h3><div class="grid2"><div><label class="f">Zile pe lună la calcul</label><input type="number" step="1" id="s_zl" data-keep="1" value="${S.zl==null?21:S.zl}" style="width:100%"></div><div><label class="f">Diurnă pe zi de deplasare (lei)</label><input type="number" step="0.01" inputmode="decimal" id="s_diu" data-keep="1" value="${S.diurna||""}" placeholder="ex. 50" style="width:100%"></div><div><label class="f">Zi lucrată în weekend/sărbătoare × zi</label><input type="number" step="0.1" id="s_mult" data-keep="1" value="${S.mult||0}" style="width:100%"></div></div>
   <div class="mut" style="margin-top:8px">Valoarea unei zile = salariul ÷ zilele pe lună. În tabelele tale împarți la <b>21</b>; pune 0 dacă vrei zilele lucrătoare reale ale fiecărei luni. Diurna: în listele tale de plată din 2026 apare 50 lei/zi (în actele pentru contabilitate 57,50). Weekend: 0 = nu se adaugă nimic automat; sâmbetele le treci ca „Suplimentar” în fila Salarii, cu suma dorită.</div></div>`;
   const hl=holList(+y);
@@ -446,7 +425,7 @@ function vSet(){
 
 /* ============ evenimente ============ */
 function onClick(ev){const b=ev.target.closest("button,input[type=checkbox]");if(!b)return;
-  if(b.closest("nav")){tab=b.dataset.t;confirmDel=null;render();window.scrollTo(0,0);return}
+  if(b.closest("nav")){tab=b.dataset.t;confirmDel=null;sheetEmp=null;render();window.scrollTo(0,0);return}
   const a=b.dataset.a;if(!a||b.tagName==="INPUT"&&b.type==="checkbox"&&ev.type==="click"&&a!=="x"&&false)return;
   const e=b.dataset.e;
   switch(a){
@@ -454,7 +433,11 @@ function onClick(ev){const b=ev.target.closest("button,input[type=checkbox]");if
    case"gotoday":curDay=b.dataset.d;render();break;
    case"today":curDay=todayStr();render();break;
    case"allP":S.emps.filter(x=>worksOn(x,curDay)).forEach(x=>{if(!eff(x.id,curDay).s)markQuiet(x.id,curDay,"P")});saveMonth(curDay.slice(0,7));render();break;
-   case"mark":toggleMark(e,curDay,b.dataset.c);break;
+   case"mark":sheetEmp=null;toggleMark(e,curDay,b.dataset.c);break;
+   case"unmark":{const cur=eff(e,curDay);sheetEmp=null;if(cur.s&&cur.src!=="l")toggleMark(e,curDay,cur.s);else render();break}
+   case"who":sheetEmp=e;render();break;
+   case"sheetx":sheetEmp=null;render();break;
+   case"tab":tab=b.dataset.t;confirmDel=null;render();window.scrollTo(0,0);break;
    case"depon":{const on=b.checked;const emp=S.emps.find(x=>x.id===e);setDep(e,curDay,on,num(emp&&emp.diurna)||num(S.diurna),"");break}
    case"cell":{const cur=eff(e,b.dataset.d),order=["","P","A","CO","CM","CFP"];let i=order.indexOf(cur.src==="m"?cur.s:"");if(cur.src==="l"&&!cur.s)i=0;
       const nxt=order[(i+1)%order.length];setMark(e,b.dataset.d,nxt);break}
@@ -522,6 +505,7 @@ document.addEventListener("change",ev=>{const t=ev.target,a=t.dataset&&t.dataset
    case"e_diu":emp.diurna=num(t.value);saveSettings();break;
   }
   if(t.id==="s_zl"){S.zl=Math.max(0,Math.round(num(t.value)));saveSettings()}
+  if(t.id==="s_own"){S.owner=t.value.trim().slice(0,30);saveSettings();hdr()}
   if(t.id==="s_diu"){S.diurna=num(t.value);saveSettings()}
   if(t.id==="s_mult"){S.mult=num(t.value);saveSettings()}
 });
@@ -607,8 +591,8 @@ function applyDoc(path,data){
   const msg=h=>{if(!ready)$("#main").innerHTML='<div class="card empty">'+h+'</div>'};
   msg("Se conectează…");
   try{
-    ME=await SCV.gate({name:"Prezență SCV",sub:"Pontaj, salarii, șantiere · doar pentru proprietar"});
-    document.querySelector("header").appendChild(SCV.accountButton({pending:()=>store?store.pending():0}));
+    ME=await SCV.gate({name:"Prezență SCV",sub:"Pontaj, salarii, șantiere"});
+    document.querySelector("header").prepend(SCV.accountButton({pending:()=>store?store.pending():0}));
     store=SCV.store("prezenta",{onStatus:setSaveLbl,onRemote:(p,d)=>{applyDoc(p,d);render()},onAuthLost:()=>{SCV.gate({name:"Prezență SCV",sub:"Sesiunea a expirat – intră din nou. Ce ai marcat rămâne pe telefon și se trimite după intrare."}).then(u=>{ME=u;store.resume()})}});
     msg("Se încarcă datele…");
     let r=await store.load();

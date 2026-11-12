@@ -158,38 +158,38 @@
 
   /* ---------- Intrarea în cont: fiecare aplicație are propriul ecran de intrare (nu există pagină comună) ---------- */
   const UI_CSS = `
-.scv-gate{position:fixed;inset:0;z-index:1000;overflow:auto;background:var(--bg,#F1F3F4);color:var(--ink,#16212B);font:17px/1.4 var(--f-body,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif)}
+.scv-gate{position:fixed;inset:0;z-index:1000;overflow:auto;background:var(--bg,#F2F4F7);color:var(--ink,#0E1726);font:16px/1.4 var(--f,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif)}
 .scv-gate *,.scv-acct *{box-sizing:border-box}
-.scv-gate .g-in{width:100%;max-width:440px;margin:0 auto;padding:28px 18px 40px}
-.g-plate{display:flex;gap:14px;align-items:center;margin:14px 0 26px}
-.g-plate i{width:14px;height:54px;background:var(--acc,#0B6B86);border-radius:1px;flex:none}
-.g-plate b{display:block;font-family:var(--f-head,inherit);font-size:40px;line-height:.95;font-weight:700;letter-spacing:.02em;text-transform:uppercase}
-.g-plate span{display:block;color:var(--mut,#5B6872);font-size:15px;margin-top:5px}
-.g-card{background:var(--surface,#fff);border:1px solid var(--line,#DADFE3);border-radius:6px;padding:16px;margin:0 0 14px}
-.g-card h2{font-family:var(--f-head,inherit);font-size:24px;margin:0 0 4px;text-transform:uppercase;letter-spacing:.03em}
+.scv-gate .g-in{width:100%;max-width:440px;margin:0 auto;padding:44px 18px 40px}
+.g-plate{display:flex;gap:14px;align-items:center;margin:0 4px 24px}
+.g-plate i{display:none}
+.g-plate img{width:58px;height:58px;border-radius:15px;flex:none;box-shadow:0 6px 16px rgba(14,23,38,.16)}
+.g-plate b{display:block;font-size:27px;line-height:1.05;font-weight:800;letter-spacing:-.025em}
+.g-plate span{display:block;color:var(--mut,#6B7686);font-size:14px;font-weight:500;margin-top:5px;line-height:1.3}
+.g-card{background:var(--surface,#fff);border-radius:22px;padding:20px 18px;margin:0 0 14px;box-shadow:0 1px 2px rgba(14,23,38,.06)}
+.g-card h2{font-size:21px;font-weight:800;letter-spacing:-.02em;margin:0 0 4px;line-height:1.2}
 .g-card p{margin:0 0 12px}
-.g-mut{color:var(--mut,#5B6872);font-size:14px}
-.g-card label{display:block;font-size:12px;font-weight:600;color:var(--mut,#5B6872);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 4px}
-.g-card input{display:block;width:100%;padding:12px;border:1px solid var(--line,#DADFE3);border-radius:5px;background:var(--surface,#fff);color:inherit;font:inherit;font-size:17px}
-.g-card input:focus{outline:none;border-color:var(--acc,#0B6B86)}
-.g-btn{display:block;width:100%;padding:13px 16px;border-radius:5px;background:var(--acc,#0B6B86);color:var(--acc-ink,#fff);border:1px solid var(--acc,#0B6B86);font:inherit;font-weight:600;cursor:pointer;text-align:center;margin-top:14px}
-.g-btn.g-g{background:var(--surface,#fff);color:var(--ink,#16212B);border-color:var(--line,#DADFE3)}
+.g-mut{color:var(--mut,#6B7686);font-size:14px}
+.g-card label{display:block;font-size:13px;font-weight:600;color:var(--mut,#6B7686);margin:14px 0 5px}
+.g-card input{display:block;width:100%;min-height:52px;padding:12px 14px;border:1px solid var(--line,#E3E7ED);border-radius:14px;background:var(--surface,#fff);color:inherit;font:inherit;font-size:17px}
+.g-card input:focus{outline:none;border-color:var(--navy2,#17406E);box-shadow:0 0 0 3px rgba(23,64,110,.14)}
+.g-btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;padding:0 18px;border-radius:999px;background:var(--navy,#0E2A4A);color:#fff;border:0;font:inherit;font-weight:700;font-size:16px;cursor:pointer;text-align:center;margin-top:16px}
+.g-btn.g-g{background:var(--surface,#fff);color:var(--ink,#0E1726);box-shadow:inset 0 0 0 1px var(--line,#E3E7ED)}
 .g-btn[disabled]{opacity:.55;cursor:default}
-.g-link{background:none;border:none;color:var(--acc,#0B6B86);font:inherit;font-weight:600;cursor:pointer;padding:8px 0;text-decoration:underline;text-underline-offset:3px}
-.g-err{background:var(--neg-bg,#FBE8E6);color:var(--neg,#B3261E);padding:10px 12px;border-radius:5px;font-weight:600;font-size:15px;margin-top:12px}
-.g-ok{background:var(--pos-bg,#E3F3E8);color:var(--pos,#1B6B3A);padding:10px 12px;border-radius:5px;font-weight:600;font-size:15px;margin-top:12px}
-.g-note{background:var(--warn-bg,#FFF3D0);color:var(--warn,#8A5A00);padding:10px 12px;border-radius:5px;font-size:15px;margin-bottom:14px}
+.g-link{background:none;border:none;color:var(--link,#1B5FBF);font:inherit;font-weight:600;cursor:pointer;padding:8px 0}
+.g-err{background:var(--neg-bg,#FFE2DD);color:var(--neg,#C5352A);padding:11px 14px;border-radius:14px;font-weight:600;font-size:14.5px;margin-top:14px}
+.g-ok{background:var(--pos-bg,#DDF3E5);color:var(--pos,#157F40);padding:11px 14px;border-radius:14px;font-weight:600;font-size:14.5px;margin-top:14px}
+.g-note{background:var(--warn-bg,#FFEFC8);color:var(--warn,#8A5F00);padding:13px 15px;border-radius:18px;font-size:15px;margin-bottom:14px}
 .scv-gate [hidden],.scv-acct [hidden]{display:none!important}
-.scv-acct{position:fixed;inset:0;z-index:1001;background:rgba(10,16,22,.55);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 14px;color:var(--ink,#16212B);font:17px/1.4 var(--f-body,system-ui,sans-serif)}
-.scv-acct .g-card{width:100%;max-width:420px;margin:0}
+.scv-acct{position:fixed;inset:0;z-index:1001;background:rgba(14,23,38,.45);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:28px 14px;color:var(--ink,#0E1726);font:16px/1.4 var(--f,system-ui,sans-serif)}
+.scv-acct .g-card{width:100%;max-width:430px;margin:0;border-radius:26px;box-shadow:0 20px 50px rgba(14,23,38,.25)}
 .a-row{display:flex;gap:10px}.a-row .g-btn{flex:1}
-.h-list{max-height:52vh;overflow:auto;margin:10px 0 0;border-top:1px solid var(--line,#DADFE3)}
-.h-it{padding:10px 0;border-bottom:1px solid var(--line,#DADFE3)}
-.h-it b{display:block}
-.h-it .a-row .g-btn{margin-top:8px;padding:9px 10px;font-size:15px}
-.scv-acctbtn{flex:none;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;margin-right:-6px;border:1px solid var(--line,#DADFE3);border-radius:50%;background:var(--surface,#fff);color:var(--mut,#5B6872);cursor:pointer;padding:0}
-.scv-acctbtn:hover{color:var(--acc,#0B6B86);border-color:var(--acc,#0B6B86)}
-.scv-acctbtn svg{width:20px;height:20px;display:block}`;
+.h-list{max-height:52vh;overflow:auto;margin:12px 0 0;border-top:1px solid var(--line2,#EEF1F5)}
+.h-it{padding:12px 0;border-bottom:1px solid var(--line2,#EEF1F5)}
+.h-it b{display:block;font-weight:700}
+.h-it .a-row .g-btn{margin-top:9px;min-height:42px;font-size:14.5px}
+.scv-acctbtn{flex:none;display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:50%;background:var(--navy,#0E2A4A);color:#fff;cursor:pointer;padding:0}
+.scv-acctbtn svg{width:21px;height:21px;display:block}`;
   let cssDone = false;
   function uiCss() { if (cssDone) return; cssDone = true; const s = document.createElement("style"); s.textContent = UI_CSS; document.head.appendChild(s); }
   const escH = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -206,7 +206,7 @@
       uiCss();
       const g = document.createElement("div"); g.className = "scv-gate"; g.id = "scvGate";
       g.innerHTML = `<div class="g-in">
-<div class="g-plate"><i></i><div><b>${escH(opt.name || "SCV")}</b><span>${escH(opt.sub || "acces doar pentru proprietar")}</span></div></div>
+<div class="g-plate"><i></i><img src="icon-192.png" alt="" width="58" height="58"><div><b>${escH(opt.name || "SCV")}</b><span>${escH(opt.sub || "acces doar pentru proprietar")}</span></div></div>
 <div id="gLoad" class="g-card"><p class="g-mut" style="margin:0">Se verifică…</p></div>
 <div id="gPrep" hidden><div class="g-note"><b>Aplicația e aproape gata.</b> Baza de date nu e pregătită încă. Încearcă din nou peste puțin.</div><button class="g-btn g-g" type="button" data-g="retry">Verifică din nou</button></div>
 <div id="gOff" hidden><div class="g-note">Nu am internet acum. Verifică semnalul și încearcă din nou.</div><button class="g-btn g-g" type="button" data-g="retry">Încearcă din nou</button></div>

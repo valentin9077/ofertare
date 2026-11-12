@@ -5,39 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SCV Aplicații</title>
 <meta name="robots" content="noindex,nofollow">
-<meta name="theme-color" content="#0B6B86">
+<meta name="theme-color" content="#F2F4F7">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://vympzujixmklqfyuxywm.supabase.co; img-src 'self' data: blob:; font-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png">
 <link rel="stylesheet" href="lib/fonts.css">
+<link rel="stylesheet" href="lib/ui.css?v=1">
 <style>
 /* Indicator: două aplicații separate, fiecare cu adresa, iconița și intrarea ei. Aici nu se intră în cont și nu sunt date. */
-:root{--bg:#F1F3F4;--surface:#FFFFFF;--ink:#16212B;--mut:#5B6872;--line:#DADFE3;--acc:#0B6B86;
---f-body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--f-head:"Barlow Condensed","Barlow",system-ui,sans-serif}
-@media (prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#0E151B;--surface:#16212A;--ink:#E6ECF0;--mut:#98A6B1;--line:#283541;--acc:#4DB3D1}}
-*{box-sizing:border-box}
-html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font:17px/1.4 var(--f-body);min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
-:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-main{width:100%;max-width:460px;margin:0 auto;padding:28px 18px 40px;flex:1}
-.plate{display:flex;gap:14px;align-items:center;margin:14px 0 26px}
-.plate i{width:14px;height:54px;background:var(--acc);border-radius:1px;flex:none}
-.plate b{display:block;font-family:var(--f-head);font-size:44px;line-height:.95;font-weight:700;letter-spacing:.02em}
-.plate span{display:block;color:var(--mut);font-size:15px;margin-top:4px}
-.app{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px;margin-bottom:12px;text-decoration:none;color:inherit}
-.app:hover{border-color:var(--acc)}
-.app img{width:56px;height:56px;border-radius:13px;flex:none;display:block}
-.app b{display:block;font-family:var(--f-head);font-size:25px;line-height:1.05;text-transform:uppercase;letter-spacing:.02em}
-.app span{display:block;color:var(--mut);font-size:14px;margin-top:3px}
-.app em{margin-left:auto;font-style:normal;font-size:26px;color:var(--mut)}
-.mut{color:var(--mut);font-size:14px;margin:18px 2px 0}
+body{padding-bottom:0;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+main{width:100%;max-width:460px;padding:44px 18px 40px;flex:1}
+.plate{margin:0 4px 22px}
+.plate b{display:block;font-size:30px;font-weight:800;letter-spacing:-.025em;line-height:1.05}
+.plate span{display:block;color:var(--mut);font-size:15px;font-weight:500;margin-top:6px}
+.app{display:flex;align-items:center;gap:14px;background:var(--surface);border-radius:var(--r-card);padding:14px 14px 14px 16px;margin-bottom:12px;text-decoration:none;color:inherit;box-shadow:var(--sh1)}
+.app img{width:56px;height:56px;border-radius:14px;flex:none;display:block;box-shadow:0 4px 12px rgba(14,23,38,.14)}
+.app b{display:block;font-size:17px;font-weight:700;letter-spacing:-.01em}
+.app span{display:block;color:var(--mut);font-size:13.5px;margin-top:2px;line-height:1.35}
+.app em{margin-left:auto;font-style:normal;font-size:24px;color:var(--mut)}
+.mut{margin:18px 4px 0;line-height:1.5}
 footer{text-align:center;color:var(--mut);font-size:12px;padding:0 18px 18px}
 </style>
 </head>
 <body>
 <main>
-  <div class="plate"><i></i><div><b>SCV</b><span>Două aplicații separate</span></div></div>
+  <div class="plate"><b>SCV</b><span>Două aplicații separate</span></div>
   <a class="app" href="prezenta/"><img src="prezenta/icon-192.png" alt="" width="56" height="56"><div><b>Prezență SCV</b><span>pontaj zilnic, tranșe, avansuri, concedii, cost pe șantier</span></div><em>›</em></a>
   <a class="app" href="ofertare/"><img src="ofertare/icon-192.png" alt="" width="56" height="56"><div><b>Ofertare SCV</b><span>proiecte, cantități, prețuri, ofertă în Excel</span></div><em>›</em></a>
   <p class="mut">Fiecare aplicație are adresa, iconița și intrarea ei. Pe iPhone: deschide aplicația în Safari, apasă butonul de partajare și alege „Adaugă pe ecranul principal”. Faci asta o dată pentru Prezență și o dată pentru Ofertare.</p>
