@@ -105,7 +105,7 @@
     return wb;
   }
 
-  /** Ofertă scurtă în stilul „Listă” al lui Valentin. st: {proj, chap:[{name,value}]} */
+  /** Ofertă scurtă în stilul „Listă” al proprietarului. st: {proj, chap:[{name,value}]} */
   function exportShort(ExcelJS, st) {
     const p = st.proj, wb = new ExcelJS.Workbook(); wb.creator = "SCV AQUA PREMIUM INSTAL"; wb.created = new Date();
     const ws = wb.addWorksheet("Lista", { pageSetup: { paperSize: 9, orientation: "portrait", fitToPage: true, fitToWidth: 1, fitToHeight: 0 } });
