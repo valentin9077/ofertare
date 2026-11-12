@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="ro"><head><meta charset="utf-8"><title>Ofertare SCV</title>
 <meta name="robots" content="noindex,nofollow">
-<meta name="theme-color" content="#0B6B86">
+<meta name="theme-color" content="#16212B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ofertare">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://vympzujixmklqfyuxywm.supabase.co; img-src 'self' data: blob:; font-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'">
-<link rel="manifest" href="../manifest.webmanifest">
-<link rel="apple-touch-icon" href="../apple-touch-icon.png">
-<link rel="icon" href="../icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
 <link rel="stylesheet" href="../lib/fonts.css">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
@@ -19,8 +21,6 @@ body{margin:0;font:16px/1.4 var(--f-body);background:var(--bg);color:var(--ink)}
 button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 header{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);padding:8px 16px;display:flex;align-items:center;gap:12px;min-height:56px}
-.back{display:flex;align-items:center;justify-content:center;width:36px;height:36px;margin-left:-8px;border-radius:5px;color:var(--mut);font-size:24px;text-decoration:none}
-.back:hover{background:var(--bg)}
 .brand{display:flex;align-items:baseline;gap:10px;min-width:0}
 .brand .mark{width:10px;height:22px;background:var(--acc);align-self:center;border-radius:1px;flex:none}
 .brand b{font-family:var(--f-head);font-size:24px;font-weight:700;letter-spacing:.02em}
@@ -73,7 +73,7 @@ dialog{border:1px solid var(--line);border-radius:8px;padding:18px;max-width:640
 .sp{flex:1}
 .empty{text-align:center;color:var(--mut);padding:40px 10px}
 </style></head><body>
-<header><a class="back" href="../" aria-label="Înapoi la aplicații">‹</a><div class="brand"><span class="mark"></span><b>SCV</b><span>Ofertare · <span id="pname"></span></span></div><span id="saved"></span></header>
+<header><div class="brand"><span class="mark"></span><b>Ofertare</b><span>SCV · <span id="pname"></span></span></div><span id="saved"></span></header>
 <nav id="tabs"><button data-t="plist" class="on">Proiecte</button><button data-t="proj">1. Date ofertă</button><button data-t="items">2. Cantități și prețuri</button><button data-t="cat">3. Catalog</button><button data-t="offer">4. Ofertă și risc</button></nav>
 <main>
 <section id="plist" class="on"><div class="card"><h3>Proiectele mele</h3><div id="pl" class="plist"><p class="empty">Se încarcă…</p></div>
@@ -121,7 +121,7 @@ dialog{border:1px solid var(--line);border-radius:8px;padding:18px;max-width:640
 <dialog id="dlg"><h3>Ce foi importăm?</h3><div id="dlgBody"></div><div style="margin-top:12px;text-align:right"><button class="b g" id="dlgNo">Anulează</button> <button class="b" id="dlgOk">Importă</button></div></dialog>
 
 <script src="../lib/vendor/supabase.js"></script>
-<script src="../lib/scv.js"></script>
+<script src="../lib/scv.js?v=3"></script>
 <script src="core.js"></script>
 <script src="export.js"></script>
 <script>
@@ -310,7 +310,8 @@ window.__st=()=>st;
 (async function(){
  const fail=m=>{$("#pl").innerHTML='<p class="empty">'+m+'<br><br><button class="b" onclick="location.reload()">Încearcă din nou</button></p>'};
  try{
-  ME=await SCV.requireUser("ofertare");if(!ME)return;
+  ME=await SCV.gate({name:"Ofertare SCV",sub:"Oferte de manoperă · doar pentru proprietar"});
+  document.querySelector("header").appendChild(SCV.accountButton({pending:()=>store?store.pending():0}));
   store=SCV.store("oferta",{cache:false,delay:1200,warnUnload:true,onStatus:setSaved,onRemote});
   let r=await store.load();
   if(!Object.keys(r.docs).length){const n=await SCV.claimSeed();if(n)r=await store.load()}

@@ -6,163 +6,46 @@
 <title>SCV Aplicații</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#0B6B86">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="SCV">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://vympzujixmklqfyuxywm.supabase.co; img-src 'self' data: blob:; font-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'">
-<link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png">
 <link rel="stylesheet" href="lib/fonts.css">
 <style>
-/* Ușa de intrare: o singură coloană, plăcuță de șantier sus, două uși mari după ce intri. */
-:root{--bg:#F1F3F4;--surface:#FFFFFF;--ink:#16212B;--mut:#5B6872;--line:#DADFE3;--acc:#0B6B86;--acc-ink:#FFFFFF;--neg:#B3261E;--neg-bg:#FBE8E6;--warn:#8A5A00;--warn-bg:#FFF3D0;
+/* Indicator: două aplicații separate, fiecare cu adresa, iconița și intrarea ei. Aici nu se intră în cont și nu sunt date. */
+:root{--bg:#F1F3F4;--surface:#FFFFFF;--ink:#16212B;--mut:#5B6872;--line:#DADFE3;--acc:#0B6B86;
 --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--f-head:"Barlow Condensed","Barlow",system-ui,sans-serif}
-@media (prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#0E151B;--surface:#16212A;--ink:#E6ECF0;--mut:#98A6B1;--line:#283541;--acc:#4DB3D1;--acc-ink:#04202A;--neg:#FF8F86;--neg-bg:#3A1C1A;--warn:#F0C25E;--warn-bg:#382E10}}
+@media (prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#0E151B;--surface:#16212A;--ink:#E6ECF0;--mut:#98A6B1;--line:#283541;--acc:#4DB3D1}}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:17px/1.4 var(--f-body);min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
-button,input{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 main{width:100%;max-width:460px;margin:0 auto;padding:28px 18px 40px;flex:1}
 .plate{display:flex;gap:14px;align-items:center;margin:14px 0 26px}
 .plate i{width:14px;height:54px;background:var(--acc);border-radius:1px;flex:none}
 .plate b{display:block;font-family:var(--f-head);font-size:44px;line-height:.95;font-weight:700;letter-spacing:.02em}
 .plate span{display:block;color:var(--mut);font-size:15px;margin-top:4px}
-h2{font-family:var(--f-head);font-size:24px;margin:0 0 4px;text-transform:uppercase;letter-spacing:.03em}
-p{margin:0 0 12px}
-.mut{color:var(--mut);font-size:14px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;margin-bottom:14px}
-label{display:block;font-size:12px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 4px}
-input{width:100%;padding:12px;border:1px solid var(--line);border-radius:5px;background:var(--surface);font-size:17px}
-input:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 2px color-mix(in srgb,var(--acc) 25%,transparent)}
-.btn{display:block;width:100%;padding:13px 16px;border-radius:5px;background:var(--acc);color:var(--acc-ink);border:1px solid var(--acc);font-weight:600;cursor:pointer;text-align:center;text-decoration:none;margin-top:14px}
-.btn.g{background:var(--surface);color:var(--ink);border-color:var(--line)}
-.btn[disabled]{opacity:.55;cursor:default}
-.link{background:none;border:none;color:var(--acc);font-weight:600;cursor:pointer;padding:8px 0;text-decoration:underline;text-underline-offset:3px}
-.err{background:var(--neg-bg);color:var(--neg);padding:10px 12px;border-radius:5px;font-weight:600;font-size:15px;margin-top:12px}
-.note{background:var(--warn-bg);color:var(--warn);padding:10px 12px;border-radius:5px;font-size:15px;margin-bottom:14px}
-.door{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px 16px;margin-bottom:12px;text-decoration:none;color:inherit;box-shadow:inset 4px 0 0 var(--acc)}
-.door:hover{border-color:var(--acc)}
-.door b{display:block;font-family:var(--f-head);font-size:26px;line-height:1.05;text-transform:uppercase;letter-spacing:.02em}
-.door span{display:block;color:var(--mut);font-size:14px;margin-top:3px}
-.door em{margin-left:auto;font-style:normal;font-size:26px;color:var(--mut)}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.row .btn{width:auto;flex:1;margin-top:0}
-[hidden]{display:none!important}
+.app{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px;margin-bottom:12px;text-decoration:none;color:inherit}
+.app:hover{border-color:var(--acc)}
+.app img{width:56px;height:56px;border-radius:13px;flex:none;display:block}
+.app b{display:block;font-family:var(--f-head);font-size:25px;line-height:1.05;text-transform:uppercase;letter-spacing:.02em}
+.app span{display:block;color:var(--mut);font-size:14px;margin-top:3px}
+.app em{margin-left:auto;font-style:normal;font-size:26px;color:var(--mut)}
+.mut{color:var(--mut);font-size:14px;margin:18px 2px 0}
 footer{text-align:center;color:var(--mut);font-size:12px;padding:0 18px 18px}
 </style>
 </head>
 <body>
 <main>
-  <div class="plate"><i></i><div><b>SCV</b><span>Aplicațiile firmei · acces doar pentru proprietar</span></div></div>
-
-  <div id="vLoad" class="card"><p class="mut" style="margin:0">Se verifică…</p></div>
-
-  <div id="vPrep" hidden>
-    <div class="note"><b>Aplicația e aproape gata.</b> Baza de date mai așteaptă o confirmare de la tine, în conversația cu Claude. După confirmare, reîncarcă pagina.</div>
-    <button class="btn g" id="bRetry">Verifică din nou</button>
-  </div>
-
-  <div id="vOff" hidden>
-    <div class="note">Nu am internet acum. Dacă ai mai folosit aplicația pe acest aparat, poți deschide Prezența cu datele păstrate aici.</div>
-    <a class="door" href="prezenta/"><div><b>Prezență și salarii</b><span>cu datele păstrate pe acest aparat</span></div><em>›</em></a>
-    <button class="btn g" id="bRetry2">Încearcă din nou</button>
-  </div>
-
-  <form id="vIn" class="card" hidden autocomplete="on">
-    <h2 id="tIn">Intră în cont</h2>
-    <p class="mut" id="sIn">Cu emailul și parola ta.</p>
-    <label for="email">Email</label>
-    <input id="email" type="email" name="email" autocomplete="username" inputmode="email" required>
-    <label for="pass">Parolă</label>
-    <input id="pass" type="password" name="password" autocomplete="current-password" required minlength="8">
-    <div id="wrap2" hidden>
-      <label for="pass2">Repetă parola</label>
-      <input id="pass2" type="password" name="password2" autocomplete="new-password" minlength="8">
-    </div>
-    <div id="err" class="err" hidden></div>
-    <button class="btn" id="bGo" type="submit">Intră</button>
-    <p style="margin:12px 0 0;text-align:center"><button class="link" type="button" id="bSwitch" hidden></button></p>
-  </form>
-
-  <div id="vApps" hidden>
-    <a class="door" href="prezenta/"><div><b>Prezență și salarii</b><span>pontaj zilnic, tranșe, avansuri, concedii, cost pe șantier</span></div><em>›</em></a>
-    <a class="door" href="ofertare/"><div><b>Ofertare</b><span>proiecte, cantități, prețuri, ofertă în Excel</span></div><em>›</em></a>
-    <div class="card" style="margin-top:20px">
-      <p class="mut" style="margin:0 0 10px">Ești intrat cu <b id="who"></b>. Datele sunt aceleași pe telefon și pe laptop.</p>
-      <div class="row"><button class="btn g" id="bPass" type="button">Schimbă parola</button><button class="btn g" id="bOut" type="button">Ieși din cont</button></div>
-      <form id="fPass" hidden style="margin-top:6px">
-        <label for="np1">Parola nouă (cel puțin 8 caractere)</label><input id="np1" type="password" autocomplete="new-password" minlength="8" required>
-        <label for="np2">Repetă parola nouă</label><input id="np2" type="password" autocomplete="new-password" minlength="8" required>
-        <div id="perr" class="err" hidden></div>
-        <button class="btn" type="submit">Salvează parola nouă</button>
-      </form>
-    </div>
-    <p class="mut" id="tip" hidden>Pe iPhone: deschide pagina în Safari, apasă butonul de partajare și alege „Adaugă pe ecranul principal”. Apare ca o aplicație, cu pictograma SCV.</p>
-  </div>
+  <div class="plate"><i></i><div><b>SCV</b><span>Două aplicații separate</span></div></div>
+  <a class="app" href="prezenta/"><img src="prezenta/icon-192.png" alt="" width="56" height="56"><div><b>Prezență SCV</b><span>pontaj zilnic, tranșe, avansuri, concedii, cost pe șantier</span></div><em>›</em></a>
+  <a class="app" href="ofertare/"><img src="ofertare/icon-192.png" alt="" width="56" height="56"><div><b>Ofertare SCV</b><span>proiecte, cantități, prețuri, ofertă în Excel</span></div><em>›</em></a>
+  <p class="mut">Fiecare aplicație are adresa, iconița și intrarea ei. Pe iPhone: deschide aplicația în Safari, apasă butonul de partajare și alege „Adaugă pe ecranul principal”. Faci asta o dată pentru Prezență și o dată pentru Ofertare.</p>
 </main>
 <footer>SCV Aqua Premium Instal</footer>
-
-<script src="lib/vendor/supabase.js"></script>
-<script src="lib/scv.js"></script>
 <script>
-"use strict";
-const $=s=>document.querySelector(s);
-const views=["vLoad","vPrep","vOff","vIn","vApps"];
-const show=id=>views.forEach(v=>{$("#"+v).hidden=v!==id});
-let mode="in";
-const next=(()=>{const n=new URLSearchParams(location.search).get("next");return n==="prezenta"||n==="ofertare"?n+"/":null})();
-
-function setMode(m,hasOwner){mode=m;
-  $("#tIn").textContent=m==="up"?"Creează contul tău":"Intră în cont";
-  $("#sIn").textContent=m==="up"?"Se poate crea un singur cont: al tău. După aceea, nimeni altcineva nu mai poate face cont aici.":"Cu emailul și parola ta.";
-  $("#wrap2").hidden=m!=="up";$("#pass2").required=m==="up";
-  $("#pass").autocomplete=m==="up"?"new-password":"current-password";
-  $("#bGo").textContent=m==="up"?"Creează contul":"Intră";
-  const sw=$("#bSwitch");sw.hidden=!!hasOwner;sw.textContent=m==="up"?"Am deja cont – vreau să intru":"Prima deschidere? Creează contul";
-  $("#err").hidden=true}
-
-async function boot(){
-  show("vLoad");
-  const u=await SCV.user();
-  if(u&&!u.offline){return apps(u)}
-  if(u&&u.offline){show("vOff");return}
-  const s=await SCV.dbState();
-  if(!s.ready){show(s.net||navigator.onLine===false?"vOff":"vPrep");return}
-  setMode(s.owner?"in":"up",s.owner);show("vIn");$("#email").focus()}
-
-async function apps(u){
-  if(next){location.replace(next);return}
-  await SCV.claimSeed();
-  $("#who").textContent=u.email||"";show("vApps");
-  const standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone;
-  $("#tip").hidden=!(/iPhone|iPad/i.test(navigator.userAgent)&&!standalone)}
-
-$("#bSwitch").onclick=()=>setMode(mode==="up"?"in":"up",false);
-$("#bRetry").onclick=boot;$("#bRetry2").onclick=boot;
-
-$("#vIn").onsubmit=async e=>{e.preventDefault();
-  const email=$("#email").value.trim(),p=$("#pass").value,er=$("#err"),b=$("#bGo");er.hidden=true;
-  if(mode==="up"){if(p.length<8){er.textContent="Parola trebuie să aibă cel puțin 8 caractere.";er.hidden=false;return}
-    if(p!==$("#pass2").value){er.textContent="Cele două parole nu sunt la fel.";er.hidden=false;return}}
-  b.disabled=true;const old=b.textContent;b.textContent="Un moment…";
-  try{if(mode==="up")await SCV.signUp(email,p);else await SCV.signIn(email,p);
-    const u=await SCV.user();if(!u)throw new Error("Nu am putut deschide sesiunea.");
-    $("#pass").value="";$("#pass2").value="";await apps(u)}
-  catch(x){er.textContent=SCV.authMessage(x);er.hidden=false}
-  finally{b.disabled=false;b.textContent=old}};
-
-$("#bOut").onclick=async()=>{await SCV.signOut();location.replace(SCV.base)};
-$("#bPass").onclick=()=>{const f=$("#fPass");f.hidden=!f.hidden;if(!f.hidden)$("#np1").focus()};
-$("#fPass").onsubmit=async e=>{e.preventDefault();const a=$("#np1").value,b=$("#np2").value,er=$("#perr");er.hidden=true;
-  if(a.length<8){er.textContent="Parola trebuie să aibă cel puțin 8 caractere.";er.hidden=false;return}
-  if(a!==b){er.textContent="Cele două parole nu sunt la fel.";er.hidden=false;return}
-  try{await SCV.changePassword(a);$("#np1").value="";$("#np2").value="";$("#fPass").hidden=true;er.hidden=true;
-    const t=$("#bPass");t.textContent="Parola a fost schimbată";setTimeout(()=>t.textContent="Schimbă parola",4000)}
-  catch(x){er.textContent=SCV.authMessage(x);er.hidden=false}};
-
-boot();
+/* linkurile vechi de forma ?next=prezenta duc direct la aplicație */
+(function(){var n=new URLSearchParams(location.search).get("next");if(n==="prezenta"||n==="ofertare")location.replace(n+"/")})();
 </script>
 </body>
 </html>
