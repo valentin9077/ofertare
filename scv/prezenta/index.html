@@ -136,6 +136,11 @@ tr:last-child td{border-bottom:none}
 .list .it{display:flex;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .list .it:last-child{border-bottom:none}
 .emp{border:1px solid var(--line);border-radius:6px;padding:12px;margin-bottom:10px;background:var(--surface)}
+.emp.open{border-color:var(--acc)}
+.emph{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:2px 0;margin:0;text-align:left;cursor:pointer;flex-wrap:wrap}
+.emph b{font-size:18px}
+.emph .chev{color:var(--mut);font-size:14px;margin-left:4px}
+@media (pointer:coarse){input,select,textarea{font-size:16px}}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .pr .grid2{grid-template-columns:1fr}
 @media(min-width:700px){.pr .grid2{grid-template-columns:1fr 1fr}}
@@ -161,7 +166,7 @@ tr:last-child td{border-bottom:none}
 <div class="toast" id="toast"></div>
 
 <script src="../lib/vendor/supabase.js"></script>
-<script src="../lib/scv.js?v=4"></script>
+<script src="../lib/scv.js?v=5"></script>
 <script>
 "use strict";
 /* ============ utilitare ============ */
@@ -191,6 +196,7 @@ const DEF_HOL={2026:[["2026-01-01","Anul Nou"],["2026-01-02","Anul Nou (a doua z
 let store=null, ME=null, S={emps:[],holidays:{},mult:0,diurna:0,sites:[],lastSite:""}, L=[], months={};
 let openSite=null, daySite="";
 let tab="azi", curDay=todayStr(), curYM=todayStr().slice(0,7), tr="1", openEmp=null, ready=false, confirmDel=null;
+const openSet=new Set();   /* fișele de angajați deschise în Setări */
 
 /* ============ salvare ============ */
 function setSaveLbl(t,warn){const e=$("#save");e.textContent=t;e.classList.toggle("bad",!!warn)}
@@ -336,14 +342,14 @@ function vSal(){
   if(!emps.length)return h+`<div class="card empty">Niciun angajat.</div>`;
   const tot={cuv:0,cuv2:0,dep:0,adv:0,pay:0};
   {const T=emps.map(e=>calc(e,curYM,d1,d2)),sm=k=>money(r2(T.reduce((a,c)=>a+c[k],0)));
-   h+=`<div class="tiles"><div><span>De plătit</span><b>${sm("pay")}</b><small>lei · ${lbl}</small></div><div><span>Cost cu taxe</span><b>${sm("cuv2")}</b><small>lei · salariu om + taxe</small></div><div><span>Suplimentar + deplasări</span><b>${money(r2(T.reduce((a,c)=>a+c.sup+c.dep,0)))}</b><small>lei · se adaugă</small></div><div><span>Avansuri</span><b>${sm("adv")}</b><small>lei · se scad</small></div></div>`}
+   h+=`<div class="tiles"><div><span>De plătit</span><b>${sm("pay")}</b><small>lei · ${lbl}</small></div><div><span>Cost cu taxe</span><b>${T.some(c=>c.cuv2>0)?sm("cuv2"):"–"}</b><small>${T.some(c=>c.cuv2>0)?"lei · salariu om + taxe":"lipsește „om + taxe” (Setări)"}</small></div><div><span>Suplimentar + deplasări</span><b>${money(r2(T.reduce((a,c)=>a+c.sup+c.dep,0)))}</b><small>lei · se adaugă</small></div><div><span>Avansuri</span><b>${sm("adv")}</b><small>lei · se scad</small></div></div>`}
   {const md=months[curYM]||{},all=[];["adv","sup"].forEach(k=>emps.forEach(e=>((md[k]||{})[e.id]||[]).forEach((x,i)=>all.push({k,e,x,i}))));all.sort((a,b)=>a.x.d-b.x.d);
    const defd=todayStr().slice(0,7)===curYM?todayStr():DS(p[0],p[1],1);
    h+=`<div class="card"><h3>Avansuri și suplimentar în ${MN[p[1]-1]}</h3><div class="row"><select id="av_e" data-keep="1" style="flex:1;min-width:120px" aria-label="Angajat">${emps.map(e=>`<option value="${e.id}">${esc(e.nume)}</option>`).join("")}</select><select id="av_k" data-keep="1" aria-label="Fel"><option value="adv">Avans (se scade)</option><option value="sup">Suplimentar (se adaugă)</option></select><input type="date" id="av_d" value="${defd}" data-keep="1" aria-label="Data"><input type="number" id="av_s" inputmode="decimal" step="0.01" placeholder="suma (lei)" data-keep="1" style="width:110px"><input type="text" id="av_n" placeholder="notă (ex. sâmbătă)" data-keep="1" style="width:150px"><button class="btn" data-a="addadv2">Adaugă</button></div>
    <div class="list" style="margin-top:8px">${all.map(o=>`<div class="it"><span class="mono">${pad(o.x.d)}.${pad(p[1])}</span><b>${esc(o.e.nume)}</b><span class="pill">${o.k==="adv"?"avans":"suplimentar"}</span><span class="mono">${o.k==="adv"?"−":"+"}${money(num(o.x.sum))} lei</span><span class="mut">${esc(o.x.note||"")}</span><span class="sp"></span>${confirmDel===o.k+":"+o.e.id+":"+o.i?`<button class="btn r s" data-a="delent" data-k="${o.k}" data-e="${o.e.id}" data-i="${o.i}">Sigur? Șterge</button>`:`<button class="btn g s" data-a="ask" data-k="${o.k}:${o.e.id}:${o.i}">Șterge</button>`}</div>`).join("")||'<div class="mut">Nimic trecut în această lună. Avansul se scade din tranșa în care a fost dat. Suplimentarul (sâmbete, ore în plus) se adaugă la tranșa în care e trecut.</div>'}</div></div>`}
   h+=`<div class="roster">`;
   emps.forEach(e=>{const rt=rate(e,DS(p[0],p[1],d2)),c=calc(e,curYM,d1,d2),chg=rate(e,DS(p[0],p[1],d1)).sal!==rt.sal,md=months[curYM]||{},paid=((md.paid||{})[e.id]||{})["t"+tr];
-    h+=`<div class="r pr"><div class="r1"><div class="who"><b>${esc(e.nume)}</b><small>${rt.sal?"salariu "+money(rt.sal)+" lei":'<span class="warn">salariu lipsă</span>'}${chg?" (schimbat în perioadă)":""}${c.nm?` · <span class="warn">${c.nm} zile nemarcate</span>`:""}</small></div>
+    h+=`<div class="r pr"><div class="r1"><div class="who"><b>${esc(e.nume)}</b><small>${rt.sal?"salariu "+money(rt.sal)+" lei":'<span class="warn">salariu lipsă</span>'}${chg?" (schimbat în perioadă)":""}${c.nm?` · <span class="warn">${c.nm===1?"o zi nemarcată":c.nm+" zile nemarcate"}</span>`:""}</small></div>
     <div class="amt${c.pay<0?" neg":""}"><b>${money(c.pay)}</b><small>de plătit</small></div></div>
     <div class="kv"><span>Cuvenit<b>${money(c.cuv)}</b></span><span>Cu taxe<b>${rt.cost?money(c.cuv2):'<i class="warn">lipsă</i>'}</b></span><span>Suplimentar<b>${money(c.sup)}</b></span><span>Deplasări<b>${money(c.dep)}</b></span><span>Avans<b>${c.adv?"−"+money(c.adv):"0,00"}</b></span><span>Zile scăzute<b>${c.un+c.cm}${c.cm?" ("+c.cm+" med.)":""}${c.out?" · "+c.out+" neangajat":""}</b></span></div>
     <div class="r2">${tr!=="m"?`<label class="ck"><input type="checkbox" data-a="paid" data-e="${e.id}" ${paid?"checked":""}> Plătit</label>`:""}<span class="sp"></span><button class="btn g s" data-a="open" data-e="${e.id}">${openEmp===e.id?"Ascunde":"Avansuri și deplasări"}</button></div>
@@ -362,10 +368,10 @@ function empPanel(e){const md=months[curYM]||{},adv=(md.adv||{})[e.id]||[],dep=(
 
 function vConc(){
   const y=+todayStr().slice(0,4);
-  let h=`<div class="card"><h3>Concediu nou</h3><div class="grid3"><div><label class="f">Angajat</label><select id="lc_e" data-keep="1">${S.emps.map(e=>`<option value="${e.id}">${esc(e.nume)}</option>`).join("")}</select></div>
-  <div><label class="f">Tip</label><select id="lc_t" data-keep="1"><option value="CO">Odihnă</option><option value="CM">Medical</option><option value="CFP">Fără salariu</option></select></div><div></div>
+  let h=`<div class="card"><h3>Concediu nou</h3><div class="grid2"><div><label class="f">Angajat</label><select id="lc_e" data-keep="1" style="width:100%">${S.emps.map(e=>`<option value="${e.id}">${esc(e.nume)}</option>`).join("")}</select></div>
+  <div><label class="f">Tip</label><select id="lc_t" data-keep="1" style="width:100%"><option value="CO">Odihnă</option><option value="CM">Medical</option><option value="CFP">Fără salariu</option></select></div>
   <div><label class="f">De la</label><input type="date" id="lc_a" value="${todayStr()}" data-keep="1" style="width:100%"></div><div><label class="f">Până la (inclusiv)</label><input type="date" id="lc_b" value="${todayStr()}" data-keep="1" style="width:100%"></div></div>
-  <div class="grid2"><div><label class="f">Nr. certificat medical (doar medical)</label><input type="text" id="lc_n" data-keep="1" style="width:100%"></div><div><label class="f">Cod indemnizație (doar medical)</label><input type="text" id="lc_c" placeholder="ex. 01" data-keep="1" style="width:100%"></div></div>
+  <div class="grid2" style="margin-top:8px"><div><label class="f">Nr. certificat (doar medical)</label><input type="text" id="lc_n" data-keep="1" style="width:100%"></div><div><label class="f">Cod indemnizație (medical)</label><input type="text" id="lc_c" placeholder="ex. 01" data-keep="1" style="width:100%"></div></div>
   <label class="f">Observații</label><input type="text" id="lc_o" data-keep="1" style="width:100%"><div class="row" style="margin-top:10px"><button class="btn" data-a="addl">Adaugă concediul</button><span class="mut">Zilele lucrătoare din interval se marchează singure în pontaj.</span></div></div>`;
   h+=`<div class="card"><h3>Zile de concediu de odihnă ${y}</h3><div class="tw"><table><thead><tr><th class="n">Angajat</th><th>Drept pe an</th><th>Folosite</th><th>Rămase</th></tr></thead><tbody>`;
   S.emps.filter(e=>!isFormer(e)).forEach(e=>{const used=countYear(e.id,y,"CO"),dr=e.co==null||e.co===""?20:num(e.co);h+=`<tr><td class="n">${esc(e.nume)}</td><td>${dr}</td><td>${used}</td><td class="${dr-used<0?"neg":""}"><b>${dr-used}</b></td></tr>`});
@@ -381,7 +387,7 @@ function vSit(){
   if(!sites.length)h+=`<div class="card empty">Niciun șantier în listă.</div>`;
   sites.forEach(s=>{const R=siteReport(s.id),fin=s.st==="fin";
     h+=`<div class="card"><div class="row"><b style="font-size:17px">${esc(s.nume)}</b><span class="sp"></span><span class="pill" ${fin?"":'style="background:#111;color:#fff"'}>${fin?"Finalizat"+(s.end?" "+roDate(s.end):""):"În lucru"}</span></div>
-    <div class="mut" style="margin:6px 0">${R.days?`Perioadă: ${roDate(R.first)} – ${roDate(R.last)} • ${R.days} zile-om<br>Cost salarii: <b>${money(R.c1)} lei</b> • cu taxe: <b>${money(R.c2)} lei</b>`:"Nicio zi înregistrată încă."}</div>
+    <div class="mut" style="margin:6px 0">${R.days?`Perioadă: ${roDate(R.first)} – ${roDate(R.last)} • ${R.days} zile-om<br>Cost salarii: <b>${money(R.c1)} lei</b> • cu taxe: ${R.c2>0?`<b>${money(R.c2)} lei</b>`:'<span class="warn">lipsește „om + taxe” (Setări)</span>'}`:"Nicio zi înregistrată încă."}</div>
     <div class="row"><button class="btn g s" data-a="opensite" data-id="${s.id}">${openSite===s.id?"▲ Ascunde":"▼ Cine a lucrat / cost"}</button>
     <button class="btn g s" data-a="${fin?"reopensite":"finsite"}" data-id="${s.id}">${fin?"Redeschide":"Finalizează"}</button><span class="sp"></span>
     ${confirmDel==="arh:"+s.id?`<button class="btn r s" data-a="arhsite" data-id="${s.id}">Sigur? Mută în arhivă</button><button class="btn g s" data-a="ask" data-k="">Renunță</button>`:`<button class="btn g s" data-a="ask" data-k="arh:${s.id}">Scoate din listă</button>`}</div>`;
@@ -402,12 +408,16 @@ function vSit(){
   return h}
 function countYear(emp,y,code){let c=0;for(let m=1;m<=12;m++)for(let d=1;d<=dim(y,m);d++){const s=DS(y,m,d);if(dayType(s).work&&eff(emp,s).s===code)c++}return c}
 
+/* rezumatul unui angajat (salariul de azi) – apare în capul fișei lui din Setări */
+function empSum(e){const rt=rate(e,todayStr());return (rt.sal?money(rt.sal)+" lei":'<span class="warn">salariu lipsă</span>')+" · "+(rt.cost?"cu taxe "+money(rt.cost):'<span class="warn">om + taxe lipsă</span>')}
+function updEmph(e){const el=e&&document.querySelector('button.emph[data-e="'+e.id+'"] .mut');if(el)el.innerHTML=empSum(e)}
 function vSet(){
   const y=curYM.slice(0,4);
   let h=S.okSal?"":`<div class="banner no" style="font-weight:500"><b>Verifică salariile.</b> Aici se trece salariul pe <b>lună</b>, iar aplicația plătește jumătate la fiecare tranșă (7.000 pe lună → 3.500 pe 15 și 3.500 la sfârșit). Dacă ai trecut suma pe chenzină, apasă pe dublare.<div class="row" style="margin-top:8px"><button class="btn s" data-a="dblsal">Am trecut pe chenzină – dublează toate salariile</button><button class="btn g s" data-a="oksal">Sunt deja pe lună</button></div></div>`;
-  h+=`<div class="card"><h3>Angajați</h3><p class="mut"><b>Salariu om</b> = ce îi plătești omului pe lună (după el se calculează tranșele). <b>Om + taxe</b> = cât te costă în total, îl treci tu manual (după el se calculează costul pe șantier). Când i se schimbă salariul, apeși „+ Salariu nou de la o dată”, alegi data și suma. Zilele dinainte rămân cu salariul vechi. În tabelul tău de cheltuieli, „om + taxe” este salariul + statul (de exemplu 7.000 + 4.967 = 11.967), la care poți adăuga partea de cheltuieli ale firmei.</p><div class="list">`;
-  const card=e=>`<div class="emp"><div class="row"><b style="font-size:18px">${esc(e.nume)}</b><span class="sp"></span>${isFormer(e)?`<span class="pill">Plecat ${roDate(e.end)}</span>`:e.end?`<span class="pill">Pleacă ${roDate(e.end)}</span>`:""}</div>
-  <div class="grid2"><div style="grid-column:1/-1"><label class="f">Nume complet (apare în fișierele pentru contabil)</label><input data-a="e_full" data-e="${e.id}" data-keep="1" value="${esc(e.full||"")}" style="width:100%"></div><div><label class="f">Nume scurt</label><input data-a="e_nume" data-e="${e.id}" data-keep="1" value="${esc(e.nume)}" style="width:100%"></div>
+  h+=`<div class="card"><h3>Angajați</h3><p class="mut">Atinge un nume ca să-i deschizi fișa. <b>Salariu om</b> = ce îi plătești omului pe lună (după el se calculează tranșele). <b>Om + taxe</b> = cât te costă în total, îl treci tu manual (după el se calculează costul pe șantier). Când i se schimbă salariul, apeși „+ Salariu nou de la o dată”, alegi data și suma. Zilele dinainte rămân cu salariul vechi. În tabelul tău de cheltuieli, „om + taxe” este salariul + statul (de exemplu 7.000 + 4.967 = 11.967), la care poți adăuga partea de cheltuieli ale firmei.</p><div class="list">`;
+  const card=e=>{const op=openSet.has(e.id)||(!!confirmDel&&confirmDel.split(":")[1]===e.id);
+  return `<div class="emp${op?" open":""}"><button class="emph" data-a="tgle" data-e="${e.id}" aria-expanded="${op}"><b>${esc(e.nume)}</b><span class="mut">${empSum(e)}</span><span class="sp"></span>${isFormer(e)?`<span class="pill">Plecat ${roDate(e.end)}</span>`:e.end?`<span class="pill">Pleacă ${roDate(e.end)}</span>`:""}<span class="chev" aria-hidden="true">${op?"▴":"▾"}</span></button>${op?`
+  <div class="grid2" style="margin-top:10px"><div style="grid-column:1/-1"><label class="f">Nume complet (apare în fișierele pentru contabil)</label><input data-a="e_full" data-e="${e.id}" data-keep="1" value="${esc(e.full||"")}" style="width:100%"></div><div><label class="f">Nume scurt</label><input data-a="e_nume" data-e="${e.id}" data-keep="1" value="${esc(e.nume)}" style="width:100%"></div>
   <div><label class="f">Data angajării</label><input type="date" data-a="e_start" data-e="${e.id}" data-keep="1" value="${e.start||""}" style="width:100%"></div>
   <div><label class="f">Zile CO / an</label><input type="number" data-a="e_co" data-e="${e.id}" data-keep="1" value="${e.co==null?20:e.co}" style="width:100%"></div><div><label class="f">Diurnă implicită / zi (lei)</label><input type="number" step="0.01" inputmode="decimal" data-a="e_diu" data-e="${e.id}" data-keep="1" value="${e.diurna||""}" style="width:100%"></div></div>
   <div style="margin-top:10px"><b>Istoric salariu</b>${e.rates.map((r,i)=>`<div class="it" style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap;padding:6px 0;border-bottom:1px solid var(--line)">
@@ -419,7 +429,7 @@ function vSet(){
   <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px">${e.end?`<div class="row"><span class="mut">Data plecării: <b>${roDate(e.end)}</b>. Istoricul lui rămâne în rapoarte.</span><span class="sp"></span><button class="btn g s" data-a="rehire" data-e="${e.id}">Reangajează</button></div>`
    :confirmDel==="leave:"+e.id?`<div class="row"><label class="f" style="margin:0;width:100%">Ultima zi de lucru</label><input type="date" id="leaved" value="${todayStr()}" data-keep="1"><button class="btn" data-a="leave" data-e="${e.id}">Confirmă plecarea</button><button class="btn g" data-a="ask" data-k="">Renunță</button></div><div class="mut" style="margin-top:6px">Omul dispare din pontaj după această zi. Tot ce a lucrat rămâne salvat.</div>`
    :`<button class="btn g s" data-a="ask" data-k="leave:${e.id}">A plecat din firmă</button>`}
-  ${hasAny(e.id)?"":(confirmDel==="del:"+e.id?`<div class="row" style="margin-top:8px"><input id="delw" placeholder="scrie STERGE" data-keep="1" style="width:150px"><button class="btn r" data-a="dele" data-e="${e.id}">Șterge definitiv</button><button class="btn g" data-a="ask" data-k="">Renunță</button></div>`:`<button class="btn r s" style="margin-left:8px" data-a="ask" data-k="del:${e.id}">Șterge (adăugat din greșeală)</button>`)}</div></div>`;
+  ${hasAny(e.id)?"":(confirmDel==="del:"+e.id?`<div class="row" style="margin-top:8px"><input id="delw" placeholder="scrie STERGE" data-keep="1" style="width:150px"><button class="btn r" data-a="dele" data-e="${e.id}">Șterge definitiv</button><button class="btn g" data-a="ask" data-k="">Renunță</button></div>`:`<button class="btn r s" style="margin-left:8px" data-a="ask" data-k="del:${e.id}">Șterge (adăugat din greșeală)</button>`)}</div>`:""}</div>`};
   const cur=S.emps.filter(e=>!isFormer(e)),old=S.emps.filter(isFormer);
   h+=cur.map(card).join("")+`</div>
   <div style="border-top:1px solid var(--line);margin-top:6px;padding-top:6px"><b>Angajat nou</b><div class="grid2"><div><label class="f">Nume scurt</label><input id="newemp" data-keep="1" style="width:100%"></div><div><label class="f">Nume complet</label><input id="newfull" data-keep="1" style="width:100%"></div>
@@ -431,7 +441,7 @@ function vSet(){
   const hl=holList(+y);
   h+=`<div class="card"><h3>Zile libere legale ${y}</h3><div class="row"><button class="btn g s" data-a="hy" data-n="-1">‹ ${+y-1}</button><button class="btn g s" data-a="hy" data-n="1">${+y+1} ›</button></div><p class="mut">Un rând pe zi: <b>AAAA-LL-ZZ Denumire</b>. Sursele diferă (16 sau 17 zile libere în 2026), așa că verifică lista. Pentru anii fără listă, adaugă tu zilele.</p><textarea id="s_hol" rows="10" data-keep="1" style="width:100%" data-y="${y}">${hl.map(x=>x.d+" "+x.n).join("\n")}</textarea><div class="row" style="margin-top:8px"><button class="btn" data-a="savehol">Salvează lista ${y}</button></div></div>`;
   h+=`<div class="card"><h3>Cont</h3><div class="mut">Ești intrat cu <b>${esc(ME&&ME.email||"")}</b>. Datele sunt aceleași pe telefon și pe laptop.</div><div class="row" style="margin-top:8px"><button class="btn g" data-a="acct">Parolă și ieșire din cont</button></div></div>`;
-  h+=`<div class="card"><h3>Copie de siguranță</h3><div class="mut">Descarcă toate datele într-un fișier, ca să le ai și în afara aplicației.</div><div class="row" style="margin-top:8px"><button class="btn g" data-a="backup">Descarcă copie (JSON)</button></div></div>`;
+  h+=`<div class="card"><h3>Copie de siguranță</h3><div class="mut">Descarcă toate datele într-un fișier, ca să le ai și în afara aplicației.</div><div class="row" style="margin-top:8px"><button class="btn g" data-a="backup">Descarcă copie (JSON)</button><button class="btn g" data-a="hist">Copii automate (zilnice)</button></div><div class="mut" style="margin-top:8px">Baza de date păstrează singură, zilnic, o copie a pontajului și a setărilor. Din „Copii automate” poți reveni la o zi mai veche.</div></div>`;
   return h}
 
 /* ============ evenimente ============ */
@@ -476,7 +486,7 @@ function onClick(ev){const b=ev.target.closest("button,input[type=checkbox]");if
    case"askdel":confirmDel=b.dataset.id;render();break;
    case"dell":L=L.filter(x=>x.id!==b.dataset.id);confirmDel=null;saveLeaves();render();break;
    case"adde":{const n=$("#newemp").value.trim();if(!n){toast("Scrie numele angajatului");return}if(S.emps.some(x=>x.nume.toLowerCase()===n.toLowerCase())){toast("Există deja un angajat cu acest nume scurt");return}
-      S.emps.push({id:"e"+Date.now().toString(36),nume:n,full:$("#newfull").value.trim(),start:$("#newstart").value||"",co:20,diurna:0,rates:[{from:"2000-01-01",sal:num($("#newsal").value),cost:num($("#newcost").value)}]});saveSettings();render();toast("Angajat adăugat");break}
+      {const nid="e"+Date.now().toString(36);S.emps.push({id:nid,nume:n,full:$("#newfull").value.trim(),start:$("#newstart").value||"",co:20,diurna:0,rates:[{from:"2000-01-01",sal:num($("#newsal").value),cost:num($("#newcost").value)}]});openSet.add(nid)}saveSettings();render();toast("Angajat adăugat");break}
    case"ask":confirmDel=b.dataset.k||null;render();break;
    case"leave":{const d=$("#leaved").value;if(!d){toast("Alege ultima zi de lucru");break}const x=S.emps.find(z=>z.id===e);if(x.start&&d<x.start){toast("Data plecării e înaintea angajării");break}x.end=d;confirmDel=null;saveSettings();render();toast("Salvat. Rămâne în istoric.");break}
    case"rehire":{const x=S.emps.find(z=>z.id===e);delete x.end;saveSettings();render();break}
@@ -485,9 +495,11 @@ function onClick(ev){const b=ev.target.closest("button,input[type=checkbox]");if
    case"savehol":{const t=$("#s_hol"),y=t.dataset.y;const out=[];let bad=0;t.value.split("\n").forEach(l=>{l=l.trim();if(!l)return;const m=/^(\d{4}-\d{2}-\d{2})\s*(.*)$/.exec(l);if(m&&m[1].slice(0,4)===y)out.push({d:m[1],n:m[2]});else bad++});
       S.holidays=S.holidays||{};S.holidays[y]=out;saveSettings();render();toast(bad?"Salvat. "+bad+" rânduri ignorate (format greșit)":"Lista "+y+" salvată");break}
    case"backup":doBackup();break;
+   case"hist":SCV.history({app:"prezenta",label:p=>p==="app/settings"?"Setări (angajați, salarii, șantiere)":p==="app/concedii"?"Concedii":p.indexOf("luni/")===0?"Pontaj "+p.slice(5).split("-").reverse().join("."):null,restore:(p,d)=>{applyDoc(p,d);if(p==="app/settings"){normS();saveSettings()}else if(p==="app/concedii")saveLeaves();else saveMonth(p.slice(5));render(true);toast("Am pus înapoi copia.")}});break;
    case"acct":SCV.account({pending:()=>store?store.pending():0});break;
    case"dblsal":S.emps.forEach(x=>(x.rates||[]).forEach(r=>{r.sal=r2(num(r.sal)*2)}));S.okSal=true;saveSettings();render();toast("Salariile au fost dublate. Verifică-le.");break;
    case"oksal":S.okSal=true;saveSettings();render();break;
+   case"tgle":if(openSet.has(e))openSet.delete(e);else openSet.add(e);confirmDel=null;render();break;
    case"xacc":exportAcc();break;
    case"xpay":exportPay();break;
   }}
@@ -502,8 +514,8 @@ document.addEventListener("change",ev=>{const t=ev.target,a=t.dataset&&t.dataset
    case"e_start":emp.start=t.value||"";saveSettings();break;
    case"e_full":emp.full=t.value.trim();saveSettings();break;
    case"e_nume":if(t.value.trim()){emp.nume=t.value.trim();saveSettings();render()}break;
-   case"r_sal":emp.rates[+t.dataset.i].sal=num(t.value);saveSettings();break;
-   case"r_cost":emp.rates[+t.dataset.i].cost=num(t.value);saveSettings();break;
+   case"r_sal":emp.rates[+t.dataset.i].sal=num(t.value);saveSettings();updEmph(emp);break;
+   case"r_cost":emp.rates[+t.dataset.i].cost=num(t.value);saveSettings();updEmph(emp);break;
    case"r_date":{const i=+t.dataset.i;if(!t.value||i===0)break;if(emp.rates.some((x,j)=>j!==i&&x.from===t.value)){toast("Există deja o schimbare la această dată");break}emp.rates[i].from=t.value;emp.rates.sort((a,b)=>a.from<b.from?-1:1);saveSettings();render(true);break}
    case"esite":setSite(e,curDay,t.value);S.lastSite=t.value||S.lastSite;saveSettings();break;
    case"e_co":emp.co=num(t.value);saveSettings();break;

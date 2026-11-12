@@ -183,6 +183,10 @@
 .scv-acct{position:fixed;inset:0;z-index:1001;background:rgba(10,16,22,.55);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 14px;color:var(--ink,#16212B);font:17px/1.4 var(--f-body,system-ui,sans-serif)}
 .scv-acct .g-card{width:100%;max-width:420px;margin:0}
 .a-row{display:flex;gap:10px}.a-row .g-btn{flex:1}
+.h-list{max-height:52vh;overflow:auto;margin:10px 0 0;border-top:1px solid var(--line,#DADFE3)}
+.h-it{padding:10px 0;border-bottom:1px solid var(--line,#DADFE3)}
+.h-it b{display:block}
+.h-it .a-row .g-btn{margin-top:8px;padding:9px 10px;font-size:15px}
 .scv-acctbtn{flex:none;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;margin-right:-6px;border:1px solid var(--line,#DADFE3);border-radius:50%;background:var(--surface,#fff);color:var(--mut,#5B6872);cursor:pointer;padding:0}
 .scv-acctbtn:hover{color:var(--acc,#0B6B86);border-color:var(--acc,#0B6B86)}
 .scv-acctbtn svg{width:20px;height:20px;display:block}`;
@@ -294,6 +298,50 @@
     q("#aOut").onclick = async () => {
       if (opt.pending && opt.pending()) { er.textContent = "Mai sunt date nesalvate. Așteaptă „salvat ✓” și încearcă din nou."; er.hidden = false; return; }
       await signOut(); location.reload();
+    };
+  }
+
+  /**
+   * Fereastra „Copii automate”: baza de date păstrează singură, în fiecare zi în care se schimbă ceva, felul în care arăta
+   * fiecare document la începutul zilei. De aici se pot descărca sau pune înapoi.
+   * opt: { app, label(path) → nume pe românește (sau null ca să nu apară), restore(path, data) }
+   */
+  async function history(opt) {
+    uiCss();
+    const old = document.getElementById("scvHist"); if (old) old.remove();
+    const d = document.createElement("div"); d.className = "scv-acct"; d.id = "scvHist";
+    d.innerHTML = `<div class="g-card" role="dialog" aria-modal="true" aria-label="Copii automate"><h2>Copii automate</h2>
+<p class="g-mut">În fiecare zi în care schimbi ceva, baza de date păstrează singură o copie cu felul în care arătau datele la începutul zilei. De aici poți reveni la o zi mai veche.</p>
+<div id="hList" class="h-list"><p class="g-mut" style="margin:10px 0">Se încarcă…</p></div><div id="hErr" class="g-err" hidden></div>
+<button class="g-btn" type="button" id="hClose">Închide</button></div>`;
+    document.body.appendChild(d);
+    const q = x => d.querySelector(x);
+    const close = () => d.remove();
+    q("#hClose").onclick = close;
+    d.addEventListener("click", e => { if (e.target === d) close(); });
+    const say = t => { q("#hList").innerHTML = '<p class="g-mut" style="margin:10px 0">' + t + "</p>"; };
+    let rows;
+    try {
+      const r = await fresh(sb.from("docs_history").select("id,path,day,op").eq("app", opt.app)).order("id", { ascending: false }).limit(300);
+      if (r.error) throw r.error;
+      rows = r.data;
+    } catch (e) { say(isNet(e) || navigator.onLine === false ? "Nu am internet acum. Încearcă din nou mai târziu." : "Copiile automate nu sunt pornite încă."); return; }
+    const items = rows.map(r => ({ r, name: opt.label ? opt.label(r.path) : r.path })).filter(x => x.name);
+    if (!items.length) { say("Nu există încă nicio copie. Prima apare după prima zi în care schimbi ceva."); return; }
+    const ro = day => String(day).slice(0, 10).split("-").reverse().join(".");
+    q("#hList").innerHTML = items.map(x => `<div class="h-it" data-id="${x.r.id}"><div><b>${escH(x.name)}</b><span class="g-mut">${x.r.op === "D" ? "șters în " : "cum era la începutul zilei de "}${ro(x.r.day)}</span></div><div class="a-row"><button class="g-btn g-g" type="button" data-h="dl">Descarcă</button><button class="g-btn g-g" type="button" data-h="re">Pune înapoi</button></div></div>`).join("");
+    q("#hList").onclick = async e => {
+      const b = e.target.closest("button[data-h]"); if (!b) return;
+      const id = +b.closest(".h-it").dataset.id, x = items.find(i => i.r.id === id), er = q("#hErr"); er.hidden = true;
+      if (b.dataset.h === "re" && !b.dataset.sure) { b.dataset.sure = "1"; b.textContent = "Sigur? Apasă din nou"; b.classList.remove("g-g"); return; }
+      b.disabled = true;
+      try {
+        const r = await sb.from("docs_history").select("data").eq("id", id).single();
+        if (r.error) throw r.error;
+        if (b.dataset.h === "dl") await saveFile("copie " + x.name.replace(/[\\/:*?"<>|]/g, "") + " " + ro(x.r.day) + ".json", JSON.stringify(r.data.data, null, 1), "application/json");
+        else { await opt.restore(x.r.path, r.data.data); close(); }
+      } catch (z) { er.textContent = isNet(z) ? "Nu am internet acum." : "Nu a mers: " + ((z && z.message) || z); er.hidden = false; }
+      finally { b.disabled = false; }
     };
   }
 
@@ -542,5 +590,5 @@
     navigator.serviceWorker.register(BASE + "sw.js", { scope: new URL(BASE).pathname }).catch(() => { });
   }
 
-  window.SCV = { base: BASE, sb, user, revive, merge3, gate, account, accountButton, signIn, signUp, signOut, changePassword, dbState, claimSeed, authMessage, store, saveFile, loadScript, needXl, LS, isNet };
+  window.SCV = { base: BASE, sb, user, revive, merge3, gate, account, accountButton, history, signIn, signUp, signOut, changePassword, dbState, claimSeed, authMessage, store, saveFile, loadScript, needXl, LS, isNet };
 })();

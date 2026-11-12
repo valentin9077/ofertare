@@ -1,7 +1,7 @@
 /* Lucru fără semnal: paginile vin întâi din rețea (mereu versiunea nouă), iar fără internet din ce s-a păstrat pe aparat.
    Bibliotecile mari și fonturile vin din păstrare. Cererile către baza de date nu trec pe aici.
    Toate adresele sunt relative la folderul aplicației. */
-const V = "scv-v4";
+const V = "scv-v5";
 const HERE = new URL("./", self.location).href;
 const SHELL = ["prezenta/", "ofertare/", "lib/scv.js", "lib/fonts.css", "lib/vendor/supabase.js", "ofertare/core.js", "ofertare/export.js", "ofertare/piata.json",
   "prezenta/manifest.webmanifest", "prezenta/icon-192.png", "prezenta/apple-touch-icon.png", "ofertare/manifest.webmanifest", "ofertare/icon-192.png", "ofertare/apple-touch-icon.png"].map(p => new URL(p, HERE).href);
