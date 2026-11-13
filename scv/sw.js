@@ -1,9 +1,9 @@
 /* Lucru fără semnal: paginile vin întâi din rețea (mereu versiunea nouă), iar fără internet din ce s-a păstrat pe aparat.
    Bibliotecile mari și fonturile vin din păstrare. Cererile către baza de date nu trec pe aici.
    Toate adresele sunt relative la folderul aplicației. */
-const V = "scv-v6";
+const V = "scv-v7";
 const HERE = new URL("./", self.location).href;
-const SHELL = ["prezenta/", "ofertare/", "lib/scv.js", "lib/ui.css", "lib/icons.js", "lib/fonts.css", "lib/vendor/supabase.js", "ofertare/core.js", "ofertare/export.js", "ofertare/piata.json",
+const SHELL = ["prezenta/", "ofertare/", "lib/scv.js", "lib/alarm.js", "lib/ui.css", "lib/icons.js", "lib/fonts.css", "lib/vendor/supabase.js", "ofertare/core.js", "ofertare/export.js", "ofertare/piata.json",
   "prezenta/manifest.webmanifest", "prezenta/icon-192.png", "prezenta/apple-touch-icon.png", "ofertare/manifest.webmanifest", "ofertare/icon-192.png", "ofertare/apple-touch-icon.png"].map(p => new URL(p, HERE).href);
 const own = () => caches.open(V);
 self.addEventListener("install", e => { e.waitUntil(own().then(c => c.addAll(SHELL)).catch(() => { }).then(() => self.skipWaiting())); });
@@ -18,4 +18,27 @@ self.addEventListener("fetch", e => {
     return;
   }
   e.respondWith(fetch(req).then(keep).catch(() => own().then(c => c.match(req, { ignoreSearch: true }).then(hit => hit || Response.error()))));
+});
+
+/* Alarme pentru prezență. Mesajul vine de la baza de date (prin funcția „remind”), în forma
+   {web_push: 8030, notification: {title, body, navigate, tag}}. Telefoanele noi îl arată singure;
+   pe celelalte îl arătăm aici. La apăsare se deschide Prezența. */
+const PREZ = new URL("prezenta/", HERE).href;
+self.addEventListener("push", e => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (x) { try { d = { notification: { body: e.data.text() } }; } catch (y) { d = {}; } }
+  const n = (d && d.notification) || d || {};
+  const url = typeof n.navigate === "string" && n.navigate.indexOf(HERE) === 0 ? n.navigate : PREZ;
+  e.waitUntil(self.registration.showNotification(n.title || "Prezență SCV", {
+    body: n.body || "Nu ai dat prezența azi.", tag: n.tag || "prezenta-azi", renotify: true, lang: "ro",
+    icon: new URL("prezenta/icon-192.png", HERE).href, badge: new URL("prezenta/icon-192.png", HERE).href, data: { url }
+  }));
+});
+self.addEventListener("notificationclick", e => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || PREZ;
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(cs => {
+    for (const c of cs) if (c.url.indexOf(PREZ) === 0 && "focus" in c) return c.focus();
+    return self.clients.openWindow(url);
+  }));
 });

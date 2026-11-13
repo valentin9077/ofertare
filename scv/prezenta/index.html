@@ -109,6 +109,7 @@ tr.tot td{font-weight:700;background:var(--bg)}
 <script src="../lib/vendor/supabase.js"></script>
 <script src="../lib/icons.js?v=1"></script>
 <script src="../lib/scv.js?v=6"></script>
+<script src="../lib/alarm.js?v=1"></script>
 <script>
 "use strict";
 SCVI.fill(document);
@@ -227,6 +228,55 @@ function toggleMark(emp,date,code){const cur=eff(emp,date);setMark(emp,date,cur.
 function setDep(emp,date,on,sum,loc){const ym=date.slice(0,7),m=monthDoc(ym),d=+date.slice(8);
   let a=(m.dep[emp]||[]).filter(x=>x.d!==d);if(on)a.push({d,sum:r2(num(sum)),loc:loc||""});a.sort((x,y)=>x.d-y.d);m.dep[emp]=a;saveMonth(ym);render()}
 function getDep(emp,date){const m=months[date.slice(0,7)];return m&&m.dep&&(m.dep[emp]||[]).find(x=>x.d===+date.slice(8))}
+
+/* ============ alarme pentru prezență ============ */
+/* Baza de date trimite o notificare pe oră cât timp azi mai sunt oameni nemarcați (vezi db/003_push.sql).
+   Aici: pornirea pe aparat, orele, proba. S.alarm = {from, to, sat, skip:[zile libere]} se citește și pe server. */
+let AL={s:"load"},ALI=null,ALmsg="",ALbusy=false,ALleft=-1;
+const HAS_AL=()=>typeof SCVA!=="undefined";
+function alCfg(){const a=S.alarm||{},n=(v,d,lo,hi)=>{v=Math.round(+v);return v>=lo&&v<=hi?v:d};return{from:n(a.from==null?9:a.from,9,6,12),to:n(a.to==null?18:a.to,18,12,22),sat:a.sat===true}}
+function alSkip(){const y=+todayStr().slice(0,4);return holList(y).concat(holList(y+1)).map(h=>h.d).filter(Boolean).sort()}
+function alSave(patch){const c=alCfg();S.alarm=Object.assign({},S.alarm||{},{from:c.from,to:c.to,sat:c.sat},patch||{},{skip:alSkip()});saveSettings()}
+function alSkipSync(){if(!S.alarm)return;if(JSON.stringify(S.alarm.skip||[])!==JSON.stringify(alSkip())){S.alarm.skip=alSkip();saveSettings()}}
+function alLeftToday(){const d=todayStr();return S.emps.filter(e=>worksOn(e,d)&&!eff(e.id,d).s).length}
+function alWhen(iso){const t=new Date(iso);if(isNaN(t))return"";const p=n=>String(n).padStart(2,"0"),d=DS(t.getFullYear(),t.getMonth()+1,t.getDate()),hm=p(t.getHours())+":"+p(t.getMinutes());
+  return d===todayStr()?"azi la "+hm:d===addDays(todayStr(),-1)?"ieri la "+hm:"pe "+roDate(d)+" la "+hm}
+async function alRefresh(){if(!HAS_AL()){AL={s:"no"};return}
+  try{AL=await SCVA.state()}catch(e){AL={s:"no"}}
+  if(AL.s==="on"||AL.s==="off"){try{ALI=await SCVA.info()}catch(e){ALI=null}}
+  if(tab==="set")render()}
+function alAfter(){if(!ready||AL.s!=="on")return;const n=alLeftToday();if(n===0&&ALleft!==0)SCVA.clear();ALleft=n}
+function alChange(){const f=+$("#al_from").value,z=+$("#al_to").value;alSave({from:f,to:Math.max(z,f),sat:$("#al_sat").checked});render(true);toast("Salvat")}
+function alCard(){
+  const c=alCfg(),st=AL.s,dis=ALbusy?" disabled":"";let b="";
+  const hrs=(a,z,sel,id)=>`<select id="${id}" data-keep="1" style="width:100%">${Array.from({length:z-a+1},(_,i)=>a+i).map(h=>`<option value="${h}" ${h===sel?"selected":""}>${h}:00</option>`).join("")}</select>`;
+  if(st==="load")b=`<p class="mut">Se verifică…</p>`;
+  else if(st==="ios-install")b=`<div class="note">Pe iPhone, alarmele merg doar din aplicația pusă pe ecranul principal.<ol style="margin:8px 0 0 20px;padding:0"><li>Deschide această pagină în Safari.</li><li>Apasă butonul de partajare, apoi „Adaugă pe ecranul principal”.</li><li>Deschide „Prezență” de pe ecranul principal și vino din nou aici, în Setări.</li></ol></div>`;
+  else if(st==="ios-old")b=`<div class="note">Telefonul are o versiune de iOS prea veche pentru alarme. E nevoie de iOS 16.4 sau mai nou (Setările telefonului, General, Actualizare software).</div>`;
+  else if(st==="no")b=`<div class="note">Pe acest aparat sau în acest browser nu se pot primi alarme.</div>`;
+  else if(st==="nosw")b=`<div class="note">Aplicația nu e încă pregătită pe acest aparat. Închide-o, deschide-o din nou și revino aici.</div>`;
+  else if(st==="denied")b=`<div class="note">Notificările sunt blocate pentru Prezență pe acest aparat. Deschide Setările telefonului, la Notificări alege Prezență și permite-le, apoi revino aici.</div>`;
+  else{
+    b=st==="on"?`<div class="row"><span class="chip on c-P">Pornite pe acest aparat</span></div><div class="row" style="margin-top:10px"><button class="btn" data-a="al_test"${dis}>Trimite o alarmă de probă</button><button class="btn g" data-a="al_off"${dis}>Oprește pe acest aparat</button></div>`
+      :`<div class="row"><button class="btn" data-a="al_on"${dis}>Pornește alarmele pe acest aparat</button></div>`;
+    b+=`<div class="grid2" style="margin-top:12px"><div><label class="f">Prima alarmă la ora</label>${hrs(6,12,c.from,"al_from")}</div><div><label class="f">Ultima alarmă la ora</label>${hrs(12,22,c.to,"al_to")}</div></div>
+    <label class="ck" style="margin-top:12px"><input type="checkbox" id="al_sat" data-keep="1" ${c.sat?"checked":""}> Și sâmbăta</label>`;
+    if(ALI&&ALI.subs!=null)b+=`<p class="mut" style="margin:10px 0 0">${ALI.subs===0?"Niciun aparat nu are alarmele pornite.":ALI.subs===1?"Un aparat are alarmele pornite.":ALI.subs+" aparate au alarmele pornite."}${ALI.last_at?" Ultima alarmă a plecat "+alWhen(ALI.last_at)+".":""}</p>`}
+  if(ALmsg)b+=`<div class="note" id="almsg" style="margin:10px 0 0">${ALmsg}</div>`;
+  return `<div class="card" id="alcard"><h3>Alarme pentru prezență</h3><p class="mut">Primești o alarmă pe oră cât timp mai ai oameni nemarcați pe ziua de azi, de luni până ${c.sat?"sâmbătă":"vineri"}, fără zilele libere legale. După ce i-ai marcat pe toți, nu mai sună până a doua zi.</p>${b}</div>`}
+/* Pornirea trebuie cerută chiar în apăsarea butonului (așa cere iPhone-ul), de aceea SCVA.enable() e prima chemare. */
+async function alOn(){const p=SCVA.enable();ALbusy=true;ALmsg="";render(true);
+  try{await p;alSave();ALmsg="Alarmele sunt pornite pe acest aparat. Apasă „Trimite o alarmă de probă” ca să vezi cum arată."}
+  catch(e){const c=e&&e.code;ALmsg=c==="denied"?"Nu ai permis notificările. Deschide Setările telefonului, la Notificări alege Prezență și permite-le.":c==="dismissed"?"Nu ai ales nimic. Apasă din nou și alege „Permite”.":c==="not_ready"?"Serviciul de alarme nu e încă pregătit. Încearcă peste câteva minute.":c==="nosw"?"Aplicația nu e încă pregătită pe acest aparat. Închide-o și deschide-o din nou.":"Nu s-a putut porni: "+esc((e&&e.message)||e)}
+  ALbusy=false;await alRefresh();render(true)}
+async function alOff(){ALbusy=true;ALmsg="";render(true);try{await SCVA.disable();ALmsg="Alarmele sunt oprite pe acest aparat."}catch(e){ALmsg="Nu s-a putut opri: "+esc((e&&e.message)||e)}ALbusy=false;await alRefresh();render(true)}
+async function alTest(){ALbusy=true;ALmsg="Se trimite alarma de probă…";render(true);
+  try{const r=await SCVA.test(()=>{ALmsg="Alarma de probă a plecat. Ar trebui să apară în câteva secunde.";render(true)});
+    ALmsg=!r.done?"Alarma de probă a plecat, dar răspunsul nu a venit încă. Dacă nu apare într-un minut, oprește și pornește din nou alarmele."
+      :r.ok>0?"Alarma de probă a ajuns la serviciul de notificări"+(r.n>1?" (pentru "+r.ok+" din "+r.n+" aparate)":"")+". Dacă nu o vezi pe ecran, verifică în Setările telefonului că notificările pentru Prezență sunt permise."
+      :"Alarma de probă nu a putut fi trimisă ("+esc(r.bad.join("; ")||("cod "+r.http))+"). Oprește și pornește din nou alarmele pe acest aparat."}
+  catch(e){const c=e&&e.code;ALmsg=c==="no_subs"?"Niciun aparat nu are alarmele pornite. Apasă întâi „Pornește alarmele”.":c==="wait"?"Abia ai trimis una. Mai așteaptă câteva secunde.":c==="not_ready"?"Serviciul de alarme nu e încă pregătit.":"Nu s-a putut trimite: "+esc((e&&e.message)||e)}
+  ALbusy=false;render(true)}
 
 /* ============ ecrane ============ */
 let inClick=false;
@@ -392,6 +442,7 @@ function updEmph(e){const el=e&&document.querySelector('button.emph[data-e="'+e.
 function vSet(){
   const y=curYM.slice(0,4);
   let h=S.okSal?"":`<div class="banner no" style="font-weight:500"><b>Verifică salariile.</b> Aici se trece salariul pe <b>lună</b>, iar aplicația plătește jumătate la fiecare tranșă (7.000 pe lună → 3.500 pe 15 și 3.500 la sfârșit). Dacă ai trecut suma pe chenzină, apasă pe dublare.<div class="row" style="margin-top:8px"><button class="btn s" data-a="dblsal">Dublează toate salariile</button><button class="btn g s" data-a="oksal">Sunt deja pe lună</button></div></div>`;
+  h+=alCard();
   h+=`<div class="card"><h3>Angajați</h3><p class="mut">Atinge un nume ca să-i deschizi fișa. <b>Salariu om</b> = ce îi plătești omului pe lună (după el se calculează tranșele). <b>Om + taxe</b> = cât te costă în total, îl treci tu manual (după el se calculează costul pe șantier). Când i se schimbă salariul, apeși „+ Salariu nou de la o dată”, alegi data și suma. Zilele dinainte rămân cu salariul vechi. În tabelul tău de cheltuieli, „om + taxe” este salariul + statul (de exemplu 7.000 + 4.967 = 11.967), la care poți adăuga partea de cheltuieli ale firmei.</p><div class="list">`;
   const card=e=>{const op=openSet.has(e.id)||(!!confirmDel&&confirmDel.split(":")[1]===e.id);
   return `<div class="emp${op?" open":""}"><button class="emph" data-a="tgle" data-e="${e.id}" aria-expanded="${op}"><b>${esc(e.nume)}</b><span class="mut">${empSum(e)}</span><span class="sp"></span>${isFormer(e)?`<span class="pill">Plecat ${roDate(e.end)}</span>`:e.end?`<span class="pill">Pleacă ${roDate(e.end)}</span>`:""}<span class="chev" aria-hidden="true">${op?"▴":"▾"}</span></button>${op?`
@@ -476,7 +527,7 @@ function onClick(ev){const b=ev.target.closest("button,input[type=checkbox]");if
    case"dele":{if(hasAny(e)){toast("Are istoric, nu se poate șterge.");break}if(!okWord("delw")){toast("Scrie STERGE în căsuță ca să confirmi");break}S.emps=S.emps.filter(x=>x.id!==e);confirmDel=null;saveSettings();render();break}
    case"hy":{const p=curYM.split("-");curYM=(+p[0]+ +b.dataset.n)+"-"+p[1];render();break}
    case"savehol":{const t=$("#s_hol"),y=t.dataset.y;const out=[];let bad=0;t.value.split("\n").forEach(l=>{l=l.trim();if(!l)return;const m=/^(\d{4}-\d{2}-\d{2})\s*(.*)$/.exec(l);if(m&&m[1].slice(0,4)===y)out.push({d:m[1],n:m[2]});else bad++});
-      S.holidays=S.holidays||{};S.holidays[y]=out;saveSettings();render();toast(bad?"Salvat. "+bad+" rânduri ignorate (format greșit)":"Lista "+y+" salvată");break}
+      S.holidays=S.holidays||{};S.holidays[y]=out;if(S.alarm)S.alarm.skip=alSkip();saveSettings();render();toast(bad?"Salvat. "+bad+" rânduri ignorate (format greșit)":"Lista "+y+" salvată");break}
    case"backup":doBackup();break;
    case"hist":SCV.history({app:"prezenta",label:p=>p==="app/settings"?"Setări (angajați, salarii, șantiere)":p==="app/concedii"?"Concedii":p.indexOf("luni/")===0?"Pontaj "+p.slice(5).split("-").reverse().join("."):null,restore:(p,d)=>{applyDoc(p,d);if(p==="app/settings"){normS();saveSettings()}else if(p==="app/concedii")saveLeaves();else saveMonth(p.slice(5));render(true);toast("Am pus înapoi copia.")}});break;
    case"acct":SCV.account({pending:()=>store?store.pending():0});break;
@@ -485,11 +536,20 @@ function onClick(ev){const b=ev.target.closest("button,input[type=checkbox]");if
    case"tgle":if(openSet.has(e))openSet.delete(e);else openSet.add(e);confirmDel=null;render();break;
    case"xacc":exportAcc();break;
    case"xpay":exportPay();break;
+   case"al_on":alOn();break;
+   case"al_off":alOff();break;
+   case"al_test":alTest();break;
   }}
-document.addEventListener("click",ev=>{inClick=true;try{onClick(ev)}finally{inClick=false}});
+document.addEventListener("click",ev=>{inClick=true;try{onClick(ev)}finally{inClick=false;alAfter()}});
 document.addEventListener("change",ev=>{const t=ev.target,a=t.dataset&&t.dataset.a;
   if(t.id==="dpick"){if(t.value){curDay=t.value;render(true)}return}
   if(t.id==="daysite"){daySite=t.value;S.lastSite=t.value;saveSettings();render();return}
+  /* câmpurile din Setări fără data-a (înainte ajungeau sub „if(!a)return” și nu se salvau) */
+  if(t.id==="s_zl"){S.zl=Math.max(0,Math.round(num(t.value)));saveSettings();toast("Salvat");return}
+  if(t.id==="s_own"){S.owner=t.value.trim().slice(0,30);saveSettings();hdr();toast("Salvat");return}
+  if(t.id==="s_diu"){S.diurna=num(t.value);saveSettings();toast("Salvat");return}
+  if(t.id==="s_mult"){S.mult=num(t.value);saveSettings();toast("Salvat");return}
+  if(t.id==="al_from"||t.id==="al_to"||t.id==="al_sat"){alChange();return}
   if(!a)return;const e=t.dataset.e;const emp=S.emps.find(x=>x.id===e);
   switch(a){
    case"depsum":{const d=getDep(e,curDay);if(d)setDep(e,curDay,true,num(t.value),d.loc);break}
@@ -504,10 +564,6 @@ document.addEventListener("change",ev=>{const t=ev.target,a=t.dataset&&t.dataset
    case"e_co":emp.co=num(t.value);saveSettings();break;
    case"e_diu":emp.diurna=num(t.value);saveSettings();break;
   }
-  if(t.id==="s_zl"){S.zl=Math.max(0,Math.round(num(t.value)));saveSettings()}
-  if(t.id==="s_own"){S.owner=t.value.trim().slice(0,30);saveSettings();hdr()}
-  if(t.id==="s_diu"){S.diurna=num(t.value);saveSettings()}
-  if(t.id==="s_mult"){S.mult=num(t.value);saveSettings()}
 });
 function addLeave(){const emp=$("#lc_e").value,tip=$("#lc_t").value,a=$("#lc_a").value,b=$("#lc_b").value;
   if(!emp||!a||!b){toast("Completează angajatul și datele");return}if(a>b){toast("Data de început e după cea de sfârșit");return}
@@ -600,6 +656,7 @@ function applyDoc(path,data){
     Object.keys(r.docs).forEach(p=>applyDoc(p,r.docs[p]));
     normS();
     ready=true;render();store.start();
+    alSkipSync();alRefresh();SCVA.sync();
     if(r.offline)setSaveLbl(r.waiting?"se conectează… lucrezi pe datele păstrate pe acest aparat":"fără internet – lucrezi pe datele păstrate pe acest aparat",true);
   }catch(e){msg("Nu pot încărca datele: "+esc((e&&e.message)||e)+'<br><br><button class="btn" onclick="location.reload()">Încearcă din nou</button>')}
 })();
