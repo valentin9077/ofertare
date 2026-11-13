@@ -54,6 +54,7 @@ td button.b{min-height:34px;padding:0 13px;font-size:13px;font-weight:600}
 .tag{display:inline-flex;align-items:center;gap:5px;min-height:26px;padding:3px 10px;border-radius:8px;font-size:12.5px;font-weight:600;line-height:1.25}
 .ok{background:var(--pos-bg);color:var(--pos)}.wr{background:var(--warn-bg);color:var(--warn)}.no{background:var(--neg-bg);color:var(--neg)}
 .sug{font-size:12.5px;color:var(--mut);margin-top:6px}
+.famlist h4{margin:14px 0 4px;font-size:14px}.famlist ul{margin:0;padding-left:20px;font-size:14px;line-height:1.55}
 .sug button{min-height:26px;padding:0 10px;border-radius:13px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:12.5px;font-weight:600;color:var(--link);margin-left:6px}
 .verdict{padding:12px 15px;border-radius:14px;font-weight:600;margin-top:12px}.v-ok{background:var(--pos-bg);color:var(--pos)}.v-wr{background:var(--warn-bg);color:var(--warn)}.v-bad{background:var(--neg-bg);color:var(--neg)}
 #warn .tag{margin:0 6px 6px 0}
@@ -175,7 +176,7 @@ table.st td button.b{width:100%;min-height:40px}
 <div><button class="b r" id="btnClear">Șterge lista</button></div></div>
 <div class="bar"><div><label>Caută</label><input id="q" placeholder="ex. PPR, radiator, DN50"></div>
 <div><label>Capitol</label><select id="fCap"></select></div>
-<div><label>Stare</label><select id="fSt"><option value="all">toate</option><option value="no">fără preț</option><option value="wr">de verificat</option><option value="ok">confirmate</option></select></div>
+<div><label>Stare</label><select id="fSt"><option value="all">toate</option><option value="no">fără preț</option><option value="sg">cu sugestie</option><option value="wr">de verificat</option><option value="ok">confirmate</option></select></div>
 <div><label>Grupare capitole</label><select id="grp"><option value="mele">ale mele (termice, sanitare, hidranți…)</option><option value="fisier">cele din fișier</option></select></div>
 <div><label>Adaos peste preț (%)</label><input id="adaos" type="number" step="0.5" value="0"></div>
 <div><label class="ck"><input type="checkbox" id="learn" checked> Învață prețurile (le salvez în catalog)</label>
@@ -190,6 +191,9 @@ table.st td button.b{width:100%;min-height:40px}
 <div><button class="b r" id="cReset">Resetează la cel inițial</button></div></div>
 <p class="muted">Catalogul pornește de la listele tale UTCB 2026 (manoperă, fără TVA). Prețurile pe care le scrii în tabel se adaugă singure aici (marcate „învățat”) și se văd pe toate aparatele tale.</p></div>
 <div class="card scroll"><table><thead><tr><th>Domeniu</th><th>Denumire</th><th>UM</th><th>Preț</th><th></th></tr></thead><tbody id="ctb"></tbody></table></div>
+<div class="card"><h3>Denumiri pe care le socotesc la fel</h3>
+<p class="muted">Proiectanții scriu același lucru în multe feluri. La potrivire, aplicația pune în aceeași familie denumirile de mai jos și caută prețul după <b>familie + dimensiune</b> (diametru, grosime de izolație, lungime de calorifer). Prețul se pune singur doar când se potrivesc amândouă; altfel primești o sugestie. Un preț scris de tine la o poziție se ține minte pentru toată familia, la aceeași dimensiune.</p>
+<details><summary>Arată familiile</summary><div id="famList" class="famlist"></div></details></div>
 <div class="card"><h3>Prețuri din ofertele tale vechi <span class="muted">(manoperă, din ofertele și situațiile găsite pe laptop)</span></h3><div class="bar"><div style="flex:1;min-width:220px"><label>Caută (ex. calorifer, PPR 25, hidrant, pardoseală)</label><input id="rq"></div></div><div id="rlist" class="muted"></div></div></section>
 
 <section id="offer"><div class="kpi" id="kpi"></div>
@@ -207,7 +211,7 @@ table.st td button.b{width:100%;min-height:40px}
 <script src="../lib/icons.js?v=1"></script>
 <script src="../lib/vendor/supabase.js"></script>
 <script src="../lib/scv.js?v=6"></script>
-<script src="core.js"></script>
+<script src="core.js?v=2"></script>
 <script src="export.js"></script>
 <script>
 let BASE_CAT=[];
@@ -270,22 +274,27 @@ $("#fImp").onchange=async e=>{const f=e.target.files[0];if(!f)return;e.target.va
 const nextItem=()=>Math.max(0,...st.items.map(i=>i.id||0))+1;
 
 /* ---------- potrivire ---------- */
-function autoMatch(){rebuildCat();let a=0,s=0,v=0;for(const it of st.items){if(it.pret>0&&it.src==="manual")continue;if(it.pret>0&&it.src==="file")continue;if(it.pret>0&&it.src==="ref")continue;
- const m=OF.matchItem(it,pcat);it.sug=null;it.sugR=null;if((!m||!m.sure)&&pref.length){const m2=OF.matchItem(it,pref);if(m2&&m2.score>=99){const r=REF[+String(m2.id).slice(1)];if(r){it.sugR={p:r.p,d:r.d,pr:r.pr,an:r.an};v++}}}if(!m)continue;
- if(m.sure){const c=catById(m.id);it.pret=c.pret;it.src="cat";it.catId=c.id;it.conf=!!m.exact;a++}else{it.sug=m.id;s++}}
- st.items.forEach(it=>{if(it.pret>0&&!it.src)it.src="file"});
- $("#impInfo").textContent=`Potrivire: ${a} poziții preț propus din catalog, ${s} sugestii din catalog (neaplicate). Restul rămân fără preț – scrie-le tu.`}
+function autoMatch(){rebuildCat();let a=0,s=0,v=0;for(const it of st.items){
+ if(it.pret>0&&(it.src==="manual"||it.src==="file"||it.src==="ref"||it.conf||it.ap))continue;      // prețurile puse sau verificate de tine nu se ating
+ if(it.pret>0&&it.src==="cat"){it.pret=0;it.src="";it.catId=null}                                    // preț pus singur de aplicație, neverificat: se reface
+ const m=OF.matchItem(it,pcat);it.sug=null;it.sugW="";it.sugR=null;
+ if((!m||!m.sure)&&pref.length){const m2=OF.matchItem(it,pref);if(m2){const r=REF[+String(m2.id).slice(1)];if(r&&!(m&&catById(m.id)&&+catById(m.id).pret===+r.p)){it.sugR={p:r.p,d:r.d,pr:r.pr,an:r.an,w:m2.why};v++}}}
+ if(!m)continue;
+ if(m.sure){const c=catById(m.id);it.pret=c.pret;it.src="cat";it.catId=c.id;it.conf=!!m.exact;it.sugW=m.why;a++}else{it.sug=m.id;it.sugW=m.why;s++}}
+ st.items.forEach(it=>{if(it.pret>0&&!it.src)it.src="file"});st.mv=OF.MV;
+ $("#impInfo").textContent=`Potrivire: ${a} poziții au primit preț din catalog (același fel de lucrare și aceeași dimensiune). ${s} au o sugestie din catalog și ${v} una din ofertele tale vechi – le aplici tu, dacă sunt bune. Restul rămân fără preț.`}
 $("#btnMatch").onclick=()=>{autoMatch();renderItems();save()};
 
 /* ---------- tabel cantități ---------- */
 const STDCAPS=OF.CAPS.map(c=>c[0]);const capOpts=c=>[...new Set([...STDCAPS,c])].map(x=>`<option ${x===c?"selected":""} value="${esc(x)}">${esc(x.slice(0,34))}</option>`).join("");
 const stateOf=it=>it.pret>0?(it.conf?"ok":"wr"):"no";
-function filtered(){const q=OF.strip($("#q").value),cp=$("#fCap").value,s=$("#fSt").value;return st.items.filter(it=>(!q||OF.strip(it.den+" "+it.cod).includes(q))&&(cp==="*"||it.cap===cp)&&(s==="all"||stateOf(it)===s))}
+function filtered(){const q=OF.strip($("#q").value),cp=$("#fCap").value,s=$("#fSt").value;return st.items.filter(it=>(!q||OF.strip(it.den+" "+it.cod).includes(q))&&(cp==="*"||it.cap===cp)&&(s==="all"||(s==="sg"?!(it.pret>0)&&!!(it.sug||it.sugR):stateOf(it)===s)))}
 function capSel(){const caps=[...new Set(st.items.map(i=>i.cap))],cur=$("#fCap").value||"*";$("#fCap").innerHTML=`<option value="*">toate</option>`+caps.map(c=>`<option ${c===cur?"selected":""} value="${esc(c)}">${esc(c.slice(0,60))}</option>`).join("")}
 function renderItems(){capSel();const list=filtered(),LIM=innerWidth<=720?60:400,show=list.slice(0,LIM);
  $("#tb").innerHTML=show.map(it=>{const s=stateOf(it),tag=s==="ok"?`<span class="tag ok">${SCVI.icon("check",14,2.8)}confirmat</span>`:s==="wr"?`<span class="tag wr">verifică (${it.src==="cat"?"din catalog":it.src==="file"?"din fișier":it.src==="ref"?"din ofertă veche":"manual"})</span>`:`<span class="tag no">fără preț</span>`;
-  const sg=it.sug&&!(it.pret>0)&&catById(it.sug)?`<div class="sug">sugestie: ${esc(catById(it.sug).den.slice(0,60))} – ${fmt(catById(it.sug).pret)} <button data-a="sug" data-id="${it.id}">aplică</button></div>`:"";
-  const sgr=it.sugR&&!(it.pret>0)?`<div class="sug">ofertă veche: ${esc(String(it.sugR.d).slice(0,60))} – ${fmt(it.sugR.p)} (${esc(it.sugR.pr)}${it.sugR.an?", "+esc(it.sugR.an):""}) <button data-a="sugr" data-id="${it.id}">aplică</button></div>`:"";
+  const cc=it.pret>0&&it.src==="cat"&&!it.conf&&it.catId!=null?catById(it.catId):null;
+  const sg=cc?`<div class="sug">din catalog: ${esc(OF.entryLabel(cc).slice(0,70))}</div>`:it.sug&&!(it.pret>0)&&catById(it.sug)?`<div class="sug">sugestie${it.sugW?" ("+esc(it.sugW)+")":""}: ${esc(OF.entryLabel(catById(it.sug)).slice(0,60))} – ${fmt(catById(it.sug).pret)} <button data-a="sug" data-id="${it.id}">aplică</button></div>`:"";
+  const sgr=it.sugR&&!(it.pret>0)?`<div class="sug">ofertă veche${it.sugR.w?" ("+esc(it.sugR.w)+")":""}: ${esc(String(it.sugR.d).slice(0,60))} – ${fmt(it.sugR.p)} (${esc(it.sugR.pr)}${it.sugR.an?", "+esc(it.sugR.an):""}) <button data-a="sugr" data-id="${it.id}">aplică</button></div>`:"";
   return `<tr data-id="${it.id}"><td><input type="checkbox" data-a="conf" ${it.conf?"checked":""} ${it.pret>0?"":"disabled"} style="width:auto"></td><td><select data-a="cap" style="width:150px;font-size:12px">${capOpts(it.cap)}</select></td><td class="muted">${esc(it.cod)}</td><td class="desc"><div title="${esc(it.den)}">${esc(it.den)}</div></td><td>${esc(it.um)}</td>
   <td><input class="qty" data-a="q" value="${it.cant}"></td><td><input class="price" data-a="p" value="${it.pret>0?it.pret:""}" placeholder="lei/${esc(it.um)}"></td><td class="n" id="t${it.id}">${fmt(OF.total(it,st.adaos))}</td><td>${tag}${sg}${sgr}</td></tr>`}).join("");
  $("#tbInfo").textContent=`Afișez ${show.length} din ${list.length} filtrate (${st.items.length} total).`+(list.length>LIM?" Folosește căutarea/filtrele ca să restrângi lista.":"")+`  Fără preț: ${st.items.filter(i=>!(i.pret>0)).length}.`}
@@ -298,7 +307,7 @@ $("#tb").onchange=e=>{const a=e.target.dataset.a,tr=e.target.closest("tr");if(!a
   if(p>0){if($("#same").checked){const k=OF.keyOf(it.den),f=OF.umFamily(it.um);st.items.forEach(o=>{if(o!==it&&OF.keyOf(o.den)===k&&OF.umFamily(o.um)===f&&!(o.src==="manual"&&o.pret>0)){o.pret=p;o.src="manual";o.conf=true}})}
    if($("#learn").checked)learn(it)}}
  renderItems();save()};
-$("#tb").onclick=e=>{const a=e.target.dataset.a;if(a!=="sug"&&a!=="sugr")return;const it=st.items.find(i=>i.id==e.target.dataset.id);if(a==="sug"){const c=catById(it.sug);it.pret=c.pret;it.src="cat"}else{it.pret=it.sugR.p;it.src="ref"}it.conf=false;it.sug=null;it.sugR=null;renderItems();save()};
+$("#tb").onclick=e=>{const a=e.target.dataset.a;if(a!=="sug"&&a!=="sugr")return;const it=st.items.find(i=>i.id==e.target.dataset.id);if(a==="sug"){const c=catById(it.sug);it.pret=c.pret;it.src="cat";it.catId=c.id}else{it.pret=it.sugR.p;it.src="ref"}it.ap=1;it.conf=false;it.sug=null;it.sugR=null;renderItems();save()};
 function learn(it){const k=OF.keyOf(it.den),f=OF.umFamily(it.um);let c=catalog.find(x=>x.learned&&OF.keyOf(x.den)===k&&OF.umFamily(x.um)===f);
  if(c)c.pret=it.pret;else catalog.push({id:nextId++,dom:"ÎNVĂȚAT",sec:"",den:it.den,desc:"",um:it.um,pret:it.pret,learned:true});catDirty=true;rebuildCat()}
 $("#grp").onchange=e=>{st.grp=e.target.value;st.items.forEach(it=>it.cap=st.grp==="fisier"?(it.cap0||it.cap):OF.autoCap(it.den,it.cap0||it.cap));st.chapOv={};renderItems();save()};
@@ -309,6 +318,8 @@ $("#btnClear").onclick=()=>{if(confirm("Ștergi toată lista de poziții din pro
 function renderCat(){const q=OF.strip($("#cq").value),l=catalog.filter(c=>!q||OF.strip(c.den+" "+c.dom).includes(q)).slice(0,300);
  $("#ctb").innerHTML=l.map(c=>`<tr data-id="${c.id}"><td class="muted">${esc(c.dom)}</td><td><input data-a="den" value="${esc(c.den.replace(/\s+/g," "))}"></td><td><input data-a="um" style="width:60px" value="${esc(c.um)}"></td><td><input data-a="pret" class="price" value="${c.pret}"></td><td><button class="b g" data-a="del" aria-label="Șterge poziția">${SCVI.icon("x",16,2.4)}</button></td></tr>`).join("")}
 $("#cq").oninput=renderCat;
+function renderFam(){const el=$("#famList");if(!el)return;const g={};OF.famList().forEach(f=>{(g[f.grp]=g[f.grp]||[]).push(f)});
+ el.innerHTML=Object.keys(g).map(k=>`<h4>${esc(k)}</h4><ul>${g[k].map(f=>`<li>${esc(f.label)}${f.soft?' <span class="muted">– doar sugestie</span>':""}</li>`).join("")}</ul>`).join("")}
 function renderRef(){const q=OF.strip($("#rq").value),el=$("#rlist");if(!REF.length){el.innerHTML="Nu am încă prețuri din oferte vechi.";return}
  if(q.length<2){el.innerHTML=REF.length+" prețuri de manoperă din ofertele și situațiile tale (2023–2026). Scrie ce cauți.";return}
  const w=q.split(" ").filter(Boolean),l=REF.map((r,i)=>[r,i]).filter(([r])=>{const s=OF.strip(r.d+" "+r.pr);return w.every(x=>s.includes(x))}).slice(0,80);
@@ -368,12 +379,13 @@ $("#xl").onclick=async()=>{const ch=chapRows();if(!ch.length){alert("Nu ai pozi�
 /* ---------- proiecte ---------- */
 const newId=()=>"p"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 function openProject(id){if(CUR&&CUR!==id)DOCS["p/"+CUR]=clone(st);CUR=id;SCV.LS.set("scv-oferta-cur",id);st=normSt(clone(DOCS["p/"+id]||{}));
+ if(st.items.length&&st.mv!==OF.MV){autoMatch();save()}
  const e=IDX.list.find(x=>x.id===id);$("#pname").textContent=e?e.nume:"";renderAll();renderPlist()}
 function addProject(name,state){const id=newId();DOCS["p/"+id]=state||blankSt();IDX.list.unshift({id,nume:name,upd:todayIso()});store.put("p/"+id,()=>CUR===id?st:DOCS["p/"+id],0);store.put("index",()=>IDX,0);return id}
 /* cardul închis: proiectul deschis, valoarea lui și câte poziții au preț */
-function heroTop(lbl){const n=st.items.length,fara=st.items.filter(i=>!(i.pret>0)).length,sub=booted?chapRows().reduce((a,c)=>a+c.value,0):0;
+function heroTop(lbl){const n=st.items.length,fara=st.items.filter(i=>!(i.pret>0)).length,sgn=st.items.filter(i=>!(i.pret>0)&&(i.sug||i.sugR)).length,sub=booted?chapRows().reduce((a,c)=>a+c.value,0):0;
  return {sub,n,fara,head:`<div class="hr"><span class="hl">${lbl}</span><span class="hpill">${n===1?"o poziție":n+" poziții"}</span></div>`,
-  bar:n?`<div class="segb">${n-fara?`<i class="P" style="flex:${n-fara}"></i>`:""}${fara?`<i class="A" style="flex:${fara}"></i>`:""}</div><div class="lg"><span><b style="background:#3DDC84"></b>${n-fara} cu preț</span>${fara?`<span><b style="background:var(--neg-dot)"></b>${fara} fără preț</span>`:""}</div>`:`<div class="lg" style="margin-top:14px"><span>Nicio poziție încă. Adu lista de cantități din fila Cantități.</span></div>`}}
+  bar:n?`<div class="segb">${n-fara?`<i class="P" style="flex:${n-fara}"></i>`:""}${sgn?`<i class="CO" style="flex:${sgn}"></i>`:""}${fara-sgn?`<i class="A" style="flex:${fara-sgn}"></i>`:""}</div><div class="lg"><span><b style="background:#3DDC84"></b>${n-fara} cu preț</span>${sgn?`<span><b style="background:var(--warn-dot)"></b>${sgn} cu sugestie</span>`:""}${fara-sgn?`<span><b style="background:var(--neg-dot)"></b>${fara-sgn} fără preț</span>`:""}</div>`:`<div class="lg" style="margin-top:14px"><span>Nicio poziție încă. Adu lista de cantități din fila Cantități.</span></div>`}}
 function renderPhero(){const el=$("#phero");if(!el)return;const e=IDX.list.find(x=>x.id===CUR);if(!e){el.innerHTML="";return}const h=heroTop("Proiectul deschis");
  el.innerHTML=`<div class="hero">${h.head}<div class="hn">${esc(e.nume)}</div><div class="hb">${fmt(h.sub)}<span>lei fără TVA</span></div>${h.bar}</div>`}
 function renderPlist(){const act=IDX.list.filter(x=>!x.arh),arh=IDX.list.filter(x=>x.arh);renderPhero();
@@ -411,12 +423,12 @@ window.__st=()=>st;SCVI.fill(document);
   BASE_CAT=(DOCS.catalog0&&DOCS.catalog0.items)||[];
   catalog=(DOCS.catalog&&DOCS.catalog.items)?DOCS.catalog.items:BASE_CAT.map(x=>({...x}));
   nextId=Math.max(1,...catalog.map(c=>c.id||0))+1;
-  FIRMA=DOCS.firma||{};OF.HIST=DOCS.hist||{};REF=(DOCS.ref&&DOCS.ref.items)||[];pref=OF.prepCatalog(REF.map((r,i)=>({id:"r"+i,dom:"",sec:"",den:r.d,desc:"",um:r.u,pret:r.p})));
+  FIRMA=DOCS.firma||{};OF.HIST=DOCS.hist||{};REF=(DOCS.ref&&DOCS.ref.items)||[];pref=OF.prepCatalog(REF.map((r,i)=>({id:"r"+i,dom:"",sec:"",den:r.d,desc:"",um:r.u,pret:r.p,an:r.an})));
   IDX=DOCS.index&&Array.isArray(DOCS.index.list)?DOCS.index:{list:[]};
   booted=true;
   let cur=SCV.LS.get("scv-oferta-cur");
   if(!IDX.list.some(x=>x.id===cur&&!x.arh)){const f=IDX.list.find(x=>!x.arh);cur=f?f.id:addProject("Proiect nou")}
-  rebuildCat();openProject(cur);store.start();setSaved("");
+  rebuildCat();openProject(cur);store.start();setSaved("");renderFam();
   fetch("piata.json",{cache:"no-cache"}).then(x=>x.ok?x.json():null).then(j=>{PIATA=j;if(document.querySelector("#offer.on"))renderOffer()}).catch(()=>{});
  }catch(e){fail("Nu pot încărca datele: "+esc((e&&e.message)||e))}
 })();
@@ -441,7 +453,7 @@ $("#btnHist").onclick=()=>SCV.history({app:"oferta",
   restore:(p,d)=>{
     if(p.indexOf("p/")===0){const id=p.slice(2);DOCS[p]=clone(d);
       if(!IDX.list.some(x=>x.id===id)){IDX.list.unshift({id,nume:((d.proj&&d.proj.santier)||"").trim()||"Proiect recuperat",upd:todayIso()});store.put("index",()=>IDX,0)}
-      if(id===CUR){st=normSt(clone(d));renderAll()}
+      if(id===CUR){st=normSt(clone(d));if(st.items.length&&st.mv!==OF.MV)autoMatch();renderAll()}
       store.put(p,()=>CUR===id?st:DOCS["p/"+id],0);renderPlist()}
     else{onRemote(p,clone(d));store.put(p,()=>p==="index"?IDX:p==="catalog"?{items:catalog}:p==="firma"?FIRMA:OF.HIST,0)}
     alert("Am pus înapoi copia.")}});
