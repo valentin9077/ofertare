@@ -243,7 +243,7 @@
   const domOfCap = cap => { const s = strip(cap || ""); return /hidrant/.test(s) ? "h" : /termic|camera tehnica|ventiloconv|incalzire/.test(s) ? "t" : /sanitar|pluvial|canaliz/.test(s) ? "s" : /ventilat/.test(s) ? "v" : ""; };
 
   /** Pregătește catalogul: fiecare poziție e încadrată o dată. La pozițiile cu descriere, descrierea e cea care contează
-      (în lista UTCB denumirea scurtă e uneori doar „ROBINETI” sau „Teava PPR”, iar diametrul e în descriere). */
+      (în unele liste denumirea scurtă e uneori doar „ROBINETI” sau „Teava PPR”, iar diametrul e în descriere). */
   function prepCatalog(cat) {
     return cat.map(c => {
       const full = c.desc && String(c.desc).trim() ? c.desc + " | " + c.den : c.den;

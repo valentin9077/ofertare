@@ -25,7 +25,7 @@
     ws.getCell("F8").value = "OFERTA nr."; ws.getCell("F8").font = { bold: true }; ws.getCell("F8").alignment = { horizontal: "right" };
     const g8 = ws.getCell("G8"); g8.value = p.nrOferta || ""; g8.font = { bold: true, size: 12 }; fill(g8, CREAM); g8.border = box; g8.alignment = { horizontal: "center" };
     ws.getCell("H8").value = "Data:"; ws.getCell("H9").value = "Valabilă până:"; ["H8", "H9"].forEach(a => { ws.getCell(a).alignment = { horizontal: "right" }; ws.getCell(a).font = { bold: true }; });
-    const d0 = parseDate(p.data), d1 = new Date(d0.getTime() + 30 * 864e5);
+    const vz = +p.valab > 0 ? Math.round(+p.valab) : 30, d0 = parseDate(p.data), d1 = new Date(d0.getTime() + vz * 864e5);
     ws.getCell("I8").value = fmtDate(d0); ws.getCell("I9").value = fmtDate(d1);
     ["I8", "I9"].forEach(a => { fill(ws.getCell(a), CREAM); ws.getCell(a).border = box; ws.getCell(a).alignment = { horizontal: "center" }; });
 
@@ -43,8 +43,9 @@
     const chap = st.chap.filter(c => c.value > 0 || c.name);
     let r = H + 1;
     chap.forEach((c, i) => {
-      ws.getCell(r, 2).value = (i + 1) * 10; ws.getCell(r, 4).value = c.name; ws.getCell(r, 5).value = "buc"; ws.getCell(r, 6).value = 1;
-      ws.getCell(r, 7).value = c.value; ws.getCell(r, 8).value = { formula: `F${r}*G${r}`, result: c.value }; ws.getCell(r, 9).value = { formula: `H${r}*${(p.tva || 21) / 100}`, result: c.value * (p.tva || 21) / 100 };
+      const q = c.cant > 0 ? +c.cant : 1, pu = c.cant > 0 && c.pret != null ? +c.pret : c.value;
+      ws.getCell(r, 2).value = (i + 1) * 10; ws.getCell(r, 4).value = c.name; ws.getCell(r, 5).value = c.cant > 0 && c.um ? c.um : "buc"; ws.getCell(r, 6).value = q;
+      ws.getCell(r, 7).value = pu; ws.getCell(r, 8).value = { formula: `F${r}*G${r}`, result: c.value }; ws.getCell(r, 9).value = { formula: `H${r}*${(p.tva || 21) / 100}`, result: c.value * (p.tva || 21) / 100 };
       for (let k = 2; k <= 9; k++) { const x = ws.getCell(r, k); x.border = box; if (k >= 7) x.numFmt = LEI; if (k === 7) fill(x, CREAM); if (k === 5 || k === 6) x.alignment = { horizontal: "center" }; }
       ws.getCell(r, 4).alignment = { wrapText: true, vertical: "middle" }; r++;
     });
@@ -69,7 +70,7 @@
       `Ofertă doar de manoperă; materialele și echipamentele ${p.materialeDe || "sunt asigurate de beneficiar"}.`,
       `Avans ${p.avans || 30}% la semnare; restul pe situații de lucrări, conform graficului de decontare.`,
       `TVA ${p.tva || 21}% la încasare (art. 282 CF). Termen de execuție: ${p.termen || "conform contractului"}.`,
-      `Oferta este valabilă 30 zile de la data emiterii (${fmtDate(d0)}).`,
+      `Oferta este valabilă ${vz} zile de la data emiterii (${fmtDate(d0)}).`,
       `Execuție conform normativelor: ${p.normative || "I9, I13, GP 043, NP 059"}.`], GREY, "FF0F172A");
     block("GARANȚIE", [`${p.garantie || 24} luni pentru manoperă, de la recepție.`], GREEN, "FFFFFFFF");
     if (String(p.includeTxt || "").trim()) block("OFERTA INCLUDE", String(p.includeTxt).split("\n").map(x => x.replace(/^\s*[-•]\s*/, "")), GREY, "FF0F172A");
@@ -129,7 +130,7 @@
     if (inc.length) { line("OFERTA INCLUDE", { font: { bold: true } }); inc.forEach(x => line(x.startsWith("-") ? x : "-" + x)); r++; }
     const nu = String(p.nuInclude || "").split("\n").map(x => x.trim()).filter(Boolean);
     if (nu.length) { line("OFERTA NU INCLUDE", { font: { bold: true } }); nu.forEach(x => line(x.startsWith("-") ? x : "-" + x)); r++; }
-    line("Valabilitate oferta: 30 zile"); r++;
+    line("Valabilitate oferta: " + (+p.valab > 0 ? Math.round(+p.valab) : 30) + " zile"); r++;
     line("In speranta ca oferta noastra intruneste toate cerintele, asteptam raspunsul dumneavoastra.", { h: 32 }); r++;
     line("Cu stimă,"); line(p.semnatar || "", { font: { bold: true } });
     return wb;

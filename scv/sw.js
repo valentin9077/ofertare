@@ -1,12 +1,14 @@
 /* Lucru fără semnal: paginile vin întâi din rețea (mereu versiunea nouă), iar fără internet din ce s-a păstrat pe aparat.
    Bibliotecile mari și fonturile vin din păstrare. Cererile către baza de date nu trec pe aici.
    Toate adresele sunt relative la folderul aplicației. */
-const V = "scv-v7";
+const V = "scv-v8";
 const HERE = new URL("./", self.location).href;
-const SHELL = ["prezenta/", "ofertare/", "lib/scv.js", "lib/alarm.js", "lib/ui.css", "lib/icons.js", "lib/fonts.css", "lib/vendor/supabase.js", "ofertare/core.js", "ofertare/export.js", "ofertare/piata.json",
+const SHELL = ["prezenta/", "ofertare/", "lib/scv.js", "lib/alarm.js", "lib/ui.css", "lib/icons.js", "lib/fonts.css", "lib/vendor/supabase.js", "ofertare/core.js", "ofertare/export.js", "ofertare/piata.json", "ofertare/app.js", "ofertare/app.css", "ofertare/icons2.js", "ofertare/imp.js", "ofertare/wb.js",
+  "lib/vendor/jszip.min.js", "lib/vendor/exceljs.min.js", "lib/vendor/xlsx.full.min.js", "lib/vendor/pdf.min.js", "lib/vendor/pdf.worker.min.js",
   "prezenta/manifest.webmanifest", "prezenta/icon-192.png", "prezenta/apple-touch-icon.png", "ofertare/manifest.webmanifest", "ofertare/icon-192.png", "ofertare/apple-touch-icon.png"].map(p => new URL(p, HERE).href);
 const own = () => caches.open(V);
-self.addEventListener("install", e => { e.waitUntil(own().then(c => c.addAll(SHELL)).catch(() => { }).then(() => self.skipWaiting())); });
+/* fiecare fișier se păstrează separat: dacă unul nu vine (semnal slab), celelalte rămân */
+self.addEventListener("install", e => { e.waitUntil(own().then(c => Promise.all(SHELL.map(u => c.add(u).catch(() => { })))).catch(() => { }).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.indexOf("scv-") === 0 && k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", e => {
   const req = e.request;

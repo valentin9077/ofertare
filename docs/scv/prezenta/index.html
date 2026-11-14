@@ -408,7 +408,7 @@ function vConc(){
   h+=`<div class="card"><h3>Concedii introduse</h3><div class="list">`+(sorted.map(l=>{const e=S.emps.find(x=>x.id===l.emp);return `<div class="it"><span class="pill c-${l.tip}">${l.tip==="CO"?"Odihnă":l.tip==="CM"?"Medical":"Fără sal."}</span><b>${esc(e?e.nume:"?")}</b><span>${roDate(l.from)} – ${roDate(l.to)}</span><span class="mut">${workdaysBetween(l.from,l.to)} zile lucr.${l.nr?" • cert. "+esc(l.nr):""}${l.cod?" • cod "+esc(l.cod):""}${l.note?" • "+esc(l.note):""}</span><span class="sp"></span>${confirmDel===l.id?`<button class="btn r s" data-a="dell" data-id="${l.id}">Sigur? Șterge</button>`:`<button class="btn g s" data-a="askdel" data-id="${l.id}">Șterge</button>`}</div>`}).join("")||'<div class="mut">Niciun concediu introdus.</div>')+`</div></div>`;
   return h}
 function vSit(){
-  let h=`<div class="card"><h3>Șantier nou</h3><div class="row"><input id="newsite" placeholder="Nume (ex. Bușteni, 262 apartamente)" data-keep="1" style="flex:1"><button class="btn" data-a="addsite">+ Adaugă</button></div></div>`;
+  let h=`<div class="card"><h3>Șantier nou</h3><div class="row"><input id="newsite" placeholder="Nume (ex. Bloc B2, Casă Lalelelor)" data-keep="1" style="flex:1"><button class="btn" data-a="addsite">+ Adaugă</button></div></div>`;
   const un=unassigned();if(un)h+=`<div class="banner no">${un} zile „prezent” nu au șantier ales. Le alegi în fila Azi, pe ziua respectivă.</div>`;
   const arh=(S.sites||[]).filter(x=>x.arh);
   const sites=(S.sites||[]).filter(x=>!x.arh).slice().sort((a,b)=>(a.st==="fin")-(b.st==="fin")||(a.nume>b.nume?1:-1));
