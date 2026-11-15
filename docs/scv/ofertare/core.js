@@ -186,7 +186,7 @@
     ["distribuitor", "Distribuitor / colector", "t", /distribuitor|distribuitro\b|\bcolector|caset\w+ de distributie/],
     ["vas_exp", "Vas de expansiune", "t", /\bvas\w* (?:de )?expansiune/],
     ["pompa", "Pompă", "t", /\bpomp[aei]\b|\bpompele\b|electropomp/],
-    ["cazan", "Centrală termică / cazan", "t", /\bcazan|centrala termica|centrala murala|sursa (?:de )?preparare agent|\bcentral[aei]\b(?! de tratare| (?:de )?ventilare)(?=.{0,25}(?:condens|gaz|electric|combustibil|lemne|peleti|\d+ ?kw))/, null, /^\W*(?:kit|set)\b|detecti|detector|semnaliz|avertiz/],
+    ["cazan", "Centrală termică / cazan", "t", /\bcazan|centrala termica|centrala murala|sursa (?:de )?preparare agent|\bcentral[aei]\b(?! de tratare| (?:de )?ventilare)(?=.{0,25}(?:condens|gaz|electric|combustibil|lemne|peleti|\d+ ?kw))/, null, /central\w* (?:de )?(?:detecti|semnaliz|avertiz|alarm)|detector\w*.{0,25}central|^\W*kit\w* (?:de )?evacuar/],
     ["boiler", "Boiler / rezervor", "t", /\bboiler|\brezervor|\bbazin\b|\bseparator\b|butelie de egalizare|\bpuffer|acumulator\w* (?:de )?(?:apa|agent|caldura)/],
     ["pard_acc", "Accesorii pentru încălzirea în pardoseală (plăci, bandă, curbe, aditiv)", "t", /plac\w+ (?:cu )?nuturi|banda perimetrala|aditiv (?:beton|sapa|pentru sapa)|curb\w+ conducatoare|clips\w* (?:de )?fixare|agraf/],
     ["pardoseala", "Încălzire în pardoseală (montaj complet)", "t", /incalzire in pardoseala/],
@@ -197,7 +197,7 @@
     ["fiting", "Fitinguri (cot, teu, mufă, reducție, niplu, dop)", "s", /\bcot\b|\bcoturi\b|\bcurba\b|\bteu\b|\bteuri\b|\bmuf[ae]\b|\bmufe\b|reducti[ei]|\bnipl[ue]|\bdop\b|\bdopuri\b|\bbuson\w*|\bflans[ae]\b/, "dn"],
     // --- țevi (la urmă: multe denumiri conțin „țeavă” în descriere)
     ["rob_trecere", "", "s", /\brobineti?\b(?! (?:de )?(?:hidrant|incendiu))/, "dn"],
-    ["rob_coltar", "", "s", /\bcoltar\b(?!.{0,200}(?:vas\w* (?:de )?wc|set (?:de )?conectare))/, "dn", /\bprofil|faiant|gresie|placaj|tencui|gips|glet|termometr|manometr|drept sau coltar|coltar sau drept/],
+    ["rob_coltar", "", "s", /\bcoltar\b(?!.{0,200}(?:vas\w* (?:de )?wc|set (?:de )?conectare))/, "dn", /(?:profil\w*|faiant\w*|gresie|placaj\w*|tencui\w*|gips\w*|glet\w*) .{0,20}coltar|coltar\w* .{0,25}(?:profil|faiant|gresie|placaj|tencui|gips|glet|alumin)|termometr|manometr|drept sau coltar|coltar sau drept/],
     ["tub_protectie", "Tub / țeavă de protecție", "s", /(?:tub|teava|tevi)\w* (?:de )?protectie/, "dn"],
     ["teava", "Țeavă", "s", /\bteav[ai]\b|\btevi\b|\bconduct[ae]\b|\btub\b|\btuburi\b|coloane si distributie/, "dn"],
   ];

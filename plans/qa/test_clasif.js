@@ -10,6 +10,12 @@ const C = [
   ["Separator hidraulic centrala termica", "boiler"], ["Montaj radiator cu robinet coltar tur si retur", "radiator"],
   ["Robinet tur calorifer coltar 1/2", "rob_trecere"], ["Robinet termostatat coltar 1/2", "rob_termo"],
   ["Racord flexibil lavoar 1/2 cu robinet coltar", "racord"], ["Cot coltar 90 grade", "fiting"], ["Teava PPR pentru robinet coltar", "teava:ppr", "m"],
+  // recenzia a treia: excluderile doar lângă cuvântul cheie
+  ["Centrala termica murala in condensatie 24 kW, cu afisaj digital si semnalizare erori, electrod de detectie flacara", "cazan"],
+  ["Centrala termica in condensatie 35 kW, cu sistem de detectie a flacarii prin ionizare", "cazan"], ["Centrala murala 28 kW cu detector de fum evacuare", "cazan"],
+  ["Montaj centrala termica pe gaz 24 kW (inclusiv avertizare lipsa apa)", "cazan"], ["Centrala termica cu detectie gaz integrata", "cazan"],
+  ["Cazan din fonta pe combustibil solid 40 kW cu termometru si semnalizare supratemperatura", "cazan"], ["Kit centrala termica", "cazan"], ["Set centrala termica + kit evacuare", "cazan"],
+  ["Coltar 1/2 x 3/8 montat in perete placat cu faianta", "rob_coltar"],
   // ce trebuia rezolvat în prima recenzie rămâne rezolvat
   ["Centrala de detectie gaz metan", "gaz"], ["Centrala detectie gaze cu 4 zone", "gaz"], ["Kit evacuare centrala condens", null],
   ["Centrala termica in condensare 24 kW", "cazan"], ["Montaj centrala murala pe gaz", "cazan"], ["Panouri solare fotovoltaice 450W", null],
