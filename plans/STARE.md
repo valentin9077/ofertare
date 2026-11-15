@@ -11,3 +11,14 @@
 - 13:20 T8+T9 GATA: verificare cu lucrări uitate după tipul lucrării (brățări/suporți, căciulă ventilație, colțare, filtru și kit evacuare la centrală, grup de siguranță la boiler, ANRE la gaze) + sumă pe aparat pe capitol (sanitare/obiect, termice/calorifer, hidranți/cutie) față de mediana ofertelor tale sau oferta din 27.07.2026; doar când ~tot are preț. window.OFAPP pentru teste (doar citire). Test plans/qa/ui_chk.py.
 - 13:35 T10 GATA: piata.json.material (50 prețuri de raft: PPR, multistrat, cupru, PVC, fitinguri PPR, cu marcă și sursă), filtrul „Materiale” în Prețurile mele + fișa materialului (cu/fără TVA), secțiunea „Material, orientativ” în „De ce acest preț?” la țevi. Test plans/qa/ui_mat.py.
 - 14:10 T11 în lucru: compatibilitate oferte vechi (ui_compat.py 5/5: sume identice), toate testele UI și pe WebKit (Safari), verificare pe laptop 1280×800 (bara de jos aliniată la coloană), versiuni noi pentru telefoane (app.css v6, core.js v7, app.js v8, cache scv-v14), test Excel ui_xl.py 11/11 (subtotal, TVA, anexă, oferta scurtă, formule recalculate în LibreOffice = aceleași sume). piata.json readus la formatul inițial (în istoric apar doar adăugiri). Recenzie independentă pornită pe diferența față de producție.
+- 15:20 Recenzie independentă: 9 probleme confirmate, toate rezolvate:
+  1) condițiile (acces/urgență) se aplică și rândurilor scrise de mână (nu și reducerilor cu minus); în Excel prețul unitar e cel cu condiții;
+  2) codul de normă nu mai trece peste o lucrare recunoscută din text (ex. demontare);
+  3) intervalul de piață de pe card = cel din surse (se înmulțește doar la „zeci m / sute m”);
+  4–5) centrala de detecție gaz → gaze, kit evacuare → nerecunoscut ca înainte, panouri fotovoltaice / suport / set racordare ≠ panou solar termic;
+  6) tabelul de coduri refăcut doar din coduri verificate: lista ta Cez (39 de coduri cu descriere), devizul Sânpetru, devize F3 publice. SF04 = probă canalizare, SF05 = spălare, IC39 = distribuitor, SA03/SA04 = zincat cu diametru din literă, SA14 = PP-R; scoase SA01A, SA10/12, SA43, IC07A (neconfirmate);
+  7) adaosul fără condiții se păstrează exact (7,125 rămâne 7,125);
+  8) referința de material la cupru pe diametrul exterior (15 ≠ 22);
+  9) verificarea: kit evacuare găsit și după nume; grup de siguranță doar la boiler.
+  În plus: condiții vechi agățate după o schimbare pe versiunea veche nu se mai arată; „colțar” la profile de faianță/termometre nu mai e robinet; moloz rămâne ca înainte; dedurizare cu reper propriu; indicatorii ținuți minte pe ofertă (mai repede).
+  Teste: core 44/44, piata 9/9, condiții 5/5, UI 7+9+8+5, compatibilitate 5/5, Excel 11/11, remedieri 9/9 – Chrome și WebKit, telefon și laptop. Corpus 2.696 texte: 40 de schimbări față de producție, toate corecte.

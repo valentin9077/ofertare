@@ -94,7 +94,7 @@
     // --- în afara meseriei de bază (recunoscute ca să nu primească din greșeală un preț de instalații)
     ["piesa", "Piese și accesorii (sifon, capac, furtun, rozetă, set de fixare)", "s", /^(?:sifo\w+(?! (?:de )?pardoseala)|capac\w*|furtun\w*|rozet\w+|masc[aă]\w*|picior\w*|semipicior\w*|set\w* (?:de )?(?:fixare|prindere|montaj|suruburi)|surub\w*|ventil\w* (?:de )?scurgere|preaplin\w*)\b/],
     ["camin", "Cămin de vizitare / de vane", "s", /\bcamin\w*/],
-    ["terasament", "Săpături și terasamente", "p", /\bsapatur|\bumplutur|imprastier|compactare|\budare|excavat|sprijinir|transportul? rutier|\bpamant|\bnisip\b|banda avertizoare|\bmoloz/],
+    ["terasament", "Săpături și terasamente", "p", /\bsapatur|\bumplutur|imprastier|compactare|\budare|excavat|sprijinir|transportul? rutier|\bpamant|\bnisip\b|banda avertizoare/],
     ["clima_teava", "Țeavă frigorifică (cupru izolat)", "c", /^ø ?\d+[.,]\d+ ?(?:mm)? ?izolat|(?:teava|tevi|conduct[ae]) (?:de |din )?cupru\b(?=.{0,70}(?:izolat|frigorific|freon|6[.,]35|9[.,]52|12[.,]7|15[.,]88|19[.,]05|22[.,]2|28[.,]6))/, "mm"],
     ["pompa_caldura", "Pompă de căldură / chiller", "t", /pomp\w+ de caldura|\bchiller/],
     ["clima", "Climatizare (split, VRF)", "c", /\bsplit\b|monosplit|multisplit|\bvrf\b|\bvrv\b|freon|agent frigorific|branch joint|kit distributie|unitat\w+ (?:interioar|exterioar)|compresor condensator|aer conditionat|cabluri de interconectare/],
@@ -153,7 +153,7 @@
     ["storz", "Cuplaj Storz", "h", /\bstorz\b/, "dn"],
     ["sorb", "Sorb", "h", /\bsorb\b/, "dn"],
     // --- armături
-    ["rob_coltar", "Robinet colțar", "s", /robine\w+ coltar|rob\.? ?coltar|\bcoltar\b(?!.{0,200}(?:vas\w* (?:de )?wc|set (?:de )?conectare))/, "dn"],
+    ["rob_coltar", "Robinet colțar", "s", /robine\w+ coltar|rob\.? ?coltar|^(?!.*(?:\bprofil|faiant|gresie|placaj|tencui|gips|glet|termometr|manometr|drept sau coltar|coltar sau drept))(?=.*\bcoltar\b(?!.{0,200}(?:vas\w* (?:de )?wc|set (?:de )?conectare)))/, "dn"],
     ["rob_golire", "Robinet de golire", "s", /robine\w+ (?:de )?golire/, "dn"],
     ["rob_termo", "Robinet de calorifer tur (termostatat)", "t", /robine\w+ (?:de )?(?:calorifer|radiator) tur|robine\w+ termostat|cap\w* termostat/, "dn"],
     ["rob_retur", "Robinet de calorifer retur", "t", /robine\w+ (?:de )?(?:calorifer|radiator) retur|reglaj retur|detentor/, "dn"],
@@ -181,12 +181,12 @@
     ["rad_electric", "Radiator electric", "t", /radiato\w+ electric|convecto\w+ electric/],
     ["radiator", "Radiator / calorifer", "t", /\bradiato|\bcalorifer|convecto-?radiator/, "rad"],
     ["ventilo", "Ventiloconvector", "t", /ventilo-?convecto/],
-    ["solar", "Panou / colector solar termic", "t", /panou\w* solar|colector\w* solar|captator\w* solar/],
+    ["solar", "Panou / colector solar termic", "t", /^(?!\W*(?:set|kit|suport\w*|accesori\w*|racord\w*|cadru|structur\w*|fixar\w*)\b)(?!.*(?:fotovolt|\bpv\b)).*?(?:panou\w* solar|colector\w* solar|captator\w* solar)/],
     ["dedurizator", "Dedurizator / osmoză / tratare apă", "s", /dedurizat|statie de dedurizare|osmoz|sterilizator uv|lampa uv/],
     ["distribuitor", "Distribuitor / colector", "t", /distribuitor|distribuitro\b|\bcolector|caset\w+ de distributie/],
     ["vas_exp", "Vas de expansiune", "t", /\bvas\w* (?:de )?expansiune/],
     ["pompa", "Pompă", "t", /\bpomp[aei]\b|\bpompele\b|electropomp/],
-    ["cazan", "Centrală termică / cazan", "t", /\bcazan|centrala termica|centrala murala|sursa (?:de )?preparare agent|\bcentral[aei]\b(?! de tratare| (?:de )?ventilare)(?=.{0,25}(?:condens|gaz|electric|combustibil|lemne|peleti|\d+ ?kw))/],
+    ["cazan", "Centrală termică / cazan", "t", /^(?!\W*(?:kit|set)\b)(?!.*(?:detecti|detector|semnaliz|avertiz)).*?(?:\bcazan|centrala termica|centrala murala|sursa (?:de )?preparare agent|\bcentral[aei]\b(?! de tratare| (?:de )?ventilare)(?=.{0,25}(?:condens|gaz|electric|combustibil|lemne|peleti|\d+ ?kw)))/],
     ["boiler", "Boiler / rezervor", "t", /\bboiler|\brezervor|\bbazin\b|\bseparator\b|butelie de egalizare|\bpuffer|acumulator\w* (?:de )?(?:apa|agent|caldura)/],
     ["pard_acc", "Accesorii pentru încălzirea în pardoseală (plăci, bandă, curbe, aditiv)", "t", /plac\w+ (?:cu )?nuturi|banda perimetrala|aditiv (?:beton|sapa|pentru sapa)|curb\w+ conducatoare|clips\w* (?:de )?fixare|agraf/],
     ["pardoseala", "Încălzire în pardoseală (montaj complet)", "t", /incalzire in pardoseala/],
@@ -470,7 +470,7 @@
     const u = norm(String(item.um || "")).replace(/\./g, "").trim();
     for (const [re, k, base] of UMMULT) if (re.test(u)) {
       const r = priceItem0(Object.assign({}, item, { um: base }), T); if (!r) return null;
-      return Object.assign({}, r, { p: r2(r.p * k), why: r.why + " · prețul pe " + base + " înmulțit cu " + k + " (în listă unitatea e „" + String(item.um).trim() + "”)" });
+      return Object.assign({}, r, { p: r2(r.p * k), mult: k, why: r.why + " · prețul pe " + base + " înmulțit cu " + k + " (în listă unitatea e „" + String(item.um).trim() + "”)" });
     }
     return priceItem0(item, T);
   }
@@ -480,7 +480,7 @@
     const sm = T.same.get(keyOf(item.den) + "|" + um);
     if (sm && keyOf(item.den).length > 14) return { p: sm.p, lv: 2, why: "aceeași denumire ca în prețurile tale", lab: sm.lab, id: sm.id, fam: "", src: item.den };
     let fi = item.fam ? famInfo(item) : classify(item.den, item.um), byCod = false;
-    if ((!fi.fam || NOMATCH.has(fi.fam)) && item.cod) { const h = normHint(item.cod); if (h) { fi = famInfo({ den: item.den, um: item.um, fam: h.fam, sz: h.sz }); byCod = true; } }   // textul nu spune ce e, dar codul de normă spune
+    if ((!fi.fam || fi.fam === "teava") && item.cod) { const h = normHint(item.cod); if (h) { fi = famInfo({ den: item.den, um: item.um, fam: h.fam, sz: h.sz }); byCod = true; } }   // textul nu spune ce e (sau spune doar „țeavă”), dar codul de normă spune; nu trece peste o lucrare recunoscută (demontare, gaze, clima…)
     if (!fi.fam) return null;
     const dItem = (FAM[fi.fam] || [])[2] === "h" || domOfCap(item.cap) === "h" ? "h" : (domOfCap(item.cap0) || domOfCap(item.cap));
     if (isLump(item.um) && /\bvrf\b|\bvrv\b|multisplit/.test(fi.t)) return null;   // un sistem VRF întreg: nu există reper care să i se potrivească
@@ -547,19 +547,24 @@
 
   /* familie largă: sub același nume stau lucrări foarte diferite, deci un preț mediu pe familie nu spune nimic */
   const isBroad = fam => { const b = String(fam || "").replace(/:.*$/, ""); return LOOSE.has(b) || SOFT.has(b) || LOOSE.has(fam) || SOFT.has(fam); };
-  /* Codurile de normă de deviz din listele F3 (ex. SA01A02) spun ce lucrare e, chiar când textul e scurt sau scris altfel.
-     Doar codurile verificate în liste publice; la restul nu ghicim. */
+  /* Codurile de normă de deviz din listele F3 (ex. SA04C) spun ce lucrare e, chiar când textul e scurt sau scris altfel.
+     Doar coduri verificate: lista ta „Instalatii Sani+Term+Hidr Cez” (cod + descriere), devizul public Sânpetru (SA07, SD27B) și devize publice F3 (SA03/SA04/SA14–17).
+     Litera de după cifre dă diametrul doar unde l-am văzut confirmat; altfel nu ghicim mărimea. Mărimea e DN (PPR 20 mm = DN15). */
+  const ZN = { A: 15, B: 20, C: 25, D: 32, E: 40, F: 50, G: 65, H: 80 }, PPR = { B: 15, C: 20, D: 25, E: 32, F: 40, G: 50 };
   const NORMS = [
-    [/^SA01A0?1$/, "teava:ppr", 15], [/^SA01A0?2$/, "teava:ppr", 20], [/^SA01A0?3$/, "teava:ppr", 25],
+    [/^SA0[34]([A-H])\d*$/, "teava:zn", ZN],          // țeavă oțel zincat în coloane (SA03) / distribuție (SA04): A = 1/2" … H = 3"
     [/^SA07A0?1$/, "teava:zn", 50], [/^SA07B0?1$/, "teava:zn", 65],
-    [/^SA(?:12|10)[A-F]\d+$/, "teava:ppr", null], [/^SA35/, "fiting", null], [/^SA43/, "fixare", null],
-    [/^IC07A\d+$/, "fixare", null], [/^IC39/, "piesa_trecere", null],
-    [/^SD27B\d*$/, "hidrant_int", null], [/^SF02A\d*$/, "proba", null], [/^SF04A\d*$/, "spalare", null],
+    [/^SA14([B-G])\d*$/, "teava:ppr", PPR],           // țeavă PP-R prin polifuziune: B = 20 mm … G = 63 mm
+    [/^SA1[57][A-H]\d*$/, "teava:ppr", null], [/^IC36[A-H]\d*$/, "teava:ppr", null],
+    [/^SA35/, "fiting", null], [/^IC38/, "fiting", null],
+    [/^SA38/, "fixare", null], [/^IC40/, "fixare", null], [/^SA33/, "tub_protectie", null],
+    [/^IC39/, "distribuitor", null], [/^SD27B\d*$/, "hidrant_int", null],
+    [/^SF0[1-4][A-B]\d*$/, "proba", null], [/^SF05[A-B]\d*$/, "spalare", null],
   ];
   function normHint(cod) {
     const c = String(cod == null ? "" : cod).toUpperCase().replace(/[\s.\-]/g, "");
     if (!c) return null;
-    for (const [re, fam, sz] of NORMS) if (re.test(c)) return { fam, sz };
+    for (const [re, fam, sz] of NORMS) { const m = re.exec(c); if (m) return { fam, sz: sz && typeof sz === "object" ? (sz[m[1]] || null) : sz }; }
     return null;
   }
   const api = { normHint, QUAL, buildTarif, priceItem, nomLabel, KINDOF, domainOf, alikeOf, isLump, isBroad, CAPS, autoCap, counts, HIST, keyOf, strip, norm, feats, score, classify, famLabel, dnLabel, entryLabel, famList, MV, sizes, FAMS, G, prepCatalog, matchItem, total, chapters, risc, r2, umFamily };
