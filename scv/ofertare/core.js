@@ -243,6 +243,20 @@
     if (id.startsWith("teava:")) { const m = MATS.find(x => x[0] === id.slice(6)); return "Țeavă " + (m ? m[1] : ""); }
     return FAM[id] ? FAM[id][1] : id;
   }
+  /* Catalogul de lucrări: numele unei lucrări după familie, mărime și variantă („Țeavă PPR Ø25 (DN20)”, „Vas WC – suspendat”). */
+  const DN2DE = { 12: 16, 15: 20, 20: 25, 25: 32, 32: 40, 40: 50, 50: 63, 65: 75, 80: 90, 100: 110, 125: 125, 150: 160, 200: 200, 250: 250, 300: 315, 400: 400 };
+  const VARLAB = { dizabilitati: "pentru persoane cu dizabilități", fonta: "fontă", pvc: "PVC", pehd: "PEHD", pp: "PP", co2: "CO2", p50: "P50, transportabil", fotocelula: "cu senzor", hidrant: "hidranți", "de radiator": "de calorifer",
+    spalator: "spălător", wc: "WC", dus: "duș", interioara: "unitate interioară", exterioara: "unitate exterioară", functionare: "funcționare", terasa: "terasă" };
+  function nomLabel(fam, sz, vars) {
+    const base = famLabel(fam).replace(/ \(.*$/, "").replace(/:.*$/, "").trim(), kind = KINDOF(fam); let s = "";
+    if (sz != null && sz !== "") {
+      if (kind === "dn") { const mat = fam.startsWith("teava:") ? fam.slice(6) : "", sewer = mat === "pvc" || mat === "pp" || ["curatire", "sifon_pard", "receptor", "caciula", "aerator"].includes(fam), plastic = ["ppr", "pex", "mst", "pehd"].includes(mat);
+        s = (sewer || plastic) && DN2DE[sz] ? "Ø" + DN2DE[sz] + (plastic ? " (DN" + sz + ")" : "") : dnLabel(+sz); }
+      else s = szLabel(kind, +sz);
+    }
+    const full = norm(famLabel(fam)), vs = (vars || []).filter(v => { const V = VARIANTS.find(x => x[0] === v); return !(V && V[1].test(full)); });   // „wc” la Vas WC, „pvc” la Țeavă PVC: se înțeleg din nume
+    return base + (s ? " " + s : "") + (vs.length ? " – " + vs.map(v => VARLAB[v] || v).join(", ") : "");
+  }
   /** Denumirea unei poziții din catalog, cu dimensiunea adăugată dacă lipsește din nume („ROBINETI” → „ROBINETI DN25 (1")”). */
   function entryLabel(c) {
     const f = c.f || classify((c.desc ? c.desc + " | " : "") + c.den, c.um); let x = "";
@@ -361,12 +375,14 @@
 
   /** Tariful: lista de surse → puncte grupate pe familie și unitate.
       src: [{den, desc?, um, pret, q, an?, lab?, dom?, sec?, id?, learned?, lo?, hi?}]  (lo/hi = interval de DN la reperele de piață) */
+  const famInfo = c => { const k0 = KINDOF(c.fam), z = +c.sz || null, base = c.fam.replace(/:.*$/, ""), mat = c.fam.startsWith("teava:") ? c.fam.slice(6) : null;
+    return { t: norm(c.den), fam: c.fam, grp: (FAM[base] || [])[2] || null, um: umFamily(c.um), mat, dn: k0 === "dn" && z ? [z] : [], thick: k0 === "thick" ? z : null, rad: k0 === "rad" && z ? { h: null, l: z } : null, mm: k0 === "mm" ? z : null, vars: c.vars || [] }; };
   function buildTarif(src) {
     const T = { by: new Map(), name: new Map(), same: new Map(), n: 0 };
     for (const c of src) {
       if (!(+c.pret > 0)) continue;
       let f;
-      if (c.fam) { const k0 = KINDOF(c.fam), z = +c.sz || null; f = { t: norm(c.den), fam: c.fam, um: umFamily(c.um), dn: k0 === "dn" && z ? [z] : [], thick: k0 === "thick" ? z : null, rad: k0 === "rad" && z ? { h: null, l: z } : null, mm: k0 === "mm" ? z : null, vars: c.vars || [] }; }
+      if (c.fam) f = famInfo(c);
       else { const full = c.desc && String(c.desc).trim() ? c.desc + " | " + c.den : c.den; f = classify(full, c.um); const fd = classify(c.den, c.um);
         if (!f.fam || (fd.fam && f.fam !== fd.fam && !(c.desc && String(c.desc).trim().length > 12))) f = fd;
         if (f.fam && fd.fam === f.fam) { for (const d of fd.dn) if (!f.dn.includes(d)) f.dn.push(d); if (f.thick == null) f.thick = fd.thick; if (!f.rad) f.rad = fd.rad; if (f.mm == null) f.mm = fd.mm; } }
@@ -459,7 +475,7 @@
     if (ex) return { p: ex.p, lv: 1, why: "aceeași denumire, preț pus de tine", lab: ex.lab, id: ex.id, fam: "", src: item.den };
     const sm = T.same.get(keyOf(item.den) + "|" + um);
     if (sm && keyOf(item.den).length > 14) return { p: sm.p, lv: 2, why: "aceeași denumire ca în prețurile tale", lab: sm.lab, id: sm.id, fam: "", src: item.den };
-    const fi = classify(item.den, item.um); if (!fi.fam) return null;
+    const fi = item.fam ? famInfo(item) : classify(item.den, item.um); if (!fi.fam) return null;
     const dItem = (FAM[fi.fam] || [])[2] === "h" || domOfCap(item.cap) === "h" ? "h" : (domOfCap(item.cap0) || domOfCap(item.cap));
     if (isLump(item.um) && /\bvrf\b|\bvrv\b|multisplit/.test(fi.t)) return null;   // un sistem VRF întreg: nu există reper care să i se potrivească
     const lumpStrict = isLump(item.um) && WORKFAM.has(fi.fam.replace(/:.*$/, ""));
@@ -524,6 +540,6 @@
 
   /* familie largă: sub același nume stau lucrări foarte diferite, deci un preț mediu pe familie nu spune nimic */
   const isBroad = fam => { const b = String(fam || "").replace(/:.*$/, ""); return LOOSE.has(b) || SOFT.has(b) || LOOSE.has(fam) || SOFT.has(fam); };
-  const api = { QUAL, buildTarif, priceItem, domainOf, alikeOf, isLump, isBroad, CAPS, autoCap, counts, HIST, keyOf, strip, norm, feats, score, classify, famLabel, dnLabel, entryLabel, famList, MV, sizes, FAMS, G, prepCatalog, matchItem, total, chapters, risc, r2, umFamily };
+  const api = { QUAL, buildTarif, priceItem, nomLabel, KINDOF, domainOf, alikeOf, isLump, isBroad, CAPS, autoCap, counts, HIST, keyOf, strip, norm, feats, score, classify, famLabel, dnLabel, entryLabel, famList, MV, sizes, FAMS, G, prepCatalog, matchItem, total, chapters, risc, r2, umFamily };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.OF = api;
 })(typeof window !== "undefined" ? window : globalThis);
