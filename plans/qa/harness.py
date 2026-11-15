@@ -3,8 +3,13 @@ from playwright.async_api import async_playwright
 URL="http://127.0.0.1:8765/scv/ofertare/"
 MOCK=open("/home/claude/qa/mock-supabase.js").read()
 async def new_page(p, w=390, h=844, seed=None):
-    b = await p.chromium.launch(executable_path="/usr/bin/google-chrome", args=["--no-sandbox"])
-    ctx = await b.new_context(viewport={"width":w,"height":h}, device_scale_factor=2, service_workers="block")
+    import os
+    if os.environ.get("BROWSER") == "webkit":
+        b = await p.webkit.launch()
+        ctx = await b.new_context(viewport={"width":w,"height":h}, device_scale_factor=2, service_workers="block", is_mobile=False, has_touch=True)
+    else:
+        b = await p.chromium.launch(executable_path="/usr/bin/google-chrome", args=["--no-sandbox"])
+        ctx = await b.new_context(viewport={"width":int(os.environ.get("VW", w)),"height":int(os.environ.get("VH", h))}, device_scale_factor=2, service_workers="block")
     async def sup(route): await route.fulfill(status=200, content_type="application/javascript", body=MOCK)
     await ctx.route("**/lib/vendor/supabase.js*", sup)
     await ctx.route("**/*supabase.co/**", lambda r: r.abort())
