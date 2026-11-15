@@ -220,3 +220,9 @@ select.inp{background-color:var(--bg)}
 /* nimic de apăsat sub 40 px */
 .und button{min-height:42px}
 button.am2{min-height:42px}
+/* verificarea înainte de trimitere */
+.chk{margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--bg)}
+.chk b{display:block;font-size:14px;line-height:1.3}
+.chk .s{margin-top:4px}
+.chk .minis{margin-top:10px}
+.chk .minis button{background:#fff;border:1px solid var(--line, #E2E8F0)}

@@ -300,6 +300,35 @@ function rowHtml(r, i) {
   }
   return `<button class="tr${r.no ? " off" : ""}" data-a="row" data-id="${r.id}"><i>${nr}</i><div><b>${esc(r.den)}</b><span>${r.no ? "nu ofertez" : `${fq(r.cant)} ${esc(r.um)} × ${fmt(r.pret)} lei`}</span></div>${r.no ? `<em class="z">—</em>` : x.val !== 0 ? `<em>${fmt(x.val)}</em>` : `<em class="z">pune preț</em>`}</button>`;
 }
+/* ---------- verificare înainte de trimitere: lucrări care se uită de obicei, prețuri ieșite din tipar, date lipsă ---------- */
+const CHK_W = [   // [cheie, familiile care o „dovedesc”, cuvinte care arată că e deja pomenită la include / nu include, când se pune întrebarea, titlu, textul de pus la include / nu include]
+  ["proba", ["proba"], /\bprob/, f => f.pipe, "Nu văd nicio probă de presiune", "probe de presiune și de funcționare", "Normativele cer probă la rece, la cald și de funcționare. Dacă nu scrie nicăieri, beneficiarul poate spune că e în preț."],
+  ["spalare", ["spalare"], /spalar|dezinfect/, f => f.apa, "Nu văd spălarea și dezinfectarea instalației", "spălarea și dezinfectarea instalației", "La instalațiile de apă se cere spălare și, la apa potabilă, dezinfectare înainte de dare în folosință."],
+  ["pif", ["pif"], /puner\w+ in functiune|\bpif\b/, f => f.ech, "Nu văd punerea în funcțiune a echipamentelor", "punerea în funcțiune a echipamentelor", "Lista are echipamente (centrală, pompe, boiler, grup de pompare). Punerea lor în funcțiune se plătește de obicei separat."],
+  ["gol", ["gol", "strapungere"], /\bgol|strapung|carot/, f => f.pipe, "Golurile și străpungerile nu sunt pomenite", "goluri, străpungeri și carotări prin pereți și planșee", "Sunt cea mai deasă sursă de discuții pe șantier. Scrie limpede dacă sunt sau nu în preț."],
+  ["foc", ["etans_foc"], /\bfoc\b|antifoc|ignifug/, f => f.pipe, "Etanșările antifoc la treceri nu sunt pomenite", "etanșări antifoc la trecerile prin pereți și planșee", "Trecerile prin pereți și planșee rezistente la foc trebuie etanșate. Scrie dacă le faci tu sau nu."],
+];
+function checkOffer() {
+  const p = st.proj, items = offered(), out = [], fam = new Map(); let pipe = 0, apa = 0, ech = 0;
+  const of = items.concat(st.rows.filter(r => r.k !== "c" && !r.no && r.den).map(r => ({ den: r.den, um: r.um, cant: r.cant, pret: r.pret, src: "", conf: true, row: r.id })));   // și rândurile scrise de mână
+  of.forEach(it => { let c = null; try { c = OF.classify(it.den, it.um); } catch (e) { } const f = c && c.fam ? c.fam.replace(/:.*$/, "") : ""; fam.set(f, (fam.get(f) || 0) + 1);
+    if (c && c.fam && c.fam.indexOf("teava:") === 0) { pipe++; if (c.grp === "s" && !/pvc|pp$|fonta/.test(c.fam) && !(c.vars || []).some(v => v === "canalizare" || v === "pluvial")) apa++; }
+    if (["cazan", "pompa", "boiler", "grup_pompare", "pompa_caldura"].includes(f)) ech++; });
+  const fara = items.filter(i => !(i.pret > 0)).length, nest = items.filter(i => stOf(i) === "est").length;
+  if (!of.length) return out;
+  if (fara) out.push({ t: plural(fara, "O poziție nu are", "poziții nu au") + " preț", s: "Ori le pui preț, ori le treci la „nu ofertez”. Altfel oferta pleacă fără ele în sumă.", b: [["go", "#/o/" + CUR + "/fara", "Arată-le"]] });
+  if (nest) out.push({ t: plural(nest, "Un preț e estimat și nevăzut de tine", "prețuri sunt estimate și nevăzute de tine"), s: "Sunt socotite de aplicație, nu puse de tine. Uită-te peste ele înainte să trimiți.", b: [["go", "#/o/" + CUR + "/verifica", "Verifică"]] });
+  // prețuri ieșite din tipar față de prețurile tale pentru aceeași lucrare
+  const T = tarif(), odd = [];
+  of.forEach(it => { if (!(it.pret > 0) || (it.src === "cat" && !it.conf)) return; let r = null; try { r = OF.priceItem({ den: it.den, um: it.um, cap0: it.cap0, cap: it.cap }, T); } catch (e) { }
+    if (r && r.lv <= 2 && r.p > 0 && (it.pret < r.p * 0.5 || it.pret > r.p * 2)) odd.push({ it, r, d: Math.abs(it.pret - r.p) * (+it.cant || 0) }); });
+  odd.sort((a, b) => b.d - a.d).slice(0, 6).forEach(o => out.push({ t: "Preț neobișnuit: " + (o.it.den.length > 60 ? o.it.den.slice(0, 60) + "…" : o.it.den), s: "În ofertă e " + fmt(o.it.pret) + " lei / " + (o.it.um || "buc") + ", iar în prețurile tale e " + fmt(o.r.p) + " lei. Poate e voit, poate e o greșeală de tastare.", b: [o.it.row != null ? ["row", o.it.row, "Deschide rândul"] : ["pos", o.it.id, "Deschide poziția"]] }));
+  const txt = OF.strip(String(p.includeTxt || "") + " \n " + String(p.nuInclude || "")), F = { pipe, apa, ech };
+  CHK_W.forEach(w => { if (!w[3](F) || w[1].some(f => fam.get(f)) || w[2].test(txt)) return; out.push({ t: w[4], s: w[6], b: [["chkinc", w[0], "E în preț"], ["chknu", w[0], "Nu e în preț"]] }); });
+  if (!String(p.beneficiar || "").trim()) out.push({ t: "Lipsește beneficiarul", s: "Oferta pleacă fără numele celui căruia îi e adresată.", b: [["hben", "", "Scrie-l"]] });
+  if (!String(p.santier || "").trim()) out.push({ t: "Lipsește lucrarea", s: "Scrie pentru ce lucrare e oferta (adresa sau numele șantierului).", b: [["hluc", "", "Scrie-o"]] });
+  return out;
+}
 function vOffer() {
   const p = st.proj, e = entry(CUR), t = totals(), of = offered(), fara = of.filter(i => !(i.pret > 0)).length, nest = of.filter(i => stOf(i) === "est").length, ch = ic("chevron-right", 15, 2.4);
   const nu = String(p.nuInclude || "").split("\n").map(x => x.replace(/^\s*[-•]\s*/, "").trim()).filter(Boolean), inc = String(p.includeTxt || "").split("\n").map(x => x.replace(/^\s*[-•]\s*/, "").trim()).filter(Boolean);
@@ -313,6 +342,7 @@ ${st.rows.length ? st.rows.map(rowHtml).join("") : '<div class="hint">Oferta e g
 <div class="add"><button data-a="row" data-id="0" id="bRow">${ic("plus", 16, 2.6)}Rând nou</button><button data-a="imp" id="bImp">${ic("file-spreadsheet", 16, 2.2)}Adu o listă</button></div>
 ${fara ? `<button class="wrn" data-a="go" data-h="#/o/${CUR}/fara">${ic("triangle-alert", 16, 2.2)}${plural(fara, "o poziție nu are", "poziții nu au")} încă preț<span>arată-le</span></button>` : ""}
 ${nest ? `<button class="wrn q" data-a="go" data-h="#/o/${CUR}/verifica">${ic("circle-help", 16, 2.2)}${plural(nest, "un preț e estimat", "prețuri sunt estimate")}<span>verifică</span></button>` : ""}
+${of.length || st.rows.some(r => r.k !== "c") ? (nchk => `<button class="wrn q" data-a="chk" id="bChk">${ic("list-checks", 16, 2.2)}Verificare înainte de trimitere<span>${nchk ? plural(nchk, "un lucru", "lucruri") + " de văzut" : "e în regulă"}</span></button>`)(checkOffer().length) : ""}
 <div class="tl"><span>${fara ? "Subtotal până acum" : "Subtotal manoperă"} (fără TVA)</span><b id="tSub">${fmt(t.sub)}</b></div>
 <div class="tl"><span>TVA ${fq(p.tva)}%</span><b>${fmt(t.tva)}</b></div>
 <div class="tl T"><span>TOTAL CU TVA</span><span id="tTot">${fmt(t.tot)} lei</span></div>
@@ -614,11 +644,19 @@ function checks() {
   return PROB;
 }
 /* ---------- meniul ofertei: stare, alt total, copie, arhivă, „îmi iese?” ---------- */
+ACT.chk = () => { const xs = checkOffer();
+  sheet(h3("Verificare înainte de trimitere") + (xs.length ? `<p class="s">${plural(xs.length, "Un lucru", "lucruri")} de văzut. Nimic nu se schimbă singur: tu hotărăști la fiecare.</p>` + xs.map(x => `<div class="chk"><b>${esc(x.t)}</b><p class="s">${esc(x.s)}</p><div class="minis">${x.b.map(b => b[0] === "go" ? `<button data-a="go" data-h="${b[1]}">${b[2]}</button>` : b[0] === "row" ? `<button data-a="row" data-id="${esc(String(b[1]))}">${b[2]}</button>` : `<button data-a="${b[0]}" data-k="${esc(String(b[1]))}">${b[2]}</button>`).join("")}</div></div>`).join("")
+    : '<p class="s">Nu am găsit nimic de semnalat: toate pozițiile ofertate au preț, prețurile estimate sunt văzute, iar probele, spălarea, punerea în funcțiune, golurile și etanșările antifoc sunt fie în listă, fie pomenite la „include” / „nu include”.</p>') + '<button class="pri" data-a="x">Gata</button>'); };
+const chkPut = (el, field) => { const w = CHK_W.find(x => x[0] === el.dataset.k); if (!w) return; const p = st.proj, cur = String(p[field] || "").trim(); p[field] = (cur ? cur + "\n" : "") + w[5]; save(); render(); ACT.chk(); toast("Am scris „" + w[5] + "” la „" + (field === "includeTxt" ? "oferta include" : "oferta nu include") + "”."); };
+ACT.chkinc = el => chkPut(el, "includeTxt");
+ACT.chknu = el => chkPut(el, "nuInclude");
+ACT.pos = el => { const it = st.items.find(i => String(i.id) === String(el.dataset.k)); if (!it) return; closeOvl(); const r = st.rows.find(x => x.k === "c" && x.cap === it.cap); if (r) go("#/o/" + CUR + "/c/" + r.id); };
 ACT.menu = () => {
   const p = st.proj, e = entry(CUR), has = st.items.length > 0;
   sheet(h3("Oferta") + '<span class="lb">Cum stă</span><div class="seg">' + Object.keys(STARI).map(k => `<button data-a="stare" data-k="${k}" class="${(p.stare || "lucru") === k ? "on" : ""}">${STARI[k]}</button>`).join("") + "</div>" +
     op("target", "", "target", "Vreau alt total", "Scrii suma finală și prețurile se potrivesc singure.") +
     op("risc", "", "calculator", "Îmi iese?", "Câți oameni, câte zile: vezi ce îți rămâne.") +
+    (has ? op("chk", "", "list-checks", "Verifică oferta", "Poziții fără preț, prețuri neobișnuite, lucrări care se uită: probe, spălare, goluri.") : "") +
     op("dup", "", "copy", "Fă o copie", "Pentru o variantă sau pentru altă lucrare la fel.") +
     (has ? op("opts", "", "sliders-horizontal", "Rotunjire și adaos", "Capitole rotunjite, adaos la toate pozițiile.") : "") +
     (has && st.items.length ? op("domq", "", "ban", "Ce ofertez din listă", "Sanitare, termice, hidranți, ventilație, climatizare… alegi ce intră în ofertă.") : "") +
@@ -892,7 +930,7 @@ function onRemote(path, data) {
 }
 
 /* ---------- pornire ---------- */
-window.__of = { prod: () => prodRows(), prodOpen: i => ACT.pprod({ dataset: { k: i } }), nom: () => nomRows(), nomOpen: i => ACT.pnom({ dataset: { k: i } }), tarif, autoMatch, offered, effPrices, get st() { return st; }, get docs() { return DOCS; }, get idx() { return IDX; }, get cat() { return catalog; }, get firma() { return FIRMA; }, totals, rowInfo, searchPrices, scaleTo, checks, num, fmt, ref2n: () => ref2Pts().length };
+window.__of = { check: () => checkOffer(), prod: () => prodRows(), prodOpen: i => ACT.pprod({ dataset: { k: i } }), nom: () => nomRows(), nomOpen: i => ACT.pnom({ dataset: { k: i } }), tarif, autoMatch, offered, effPrices, get st() { return st; }, get docs() { return DOCS; }, get idx() { return IDX; }, get cat() { return catalog; }, get firma() { return FIRMA; }, totals, rowInfo, searchPrices, scaleTo, checks, num, fmt, ref2n: () => ref2Pts().length };
 (async function () {
   const fail = m => { $("#app").innerHTML = '<main><div class="emp">' + m + '<br><br><button class="sec" onclick="location.reload()">Încearcă din nou</button></div></main>'; };
   try {
