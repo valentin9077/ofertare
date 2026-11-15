@@ -239,3 +239,10 @@ button.tag{border:0;cursor:pointer;font-family:inherit}
 .wb b{font-size:17px}.wb p{margin:6px 0 0;font-size:13.5px;line-height:1.4}.wb p.m{color:var(--mut);font-size:12.5px}
 .wb .mt b{font-size:13.5px;padding:1px 8px;border-radius:7px}
 ul.wl{margin:8px 0 0;padding-left:18px;font-size:13px;line-height:1.5}ul.wl a{color:var(--link);overflow-wrap:anywhere}
+/* bara de jos cu totaluri (v2) */
+.bar.bt{align-items:center}
+.bar.bt .btot{flex:1.4;display:flex;flex-direction:column;justify-content:center;min-height:56px;padding:6px 14px;border-radius:16px;background:var(--surface);box-shadow:var(--sh1);line-height:1.15}
+.bar.bt .btot b{font-size:18px;font-weight:800;white-space:nowrap}
+.bar.bt .btot small{font-size:11.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar.bt .pri{flex:.8}
+.am2.cnd{background:var(--warn-bg)}

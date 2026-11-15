@@ -7,3 +7,4 @@
 - URMEAZĂ: integrare normHint în priceItem/classify când textul nu are familie (T3 rest), apoi T4+T5 (semafor, interval, termometru, fișa „De ce acest preț?”).
 - Unelte de test copiate în plans/qa/ (mock-supabase.js, harness.py, serve.sh, test_*.js). Pornire: plans/qa/serve.sh (servește docs/ pe :8765).
 - 12:50 T3 rest GATA (cod de normă în priceItem). T4+T5 GATA: semafor (bordura stânga), linie „Piață: min–max · din N surse” + sub/în/peste piață, fișa „De ce acest preț?” (sursa, piața cu linkuri, prețurile tale vechi), filtrul „De lucrat”. Test UI plans/qa/ui_flow.py 7/7.
+- 13:00 T6+T7 GATA: „Rotunjire, adaos și condiții” (acces greu +10/+20%, urgent +25%, noapte/sărbători +50%; st.cond; adaosul total = compunere, nu se adună de două ori), linie „Condiții:” în foaie, bară jos cu total fără/cu TVA și câte poziții au preț. Test plans/qa/ui_cond.py 9/9.

@@ -344,13 +344,14 @@ ${fara ? `<button class="wrn" data-a="go" data-h="#/o/${CUR}/fara">${ic("triangl
 ${nest ? `<button class="wrn q" data-a="go" data-h="#/o/${CUR}/verifica">${ic("circle-help", 16, 2.2)}${plural(nest, "un preț e estimat", "prețuri sunt estimate")}<span>verifică</span></button>` : ""}
 ${of.length || st.rows.some(r => r.k !== "c") ? (nchk => `<button class="wrn q" data-a="chk" id="bChk">${ic("list-checks", 16, 2.2)}Verificare înainte de trimitere<span>${nchk ? plural(nchk, "un lucru", "lucruri") + " de văzut" : "e în regulă"}</span></button>`)(checkOffer().length) : ""}
 <div class="tl"><span>${fara ? "Subtotal până acum" : "Subtotal manoperă"} (fără TVA)</span><b id="tSub">${fmt(t.sub)}</b></div>
+${condTxt() ? `<button class="am2 cnd" data-a="opts"><b>Condiții:</b> ${esc(condTxt())} – adaos total ${fq(st.adaos)}%</button>` : ""}
 <div class="tl"><span>TVA ${fq(p.tva)}%</span><b>${fmt(t.tva)}</b></div>
 <div class="tl T"><span>TOTAL CU TVA</span><span id="tTot">${fmt(t.tot)} lei</span></div>
 <button class="gr" data-a="cond"><b>Avans ${fq(p.avans)}%</b> la semnare: ${fmt(t.avans)} lei · <b>Garanție</b> ${fq(p.garantie)} luni · <b>Termen:</b> ${esc(p.termen || "—")}</button>
 ${inc.length ? `<button class="am2 inc" data-a="inc"><b>Include:</b> ${esc(inc.join(", "))}</button>` : ""}
 <button class="am2" data-a="inc"><b>Nu include:</b> ${esc(nu.join(", ") || "apasă și scrie")}</button>
 </div></main>
-<div class="bar"><button class="pri" data-a="xl" id="bXl">${ic("file-spreadsheet", 20, 2.2)}Descarcă Excel</button></div>`;
+<div class="bar bt"><div class="btot" id="bTot"><small>${of.length ? (of.length - fara) + " din " + of.length + " poziții au preț" : "fără TVA"}</small><b>${fmt(t.sub)} lei</b><small>cu TVA ${fmt(t.tot)}</small></div><button class="pri" data-a="xl" id="bXl">${ic("file-spreadsheet", 20, 2.2)}Excel</button></div>`;
 }
 
 /* ---------- pozițiile unui capitol (lista lungă) ---------- */
@@ -703,7 +704,7 @@ ACT.menu = () => {
     op("risc", "", "calculator", "Îmi iese?", "Câți oameni, câte zile: vezi ce îți rămâne.") +
     (has ? op("chk", "", "list-checks", "Verifică oferta", "Poziții fără preț, prețuri neobișnuite, lucrări care se uită: probe, spălare, goluri.") : "") +
     op("dup", "", "copy", "Fă o copie", "Pentru o variantă sau pentru altă lucrare la fel.") +
-    (has ? op("opts", "", "sliders-horizontal", "Rotunjire și adaos", "Capitole rotunjite, adaos la toate pozițiile.") : "") +
+    (has ? op("opts", "", "sliders-horizontal", "Rotunjire, adaos și condiții", "Capitole rotunjite, adaos, acces greu, urgență.") : "") +
     (has && st.items.length ? op("domq", "", "ban", "Ce ofertez din listă", "Sanitare, termice, hidranți, ventilație, climatizare… alegi ce intră în ofertă.") : "") +
     (has ? op("rematch", "", "refresh-cw", "Pune din nou prețurile", "După ce ți-ai schimbat prețurile. Ce ai pus sau ai verificat tu rămâne.") : "") +
     (e && e.arh ? op("unarh", "", "archive", "Scoate din arhivă", "O pui înapoi în lista de oferte.") : op("arh", "", "archive", "Arhivează", "Dispare din listă. O găsești la „Arhivă”.")) +
@@ -745,9 +746,20 @@ function scaleTo(target) {
   return r2(target - totals().sub);
 }
 ACT.tgtok = () => { const t = num(val("tgt")); if (!(t > 0)) { toast("Scrie suma dorită."); return; } if (!(totals().sub > 0)) { closeOvl(); toast("Oferta nu are încă prețuri."); return; } closeOvl(); let d = 0; undoable("Prețuri schimbate.", () => { d = scaleTo(t); }); if (d) toast("A ieșit " + fmt(totals().sub) + " lei (diferență de " + fmt(Math.abs(d)) + " lei din rotunjiri).", UNDO); };
-ACT.opts = () => { sheet(h3("Rotunjire și adaos") + '<span class="lb">Rotunjește fiecare capitol la</span><div class="seg" id="oRnd">' + [[0, "nimic"], [100, "100 lei"], [500, "500 lei"], [1000, "1.000 lei"]].map(([v, t]) => `<button data-a="segp" data-v="${v}" class="${(+st.rnd || 0) === v ? "on" : ""}">${t}</button>`).join("") + "</div>" + fld("oAd", "Adaos la toate pozițiile din listă (%)", edn(st.adaos), { n: 1, ph: "0" }) + '<button class="pri" data-a="optsok" data-ok="1">Gata</button>'); };
+/* Condiții de lucru (cercetarea din 15.11.2026): acces greu și urgență cresc toată manopera, transparent, peste adaosul tău.
+   Se păstrează separat (st.cond) și adaosul total se socotește din ele de fiecare dată, ca să nu se adune de două ori. */
+const COND = { acc: [[0, "normal"], [10, "greu +10%"], [20, "foarte greu +20%"]], urg: [[0, "normal"], [25, "urgent +25%"], [50, "noapte / sărbători +50%"]] };
+const condOf = s => { s = s || st; const c = s.cond || {}; return { adm: c.adm != null ? +c.adm : +s.adaos || 0, acc: +c.acc || 0, urg: +c.urg || 0 }; };
+const condAdaos = c => r2(((1 + (+c.adm || 0) / 100) * (1 + (+c.acc || 0) / 100) * (1 + (+c.urg || 0) / 100) - 1) * 100);
+const condTxt = s => { const c = condOf(s), t = []; if (c.acc) t.push("acces " + (c.acc >= 20 ? "foarte greu" : "greu") + " +" + c.acc + "%"); if (c.urg) t.push((c.urg >= 50 ? "noapte / sărbători" : "urgent") + " +" + c.urg + "%"); return t.join(" · "); };
+const segC = (id, k, cur) => `<div class="seg" id="${id}">` + COND[k].map(([v, t]) => `<button data-a="segp" data-v="${v}" class="${cur === v ? "on" : ""}">${t}</button>`).join("") + "</div>";
+ACT.opts = () => { const c = condOf(); sheet(h3("Rotunjire, adaos și condiții") + '<span class="lb">Rotunjește fiecare capitol la</span><div class="seg" id="oRnd">' + [[0, "nimic"], [100, "100 lei"], [500, "500 lei"], [1000, "1.000 lei"]].map(([v, t]) => `<button data-a="segp" data-v="${v}" class="${(+st.rnd || 0) === v ? "on" : ""}">${t}</button>`).join("") + "</div>" + fld("oAd", "Adaos la toate pozițiile din listă (%)", edn(c.adm), { n: 1, ph: "0" }) +
+  '<span class="lb">Acces la lucrare</span>' + segC("oAcc", "acc", c.acc) + '<p class="s" style="margin:6px 2px 0">Subsol, etaj fără lift, spații înguste, program impus de beneficiar.</p>' +
+  '<span class="lb">Urgență</span>' + segC("oUrg", "urg", c.urg) + '<p class="s" style="margin:6px 2px 0">Se adaugă peste prețuri; în ofertă apar deja socotite, iar aici vezi din ce vin.</p>' +
+  '<button class="pri" data-a="optsok" data-ok="1">Gata</button>'); };
 ACT.segp = el => { $$("button", el.parentNode).forEach(b => b.classList.toggle("on", b === el)); };
-ACT.optsok = () => { const b = $("#oRnd button.on"); st.rnd = b ? +b.dataset.v : 0; st.adaos = num(val("oAd")); save(); closeOvl(); render(); };
+ACT.optsok = () => { const b = $("#oRnd button.on"), on = id => { const x = $("#" + id + " button.on"); return x ? +x.dataset.v : 0; }; st.rnd = b ? +b.dataset.v : 0;
+  const c = { adm: num(val("oAd")), acc: on("oAcc"), urg: on("oUrg") }; if (c.acc || c.urg) st.cond = c; else delete st.cond; st.adaos = condAdaos(c); save(); closeOvl(); render(); };
 /* „Îmi iese?”: costul oamenilor față de ofertă */
 const RK = [["muncitori", "Câți oameni"], ["zile", "Câte zile de lucru"], ["oreZi", "Ore pe zi"], ["costOra", "Cât te costă un om pe oră (lei, cu tot cu taxe)"], ["deplasare", "Drum, cazare, diurnă (lei)"], ["materiale", "Alte cheltuieli (lei)"]];
 function riscOut() {

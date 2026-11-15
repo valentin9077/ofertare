@@ -16,3 +16,25 @@ async def new_page(p, w=390, h=844, seed=None):
     pg.on("console", lambda m: pg.logs.append(m.type+": "+m.text))
     pg.on("pageerror", lambda e: pg.logs.append("PAGEERROR: "+str(e)))
     return b, pg
+
+async def make_offer_from_list(pg, path, luc="Test", ben="Beneficiar test"):
+    await pg.goto(URL); await pg.wait_for_selector("#bNew", timeout=15000)
+    await pg.click("#bNew"); await pg.get_by_text("Am listă de la proiectant").first.click()
+    await pg.fill("#hLuc", luc); await pg.fill("#hBen", ben)
+    async with pg.expect_file_chooser() as fc:
+        await pg.click("[data-a=nmake]")
+        await pg.wait_for_timeout(800)
+        for sel in ["[data-a=impf]", "[data-a=impFile]", "text=Alege fișierul", "text=Alege un fișier"]:
+            if await pg.locator(sel).count():
+                await pg.locator(sel).first.click(); break
+    f = await fc.value; await f.set_files(path)
+    for i in range(8):
+        await pg.wait_for_timeout(1200)
+        prim = pg.locator("#ovl button.pri")
+        if await prim.count() and await prim.first.is_visible(): await prim.first.click()
+        else: break
+    await pg.wait_for_timeout(1200)
+
+def lei(t):
+    import re
+    m = re.search(r"([\d.]+(?:,\d+)?)", t.replace(" "," ")); return float(m.group(1).replace(".","").replace(",",".")) if m else None
