@@ -307,7 +307,39 @@ const CHK_W = [   // [cheie, familiile care o „dovedesc”, cuvinte care arat�
   ["pif", ["pif"], /puner\w+ in functiune|\bpif\b/, f => f.ech, "Nu văd punerea în funcțiune a echipamentelor", "punerea în funcțiune a echipamentelor", "Lista are echipamente (centrală, pompe, boiler, grup de pompare). Punerea lor în funcțiune se plătește de obicei separat."],
   ["gol", ["gol", "strapungere"], /\bgol|strapung|carot/, f => f.pipe, "Golurile și străpungerile nu sunt pomenite", "goluri, străpungeri și carotări prin pereți și planșee", "Sunt cea mai deasă sursă de discuții pe șantier. Scrie limpede dacă sunt sau nu în preț."],
   ["foc", ["etans_foc"], /\bfoc\b|antifoc|ignifug/, f => f.pipe, "Etanșările antifoc la treceri nu sunt pomenite", "etanșări antifoc la trecerile prin pereți și planșee", "Trecerile prin pereți și planșee rezistente la foc trebuie etanșate. Scrie dacă le faci tu sau nu."],
+  /* din cercetarea din 15.11.2026: ce lipsește des din oferte, după tipul lucrării */
+  ["fixare", ["fixare"], /bratar|brid|colier|suport/, f => f.pipe >= 5, "Nu văd brățări / suporți pentru țevi", "brățări, bride și suporți pentru conducte", "În devize apar ca poziții separate, pe fiecare diametru. Dacă nu sunt în listă, scrie limpede dacă sunt în preț."],
+  ["aerisire", ["caciula", "aerator"], /caciul|cap de coloan|aerisire|ventilare coloan/, f => f.canal >= 2, "Nu văd căciula de ventilație / capul de coloană", "căciulile de ventilație la coloanele de canalizare", "Coloanele de canalizare se termină cu căciulă de ventilație (sau aerator). Se uită des."],
+  ["coltar", ["rob_coltar"], /coltar|robinet\w* de colt/, f => f.obiecte >= 2, "Nu văd robineții colțar la obiectele sanitare", "robineți colțar la obiectele sanitare", "La fiecare lavoar, vas WC sau spălător se montează robinet colțar. Dacă sunt ale beneficiarului, scrie asta."],
+  ["filtru", ["filtru_y"], /filtru/, f => f.cazan, "Nu văd filtrul (magnetic) la centrală", "filtru magnetic / de impurități la centrală", "La o centrală nouă pe instalație veche, producătorii cer filtru magnetic pentru garanție."],
+  ["evac", [], /evacuar|cos de fum|kit de evacuare|tiraj/, f => f.cazan, "Nu văd kitul de evacuare / coșul de fum", "kitul de evacuare a gazelor arse / coșul de fum", "Centrala murală pe gaz are nevoie de kit de evacuare; montajul lui se plătește de obicei separat."],
+  ["siguranta", ["supapa_sig"], /grup\w* de siguranta|supap/, f => f.boiler, "Nu văd grupul de siguranță la boiler", "grupul de siguranță la boiler", "Boilerul se montează cu grup / supapă de siguranță. Se uită des."],
+  ["anre", [], /anre|receptie|documentati/, f => f.gaz, "Nu e pomenită documentația și recepția ANRE", "documentația și recepția ANRE pentru instalația de gaze", "La gaze, proiectul, dosarul și recepția cu firmă autorizată ANRE costă separat. Scrie cine le face."],
 ];
+/* Ce costă o lucrare întreagă pe aparat: sumele de pe sanitare, termice, hidranți împărțite la câte obiecte, calorifere, cutii de hidrant are lista.
+   Comparația se face cu ofertele tale de până acum; dacă nu sunt destule, cu oferta ta pe capitole din 27.07.2026. */
+/* pentru verificări automate (teste): citire, fără să schimbe nimic */
+window.OFAPP = { indOf: s => indOf(s), counts: () => OF.counts(offered()), items: () => offered().map(i => ({ den: i.den, um: i.um, cant: i.cant, pret: i.pret, dom: OF.domainOf(i.den, i.um) })), checks: () => checkOffer().map(x => x.t), totals: () => totals(), mkt: den => mktOf({ den, um: "buc" }) };
+const IND0 = { obiecte: [1500, "lei pe obiect sanitar", "s"], calorifere: [1200, "lei pe calorifer", "t"], cuti: [3500, "lei pe hidrant", "h"] };
+const INDF = { obiecte: [/sanitar/, /^(?:lavoar|vas_wc|pisoar|cada|spalator|bideu)$/], calorifere: [/termic|incalzir/, /^(?:radiator|rad_baie)$/], cuti: [/hidrant|incendiu|psi/, /^hidrant_int$/] };
+function indOf(s) {   // pe capitolele care sunt clar sanitare / termice / hidranți: suma capitolului ÷ câte obiecte, calorifere, cutii de hidrant are
+  s = s || st; const o = {};
+  for (const r of s.rows) {
+    if (r.k !== "c" || r.no) continue; const nm = OF.strip(r.cap + " " + r.den), k = Object.keys(INDF).find(x => INDF[x][0].test(nm)); if (!k || o[k]) continue;
+    const xs = s.items.filter(i => i.cap === r.cap && !isNo(i, s)); if (!xs.length) continue;
+    let n = 0, np = 0; xs.forEach(i => { let c = null; try { c = OF.classify(i.den, i.um); } catch (e) { } if (c && c.fam && INDF[k][1].test(c.fam) && OF.umFamily(i.um) === "buc") { n += +i.cant || 0; if (i.pret > 0) np += +i.cant || 0; } });
+    const pr = xs.filter(i => i.pret > 0).length, val = rowInfo(r, s).val;
+    if (n >= 3 && np >= n * 0.8 && pr >= xs.length * 0.8 && val > 0) o[k] = { n, v: r2(val), per: r2(val / n), cap: r.den };   // doar când aproape totul are preț: altfel „prea puțin” ar însemna doar „fără preț”
+  }
+  return o;
+}
+let INDH = null;
+function indHist() {   // mediana din ofertele tale (fără cea deschisă), pe fiecare indicator
+  const key = IDX.list.length + "|" + CUR; if (INDH && INDH.key === key) return INDH.v; const acc = {};
+  IDX.list.forEach(e => { if (e.id === CUR) return; const s = DOCS["p/" + e.id]; if (!s || !s.items || !s.items.length) return; let o = {}; try { o = indOf(s); } catch (x) { } Object.keys(o).forEach(k => (acc[k] = acc[k] || []).push(o[k].per)); });
+  const v = {}; Object.keys(acc).forEach(k => { const a = acc[k].sort((x, y) => x - y); if (a.length >= 2) v[k] = { per: a[Math.floor(a.length / 2)], n: a.length }; });
+  INDH = { key, v }; return v;
+}
 function checkOffer() {
   const p = st.proj, items = offered(), out = [], fam = new Map(); let pipe = 0, apa = 0, ech = 0;
   const of = items.concat(st.rows.filter(r => r.k !== "c" && !r.no && r.den).map(r => ({ den: r.den, um: r.um, cant: r.cant, pret: r.pret, src: "", conf: true, row: r.id })));   // și rândurile scrise de mână
@@ -323,7 +355,11 @@ function checkOffer() {
   of.forEach(it => { if (!(it.pret > 0) || (it.src === "cat" && !it.conf)) return; let r = null; try { r = OF.priceItem({ den: it.den, um: it.um, cap0: it.cap0, cap: it.cap }, T); } catch (e) { }
     if (r && r.lv <= 2 && r.p > 0 && (it.pret < r.p * 0.5 || it.pret > r.p * 2)) odd.push({ it, r, d: Math.abs(it.pret - r.p) * (+it.cant || 0) }); });
   odd.sort((a, b) => b.d - a.d).slice(0, 6).forEach(o => out.push({ t: "Preț neobișnuit: " + (o.it.den.length > 60 ? o.it.den.slice(0, 60) + "…" : o.it.den), s: "În ofertă e " + fmt(o.it.pret) + " lei / " + (o.it.um || "buc") + ", iar în prețurile tale e " + fmt(o.r.p) + " lei. Poate e voit, poate e o greșeală de tastare.", b: [o.it.row != null ? ["row", o.it.row, "Deschide rândul"] : ["pos", o.it.id, "Deschide poziția"]] }));
-  const txt = OF.strip(String(p.includeTxt || "") + " \n " + String(p.nuInclude || "")), F = { pipe, apa, ech };
+  const nc = OF.counts(items), canal = of.reduce((a, it) => { const c = OF.classify(it.den, it.um); return a + (c && c.fam && /^teava:(pp|pvc|fonta)$/.test(c.fam) ? 1 : 0); }, 0);
+  const txt = OF.strip(String(p.includeTxt || "") + " \n " + String(p.nuInclude || "")), F = { pipe, apa, ech, canal, obiecte: nc.obiecte || 0, cazan: !!fam.get("cazan"), boiler: !!fam.get("boiler"), gaz: (fam.get("gaz") || 0) >= 2 };
+  // sumă pe aparat față de ofertele tale (sau față de oferta pe capitole din iulie 2026)
+  try { const io = indOf(), ih = indHist(); Object.keys(io).forEach(k => { const x = io[k], h = ih[k], ref = h ? h.per : IND0[k][0], src = h ? "în " + plural(h.n, "o ofertă de-a ta", "oferte de-ale tale") + " (mediana)" : "în oferta ta pe capitole din 27.07.2026";
+    if (x.per < ref * 0.5 || x.per > ref * 2) out.push({ t: (x.per < ref ? "Prea puțin" : "Mult") + " pe " + IND0[k][1].replace(/^lei pe /, "") + ": " + fmt(x.per) + " lei", s: "Pe " + plural(x.n, "un aparat", "aparate") + " ies " + fmt(x.v) + " lei, adică " + fmt(x.per) + " " + IND0[k][1] + ". " + src.charAt(0).toUpperCase() + src.slice(1) + " era " + fmt(ref) + " " + IND0[k][1] + ". Poate lipsesc poziții, poate e o zecimală greșită – sau e voit.", b: [] }); }); } catch (e) { }
   CHK_W.forEach(w => { if (!w[3](F) || w[1].some(f => fam.get(f)) || w[2].test(txt)) return; out.push({ t: w[4], s: w[6], b: [["chkinc", w[0], "E în preț"], ["chknu", w[0], "Nu e în preț"]] }); });
   if (!String(p.beneficiar || "").trim()) out.push({ t: "Lipsește beneficiarul", s: "Oferta pleacă fără numele celui căruia îi e adresată.", b: [["hben", "", "Scrie-l"]] });
   if (!String(p.santier || "").trim()) out.push({ t: "Lipsește lucrarea", s: "Scrie pentru ce lucrare e oferta (adresa sau numele șantierului).", b: [["hluc", "", "Scrie-o"]] });
