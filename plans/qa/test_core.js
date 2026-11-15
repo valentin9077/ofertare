@@ -43,3 +43,13 @@ eq("cod SF02A1", (OF.normHint("SF02A1") || {}).fam, "proba");
 eq("cod SF04A1", (OF.normHint("SF04A1") || {}).fam, "spalare");
 eq("cod necunoscut", OF.normHint("XX99"), null);
 console.log(`core: ${ok} trecute, ${bad} picate`); fail.forEach(f => console.log("  ✗ " + f)); process.exitCode = bad ? 1 : 0;
+// T3 – codul de normă folosit la preț când textul e neclar
+{
+  const S = [{ den: "Țeavă PPR montată", fam: "teava:ppr", um: "ml", pret: 35, q: OF.QUAL.mkt, lab: "piață", id: "m1" }];
+  const T = OF.buildTarif(S);
+  const r = OF.priceItem({ den: "Conductă", um: "m", cod: "SA01A02" }, T);
+  eq("preț după cod", !!(r && r.p > 0), true);
+  eq("de ce: cod", !!(r && /codul SA01A02/.test(r.why)), true);
+  eq("fără cod: nimic", OF.priceItem({ den: "Conductă", um: "m" }, T), null);
+  console.log(`core+cod: ${ok} trecute, ${bad} picate`); fail.forEach(f => console.log("  ✗ " + f)); process.exitCode = bad ? 1 : 0;
+}

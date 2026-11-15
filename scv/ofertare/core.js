@@ -479,12 +479,15 @@
     if (ex) return { p: ex.p, lv: 1, why: "aceeași denumire, preț pus de tine", lab: ex.lab, id: ex.id, fam: "", src: item.den };
     const sm = T.same.get(keyOf(item.den) + "|" + um);
     if (sm && keyOf(item.den).length > 14) return { p: sm.p, lv: 2, why: "aceeași denumire ca în prețurile tale", lab: sm.lab, id: sm.id, fam: "", src: item.den };
-    const fi = item.fam ? famInfo(item) : classify(item.den, item.um); if (!fi.fam) return null;
+    let fi = item.fam ? famInfo(item) : classify(item.den, item.um), byCod = false;
+    if ((!fi.fam || NOMATCH.has(fi.fam)) && item.cod) { const h = normHint(item.cod); if (h) { fi = famInfo({ den: item.den, um: item.um, fam: h.fam, sz: h.sz }); byCod = true; } }   // textul nu spune ce e, dar codul de normă spune
+    if (!fi.fam) return null;
     const dItem = (FAM[fi.fam] || [])[2] === "h" || domOfCap(item.cap) === "h" ? "h" : (domOfCap(item.cap0) || domOfCap(item.cap));
     if (isLump(item.um) && /\bvrf\b|\bvrv\b|multisplit/.test(fi.t)) return null;   // un sistem VRF întreg: nu există reper care să i se potrivească
     const lumpStrict = isLump(item.um) && WORKFAM.has(fi.fam.replace(/:.*$/, ""));
     const ptsOf = k => { const a = T.by.get(k); return a && lumpStrict ? a.filter(p => p.lump) : a; };
     let r = pickIn(fi, ptsOf(fi.fam + "|" + fi.um), dItem, "");
+    if (r && byCod) r = Object.assign({}, r, { why: r.why + " · recunoscut după codul " + String(item.cod).trim() });
     if (r && r.lv <= 3) return r;
     for (const alt of alikeOf(fi.fam)) { const r2_ = pickIn(Object.assign({}, fi, { fam: alt, vars: fi.vars }), ptsOf(alt + "|" + fi.um), dItem, fi.fam && alt); if (r2_ && (!r || r2_.lv < r.lv)) { r = r2_; r.fam = fi.fam; break; } }
     return r;
