@@ -64,6 +64,7 @@
     const h = /(?:\bh ?=? ?|inaltime\w*(?: totala)?(?: de)? ?)(\d{3,4})(?!\d)/.exec(t), l = /(?:\bl ?=? ?|lungime\w*(?: de)? ?)(\d{3,4})(?!\d)/.exec(t);
     let H = h ? +h[1] : null, L = l ? +l[1] : null;
     if (!L) { const m = /(?:^|[^\d.,])(?:\d{2} ?[x×*] ?)?(\d{3}) ?[x×*\/] ?(\d{3,4})(?![\d.,])/.exec(t); if (m) { H = H || +m[1]; L = +m[2]; } }   // „22x600x1200”, „600/1000”
+    if (!L) { const m = /\b(?:1[01]|2[012]|33) ?[\/x] ?(\d{3}) ?- ?(\d{3,4})(?![\d.,])/.exec(t); if (m) { H = H || +m[1]; L = +m[2]; } }   // „22/600-1400”
     return H || L ? { h: H, l: L } : null;
   }
 
@@ -97,11 +98,11 @@
     ["clima_teava", "Țeavă frigorifică (cupru izolat)", "c", /^ø ?\d+[.,]\d+ ?(?:mm)? ?izolat|(?:teava|tevi|conduct[ae]) (?:de |din )?cupru\b(?=.{0,70}(?:izolat|frigorific|freon|6[.,]35|9[.,]52|12[.,]7|15[.,]88|19[.,]05|22[.,]2|28[.,]6))/, "mm"],
     ["pompa_caldura", "Pompă de căldură / chiller", "t", /pomp\w+ de caldura|\bchiller/],
     ["clima", "Climatizare (split, VRF)", "c", /\bsplit\b|monosplit|multisplit|\bvrf\b|\bvrv\b|freon|agent frigorific|branch joint|kit distributie|unitat\w+ (?:interioar|exterioar)|compresor condensator|aer conditionat|cabluri de interconectare/],
-    ["vent_clapeta", "Clapetă antifoc / de reglaj (ventilație)", "v", /clapet\w+ (?:rectangular|circular|antifoc|rezistent\w+ la foc|de reglaj|de aer)/],
+    ["vent_clapeta", "Clapetă antifoc / de reglaj (ventilație)", "v", /clapet\w+ (?:rectangular|circular|antifoc|rezistent\w+ la foc|de reglaj|de reglare|de aer|cu contragreutate)|registru\w* (?:de )?reglaj|clap\.? ?de regl/],
     ["vent_tub_c", "Tubulatură circulară", "v", /tubulatur\w+ circular|canal\w* de aer circular(?! flexibil)|conduct\w+ de aer circular/, "mm"],
-    ["vent_tub_r", "Tubulatură rectangulară", "v", /tubulatur\w+ rectangular|canal\w* de aer rectangular|conduct\w+ de aer rectangular/],
+    ["vent_tub_r", "Tubulatură rectangulară", "v", /tubulatur\w+ rectangular|canal\w* de aer rectangular|conduct\w+ de aer rectangular|canale drepte/],
     ["vent_flex", "Tubulatură flexibilă", "v", /tubulatur\w+ flexibil|canal\w* de aer circular flexibil|tub flexibil/, "mm"],
-    ["vent_grila", "Grile și anemostate", "v", /\bgril[ae]\b|anemostat|difuzor|\bvalv[ae] (?:cu con|de aspiratie|aspiratie|de evacuare)|priza de (?:aer|admisie)/],
+    ["vent_grila", "Grile și anemostate", "v", /\bgril[ae]\b|anemostat|difuzor|\bvalv[ae] (?:cu con|de aspiratie|aspiratie|de evacuare)|priza de (?:aer|admisie)|gur\w+ de (?:refulare|absorbtie)|ram\w+ (?:rectangular\w+ )?cu jaluzele/],
     ["vent", "Ventilație (alte poziții)", "v", /tubulatur|canal\w* de aer|ventilator|\bcta\b|centrala de tratare|agregat de ventilare|recuperator|\bhota\b|\bhote\b|burduf|jacheting|piese speciale|debitului de aer|plenum|atenuator|conducte de aer/],
     ["gaz", "Instalație de gaze", "g", /\bgaz(?:e|elor)?\b/],
     ["electric", "Electrice", "e", /\bcablu|\bcabluri|\btablou\w* electric|energie electrica/],
@@ -126,7 +127,7 @@
     ["sifon_pard", "Sifon de pardoseală / gură de scurgere", "s", /sifo\w+ (?:de )?pardoseala|gur\w+ de scurgere/, "dn"],
     ["rigola", "Rigolă de duș", "s", /\brigol/],
     ["aerator", "Aerator cu membrană (canalizare)", "s", /\baerator/, "dn"],
-    ["caciula", "Căciulă de ventilație", "s", /caciul\w+ (?:de )?ventilati/, "dn"],
+    ["caciula", "Căciulă de ventilație", "s", /caciul\w+ (?:de )?(?:ventila|protectie|prot\b)/, "dn"],
     ["garnitura", "Garnitură de etanșare", "s", /\bgarnitur/, "dn"],
     ["baterie", "Baterie (lavoar, spălător, duș)", "s", /\bbateri[ei]\b/],
     ["coloana_dus", "Coloană de duș", "s", /coloan\w+ de dus/],
@@ -136,11 +137,11 @@
     ["pisoar", "Pisoar", "s", /\bpisoar/],
     ["cada", "Cadă / cădiță / cabină de duș", "s", /\bcada\b|\bcazi\b|cadit|cabin\w+ (?:de )?dus/],
     ["spalator", "Spălător / chiuvetă", "s", /\bspalator|chiuvet/],
-    ["accesorii", "Accesorii baie (oglindă, portprosop, săpunieră)", "s", /\boglin|port-?prosop|port-?hartie|sapunier|etajer|dispenser|uscator de maini|bar\w+ (?:de )?sprijin/],
+    ["accesorii", "Accesorii baie (oglindă, portprosop, săpunieră)", "s", /\boglin|port-?prosop|port-?hartie|sapunier|etajer|dispenser|uscator de m[ai]ini|bar\w+ (?:de )?sprijin/],
     // --- hidranți
     ["hidrant_ext", "Hidrant exterior", "h", /hidran\w+ exterior|hidran\w+ suprateran|hidran\w+ subteran/],
     ["distr_hidranti", "Distribuitor hidranți", "h", /distribuitor\w* hidran/],
-    ["grup_pompare", "Grup de pompare", "t", /grup\w* (?:de )?pompare|statie (?:de )?pompare/],
+    ["grup_pompare", "Grup de pompare", "t", /grup\w* (?:de )?pompare|statie (?:de )?pompare|grup\w* compact\w* de ridic/],
     ["rob_hidrant", "Robinet de hidrant", "h", /robine\w+ (?:de |pentru )?(?:hidrant|incendiu)/, "dn"],
     ["hidrant_int", "Hidrant interior (cutie completă)", "h", /hidran\w+ interior|cutie\w* (?:de )?hidran|\bhidrant\b/],
     ["sprinkler", "Sprinkler", "h", /sprinkler/],
@@ -154,8 +155,8 @@
     ["rob_golire", "Robinet de golire", "s", /robine\w+ (?:de )?golire/, "dn"],
     ["rob_termo", "Robinet de calorifer tur (termostatat)", "t", /robine\w+ (?:de )?(?:calorifer|radiator) tur|robine\w+ termostat|cap\w* termostat/, "dn"],
     ["rob_retur", "Robinet de calorifer retur", "t", /robine\w+ (?:de )?(?:calorifer|radiator) retur|reglaj retur|detentor/, "dn"],
-    ["rob_reglaj", "Robinet de reglaj / echilibrare", "t", /robine\w+ de (?:reglaj|echilibrare)|van\w+ de echilibrare/, "dn"],
-    ["rob_plutitor", "Robinet cu plutitor", "s", /robine\w+ cu plutitor/, "dn"],
+    ["rob_reglaj", "Robinet de reglaj / echilibrare", "t", /robine\w+ de (?:reglaj|echilibrare)|van\w+ de echilibrare|regulator\w* de (?:debit|echilibrare)/, "dn"],
+    ["rob_plutitor", "Robinet cu plutitor", "s", /robine\w+ cu plutitor|plutito(?:r|are) (?:mecanic\w*|pentru alimentare)/, "dn"],
     ["vana_fluture", "Vană fluture", "s", /van\w+ (?:tip )?fluture/, "dn"],
     ["electrovana", "Electrovană", "s", /electrovan/, "dn"],
     ["vana_3c", "Vană cu 3 căi", "t", /van\w+ cu (?:3|trei) cai|\bv3c\b/, "dn"],
@@ -163,22 +164,22 @@
     ["vana_amestec", "Ventil / vană termostatică de amestec", "t", /(?:ventil|vana|vane) termostatic|van\w+ de amestec/, "dn"],
     ["rob_trecere", "Robinet de trecere (de sectorizare, cu sferă, cu bilă, de separație, de închidere)", "s",
       /robine\w+ (?:de )?(?:sectorizare|trecere|inchidere|izolare|separatie|separare)|robine\w+ (?:cu )?(?:sfera|bila)\b|robine\w+ sferic|van\w+ cu (?:sfera|bila)/, "dn"],
-    ["clapeta_sens", "Clapetă de sens (supapă de sens, de reținere)", "s", /clapet\w+ (?:de )?(?:sens|retinere)|supap\w+ (?:de )?sens|clapet\w+ antiretur/, "dn"],
-    ["filtru_y", "Filtru de impurități (tip Y)", "s", /filtru\w* (?:de )?impuritati|filtru\w* (?:tip )?"?y\b|filtru\w* (?:cu )?sita/, "dn"],
+    ["clapeta_sens", "Clapetă de sens (supapă de sens, de reținere)", "s", /clapet\w+ (?:de )?(?:sens|retinere)|supap\w+ (?:de )?sens|clapet\w+ anti[ -]?retur/, "dn"],
+    ["filtru_y", "Filtru de impurități (tip Y)", "s", /filtru\w* (?:de )?impuritati|filtru\w* (?:tip )?"?y\b|filtru\w* (?:cu )?sita|filtru\w* anticalcar/, "dn"],
     ["supapa_sig", "Supapă de siguranță", "s", /supap\w+ (?:de )?siguranta/, "dn"],
-    ["aerisitor", "Aerisitor (dezaerator, ventil de aerisire)", "t", /aerisitor|dezaerator|ventil\w* (?:automat\w* )?de aerisire|robine\w+ de aerisire/, "dn"],
+    ["aerisitor", "Aerisitor (dezaerator, ventil de aerisire)", "t", /aerisitor|dezaerator|ventil\w* (?:automat\w* )?de aerisire|robine\w+ de aerisire|\bpurjor/, "dn"],
     ["manometru", "Manometru", "s", /\bmanometr/],
     ["termometru", "Termometru", "t", /\btermometr/],
-    ["senzor", "Senzor / termostat", "t", /\bsenzor|\btermostat\b|\bsonda\b/],
+    ["senzor", "Senzor / termostat", "t", /\bsenzor|\btermostat\b|\bsonda\b|\bpreso?s?tat/],
     ["antivibrant", "Racord / manșon antivibrant", "s", /(?:manson|racord|compensator)\w* (?:de )?antivibra|compensator/, "dn"],
     ["reductor", "Reductor / regulator de presiune", "s", /(?:reductor|regulator)\w* (?:de )?presiune/, "dn"],
-    ["contor", "Apometru / contor / debitmetru", "s", /apometr|\bcontor|debitmetr/, "dn"],
+    ["contor", "Apometru / contor / debitmetru", "s", /apometr|\bcontor|\bcontoare\b|debitmetr/, "dn"],
     // --- termice
     ["rad_baie", "Radiator de baie (portprosop)", "t", /radiato\w+ (?:de )?baie|radiato\w+ portprosop|calorifer\w* (?:de )?baie/],
     ["rad_electric", "Radiator electric", "t", /radiato\w+ electric|convecto\w+ electric/],
-    ["radiator", "Radiator / calorifer", "t", /\bradiato|\bcalorifer/, "rad"],
+    ["radiator", "Radiator / calorifer", "t", /\bradiato|\bcalorifer|convecto-?radiator/, "rad"],
     ["ventilo", "Ventiloconvector", "t", /ventilo-?convecto/],
-    ["distribuitor", "Distribuitor / colector", "t", /distribuitor|\bcolector/],
+    ["distribuitor", "Distribuitor / colector", "t", /distribuitor|distribuitro\b|\bcolector|caset\w+ de distributie/],
     ["vas_exp", "Vas de expansiune", "t", /\bvas\w* (?:de )?expansiune/],
     ["pompa", "Pompă", "t", /\bpomp[aei]\b|\bpompele\b|electropomp/],
     ["cazan", "Centrală termică / cazan", "t", /\bcazan|centrala termica|centrala murala|sursa (?:de )?preparare agent/],
@@ -186,7 +187,7 @@
     ["pard_acc", "Accesorii pentru încălzirea în pardoseală (plăci, bandă, curbe, aditiv)", "t", /plac\w+ (?:cu )?nuturi|banda perimetrala|aditiv (?:beton|sapa|pentru sapa)|curb\w+ conducatoare|clips\w* (?:de )?fixare|agraf/],
     ["pardoseala", "Încălzire în pardoseală (montaj complet)", "t", /incalzire in pardoseala/],
     // --- fixări (brățară = bridă = colier = clemă; suporți)
-    ["fixare", "Fixare conducte: brățări, bride, coliere, cleme, suporți", "s", /\bbratar[aiă]|\bbratari\b|\bbrid[ae]\b|\bbride\b|\bcolier|\bclem[ae]\b|\bcleme\b|\bsuport[i]?\b|dispozitive de (?:sustinere|fixare)|\bconsol[ae]\b|\bconsole\b/, "dn"],
+    ["fixare", "Fixare conducte: brățări, bride, coliere, cleme, suporți", "s", /\bbratar[aiă]|\bbratari\b|\bbrid[ae]\b|\bbride\b|\bcolier|\bclem[ae]\b|\bcleme\b|\bsuport[i]?\b|dispozitive de (?:sustinere|fixare)|elemente de sustinere|\bconsol[ae]\b|\bconsole\b/, "dn"],
     // --- fitinguri mărunte
     ["racord", "Racord (olandez, eurocon, flexibil)", "s", /\bracord(?!\w* (?:fix |tip |incendiu tip )?storz)/, "dn"],
     ["fiting", "Fitinguri (cot, teu, mufă, reducție, niplu, dop)", "s", /\bcot\b|\bcoturi\b|\bcurba\b|\bteu\b|\bteuri\b|\bmuf[ae]\b|\bmufe\b|reducti[ei]|\bnipl[ue]|\bdop\b|\bdopuri\b|\bflans[ae]\b/, "dn"],
@@ -443,7 +444,17 @@
     return null;
   }
   /** Prețul unei poziții. Întoarce {p, lv, why, lab, id, fam, src} sau null. */
+  const UMMULT = [[/^zeci ?(?:de )?(?:m|ml|metri)$/, 10, "ml"], [/^(?:sute|suta|100) ?(?:de )?(?:m|ml|metri)$/, 100, "ml"], [/^zeci ?(?:de )?mp$/, 10, "mp"], [/^(?:sute|suta|100) ?(?:de )?mp$/, 100, "mp"], [/^(?:sute|suta|100) ?(?:de )?mc$/, 100, "mc"], [/^zeci ?(?:de )?(?:buc|bucati)$/, 10, "buc"]];
+  /** Prețul unei poziții. Unitățile de deviz „zeci m”, „sute m”, „100 mc” se socotesc din prețul pe unitatea simplă, înmulțit. */
   function priceItem(item, T) {
+    const u = norm(String(item.um || "")).replace(/\./g, "").trim();
+    for (const [re, k, base] of UMMULT) if (re.test(u)) {
+      const r = priceItem0(Object.assign({}, item, { um: base }), T); if (!r) return null;
+      return Object.assign({}, r, { p: r2(r.p * k), why: r.why + " · prețul pe " + base + " înmulțit cu " + k + " (în listă unitatea e „" + String(item.um).trim() + "”)" });
+    }
+    return priceItem0(item, T);
+  }
+  function priceItem0(item, T) {
     const um = umFamily(item.um), ex = T.name.get(keyOf(item.den) + "|" + um);
     if (ex) return { p: ex.p, lv: 1, why: "aceeași denumire, preț pus de tine", lab: ex.lab, id: ex.id, fam: "", src: item.den };
     const sm = T.same.get(keyOf(item.den) + "|" + um);

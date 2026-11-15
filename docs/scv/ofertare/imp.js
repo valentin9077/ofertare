@@ -788,7 +788,7 @@
       if (R) { flush(); cur = { nr: R.nr, cod: R.cod, um: R.um, q: R.q, p: L.p, a: { t: "" }, b: { t: "" }, tot: false, end: false }; return; }
       if (!cur || cur.end) return;
       var nums = 0, txt = [];
-      L.segs.forEach(function (s) { if (isNum(s.t)) { nums++; return; } if (/^sp\.\s?(mat|man|uti|tra)/i.test(s.t)) return; var u = s.t; if (/^asimilat\b/i.test(u)) { cur.tot = true; u = u.replace(/^asimilat\b\s*/i, ""); if (!u) return; } txt.push(u); });
+      L.segs.forEach(function (s) { if (isNum(s.t)) { nums++; return; } if (/^sp\.\s?(mat|man|uti|tra)/i.test(s.t)) return; if (/^asim\.?(\s+[a-z]{1,5}\d[a-z0-9]*\^?)?$/i.test(s.t) || /^sistem informatic proiectat/i.test(s.t) || /^[\]\[]$/.test(s.t)) return; var u = s.t.replace(/^asim\.?\s+(?=\S)/i, ""); if (/^asimilat\b/i.test(u)) { cur.tot = true; u = u.replace(/^asimilat\b\s*/i, ""); if (!u) return; } txt.push(u); });
       var t = clean(txt.join(" "));
       if (!t) { if (nums >= 2 && (cur.a.t || cur.b.t)) cur.tot = true; return; }
       if (isTotal(t, false) || /^(recapitula|cheltuieli|din care|greutate)/.test(strip(t))) { cur.end = true; return; }
@@ -838,7 +838,8 @@
     if (hp < 0 && !pages.some(function (pg) { return !!bandOf(pg.segs, false); })) for (p = 0; p < Math.min(pages.length, 4) && hp < 0; p++) { labs = bandOf(pages[p].segs, true); if (labs) { hp = p; f4 = true; } }
     if (hp < 0) return pdfLines(pages, T, st);
     /* formularul F3 scos din programul de devize: rândul cu simbol, UM și cantitate, iar denumirea e scrisă dedesubt, pe toată lățimea */
-    if (pages[hp].segs.some(function (s) { return /^a\)\s*material/i.test(s.t); }) && pages[hp].segs.some(function (s) { return /^b\)\s*manoper/i.test(s.t); })) {
+    var hasSeg = function (re) { return pages[hp].segs.some(function (s) { return re.test(s.t); }); };
+    if ((hasSeg(/^a\)\s*material/i) && hasSeg(/^b\)\s*manoper/i)) || (hasSeg(/^denumire resurs/i) && hasSeg(/^simbol$/i))) {   // și formularul F3 fără prețuri (doar cantități)
       var R3 = pdfF3(pages, T, st, hp, bandOf, labs); if (R3) return R3;
     }
     /* datele: tot ce e sub capul de tabel (pe fiecare pagină, sub capul repetat, dacă există) */
