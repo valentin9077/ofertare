@@ -149,8 +149,8 @@ select.inp{background-color:var(--bg)}
 .pos .d{font-size:14.5px;font-weight:600;line-height:1.3;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .pos .d.x{-webkit-line-clamp:unset;display:block}
 .pos .m{font-size:12.5px;color:var(--mut);margin-top:4px}
-.pos .pr{display:flex;align-items:center;gap:10px;margin-top:10px}
-.pos .pr button.p{min-height:44px;padding:0 14px;border-radius:10px;background:var(--xl-cream);box-shadow:inset 0 0 0 1px var(--xl-cream-line);font-size:15px;font-weight:700;white-space:nowrap}
+.pos .pr{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:10px}   /* pe telefon îngust, totalul trece pe rândul următor în loc să iasă din ecran (auditul M2) */
+.pos .pr button.p{min-height:44px;max-width:100%;padding:0 14px;border-radius:10px;background:var(--xl-cream);box-shadow:inset 0 0 0 1px var(--xl-cream-line);font-size:15px;font-weight:700;overflow-wrap:anywhere;text-align:left}
 .pos .pr button.p.z{color:#8A7B1E;font-weight:600}
 .pos .pr .t{margin-left:auto;text-align:right;font-size:14.5px;font-weight:700;white-space:nowrap}
 .pos .pr .t small{display:block;font-size:11.5px;font-weight:500;color:var(--mut)}
@@ -246,3 +246,23 @@ ul.wl{margin:8px 0 0;padding-left:18px;font-size:13px;line-height:1.5}ul.wl a{co
 .bar.bt .btot small{font-size:11.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar.bt .pri{flex:.8}
 .am2.cnd{background:var(--warn-bg)}
+/* 15.11 seara: cost pe om-zi, preț din „câte faci pe zi”, „Contează cel mai mult”, poziții blocate, clauza de ajustare */
+.box .wb.tf{background:var(--bg)}
+.box .wb.tf b,.box .wb.tf p,.pzx #pzOut,.chk{overflow-wrap:anywhere}
+.pzb{margin-top:6px}
+.pzx{margin-top:10px;padding:10px 12px 12px;border-radius:14px;background:var(--surface2,#F4F6F9)}
+.pzx .lb{margin-top:0}.pzx .inp{background:#fff}
+.pzx #pzOut{margin-top:8px;font-size:13.5px;line-height:1.45}
+.pzx .sec{margin-top:8px}
+.tag.lk{gap:4px}
+.topn{background:#EEF4FC;color:var(--ink2);border-radius:14px;padding:10px 12px;margin-bottom:12px;font-size:13px;line-height:1.4}
+.topn b{display:block;font-size:15px;color:var(--ink,#0F172A)}
+.am2.clz{background:#F1F5F9;color:var(--ink2)}
+/* 15.11: prețuri noi propuse (oferta nu se mai schimbă singură) */
+.prop{display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px 10px;margin:0 0 12px;padding:12px 14px;border-radius:14px;background:#EEF4FC;color:var(--ink2)}
+.prop>svg{flex:none;margin-top:2px;color:var(--navy)}
+.prop .pt{flex:1;min-width:0}.prop .pt b{display:block;font-size:15px;color:var(--ink,#0F172A)}.prop .pt span{font-size:13px}
+.prop .pb{display:flex;gap:8px;width:100%}.prop .pb button{flex:1;min-height:44px;margin:0}
+ul.pdl{list-style:none;margin:10px 0 14px;padding:0}
+ul.pdl li{padding:9px 0;border-bottom:1px solid var(--line,#E5E7EB);font-size:13.5px;line-height:1.35;overflow-wrap:anywhere}
+ul.pdl li b{display:block;margin-top:3px;font-size:14px}ul.pdl li small{display:block;margin-top:2px;color:var(--mut);font-size:12px}

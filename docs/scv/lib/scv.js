@@ -29,6 +29,8 @@
 
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const clone = o => o === undefined ? undefined : JSON.parse(JSON.stringify(o));
+  /* ce trimit la bază: fără caracterul U+0000 (Postgres/jsonb refuză tot documentul cu 400, iar salvarea s-ar reîncerca la nesfârșit; s-a întâmplat la 15.11.2026) */
+  const NUL = /\u0000/g, cleanClone = o => o === undefined ? undefined : JSON.parse(JSON.stringify(o), (k, v) => typeof v === "string" && v.indexOf("\u0000") >= 0 ? v.replace(NUL, "") : v);
   const sessionBack = new Set();   // anunțați când intrarea în cont a fost reconfirmată după o pornire fără semnal
 
   /**
@@ -514,7 +516,7 @@
           for (;;) {
             const cur = dirty.get(path); if (!cur) break;
             let data;
-            try { data = clone(cur.get()); } catch (e) { dirty.delete(path); break; }
+            try { data = cleanClone(cur.get()); } catch (e) { dirty.delete(path); break; }
             if (data === undefined || data === null) { dirty.delete(path); break; }      // documentul nu mai există pe aparat: nu e nimic de trimis
             let r, stale = false;
             if (opt.pullFirst) {

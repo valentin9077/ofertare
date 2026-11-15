@@ -12,9 +12,10 @@ const num = v => {
   if (typeof v === "number") return isFinite(v) ? v : 0;
   let s = String(v ?? "").replace(/\s|lei|ron/gi, ""); if (!s) return 0;
   if (/^-?[1-9]\d{0,2}(\.\d{3})+(,\d+)?$/.test(s) || s.includes(",")) s = s.replace(/\./g, "").replace(",", ".");
-  const n = parseFloat(s); return isNaN(n) ? 0 : n;
+  const n = parseFloat(s); return isFinite(n) ? n : 0;   // „1e400”, „Infinity” → 0, nu ∞
 };
 const fmt = n => { n = +n || 0; const w = Math.abs(n - Math.round(n)) < 0.005; return n.toLocaleString("ro-RO", { minimumFractionDigits: w ? 0 : 2, maximumFractionDigits: w ? 0 : 2 }); };
+const fp1 = n => (Math.round((+n || 0) * 10) / 10).toLocaleString("ro-RO", { maximumFractionDigits: 1 });   // procente și indici: cel mult o zecimală (16,6%, 164,7)
 const fmt0 = n => Math.round(+n || 0).toLocaleString("ro-RO");
 const fq = n => (+n || 0).toLocaleString("ro-RO", { maximumFractionDigits: 3 });
 const edn = n => (+n ? String(Math.round(+n * 1000) / 1000).replace(".", ",") : "");
@@ -23,6 +24,7 @@ const today = () => { const d = new Date(); return p2(d.getDate()) + "." + p2(d.
 const todayIso = () => { const d = new Date(); return d.getFullYear() + "-" + p2(d.getMonth() + 1) + "-" + p2(d.getDate()); };
 const svg = (inner, s, w) => '<svg class="ic" width="' + (s || 22) + '" height="' + (s || 22) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + (w || 2) + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + "</svg>";
 const ic = (n, s, w) => (window.OFI && OFI[n]) ? svg(OFI[n], s, w) : SCVI.icon(n, s, w);
+const nrw = (n, one, many) => n === 1 ? "1 " + one : n + " " + (n % 100 >= 20 || n % 100 === 0 && n ? "de " : "") + many;   // „1 poziție”, „5 poziții”, „20 de poziții”
 const plural = (n, one, many) => n === 1 ? one : n + " " + (n % 100 >= 20 || n % 100 === 0 && n ? "de " : "") + many;
 const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 const fileSafe = s => String(s || "").replace(/[\\/:*?"<>|]/g, "").replace(/\s+/g, " ").trim().slice(0, 80).replace(/[. ]+$/, "");   // fără semne nepermise, fără punct la coadă, cel mult 80 de litere
@@ -41,11 +43,21 @@ const DOMALL = { s: "Sanitare", t: "Termice", h: "Hidranți", v: DOMQ.v, c: DOMQ
 const domKey = x => OF.domainOf(x.den, x.um) || "n";
 const domGroups = xs => { const g = {}; xs.forEach(x => { const d = domKey(x); (g[d] = g[d] || []).push(x); }); const o = {}; DOMORD.split("").forEach(k => { if (g[k]) o[k] = g[k]; }); return o; };
 const domDef = k => DOMQ[k] ? !!(FIRMA.dom || {})[k] : true;   // cum pornește comutatorul la o listă nouă: sanitare, termice, hidranți mereu pornite; ventilație, climatizare… cum ai răspuns ultima dată (prima dată oprite)
+/* unitatea pentru „aceeași denumire”: „ans”/„sistem” (o sumă pe tot) nu se amestecă cu „buc” */
+const umK = u => OF.umFamily(u) + (OF.isLump(u) ? "|L" : "");
 const LVT = ["", "prețul tău", "din prețurile tale", "socotit din prețurile tale", "estimat larg", "după piață"];
 const FF = [["firma", "Denumirea firmei"], ["firmaCif", "CIF și nr. registrul comerțului"], ["firmaAdresa", "Adresă"], ["firmaContact", "Telefon și email"], ["semnatar", "Semnează ofertele (nume)"], ["iban", "IBAN (opțional, apare în antet)"]];
 const CF = [["tva", "TVA (%)", "n"], ["avans", "Avans la semnare (%)", "n"], ["garantie", "Garanție (luni)", "n"], ["valab", "Oferta e valabilă (zile)", "n"], ["termen", "Termen de execuție", "t"], ["materialeDe", "Materialele sunt asigurate de", "t"], ["normative", "Normative", "t"]];
-const DEFC = { tva: 21, avans: 30, garantie: 24, valab: 30, termen: "conform contractului", materialeDe: "sunt asigurate de beneficiar", normative: "I9, I13, GP 043, NP 059", nuInclude: DEF_NU, includeTxt: "" };
+const DEFC = { tva: 21, avans: 30, garantie: 24, valab: 30, termen: "conform contractului", materialeDe: "sunt asigurate de beneficiar", normative: "I9, I13, GP 043, NP 059", nuInclude: DEF_NU, includeTxt: "", clauza: "" };
 const defc = k => (FIRMA.def && FIRMA.def[k] != null) ? FIRMA.def[k] : DEFC[k];
+/* clauza de ajustare a prețului cu indicele INS (cercetarea din 15.11.2026, ideea 3); se pune doar dacă o alegi la „Condiții” */
+const CLAUZA = "Dacă lucrarea începe la mai mult de 90 de zile de la data ofertei, prețurile se actualizează cu indicele costului în construcții publicat de INS (preț × indicele nou ÷ indicele din luna ofertei).";
+/* „Cât te costă o zi de om” (Firma mea): ce scrii o dată pe an */
+const TK = [["oameni", "Câți oameni lucrează pe șantiere", "ex. 8"], ["salariu", "Salariul brut al unui om pe lună (lei)", "ex. 5.500"], ["masini", "Mașini pe lună: rate, motorină, asigurări (lei)", "ex. 6.000"], ["chirie", "Chirie pe lună: sediu, depozit (lei)", "0 dacă nu ai"], ["scule", "Scule și echipament pe lună (lei)", "ex. 2.000"], ["contabil", "Contabil, telefoane, alte cheltuieli pe lună (lei)", "ex. 2.000"], ["zile", "Zile de lucru pe an de om, fără concedii și boală", "ex. 224"], ["pierdute", "Din ele, zile pierdute: drum, așteptat, vreme rea", "ex. 56"]];
+/* costul firmei pe om-zi (null dacă n-ai scris încă) și ținta ta (dacă n-ai scris-o: costul, fără profit) */
+function tarifFirma() { const t = FIRMA.tarif || {}, cost = OF.costZi(t), ts = +t.tinta > 0 && isFinite(+t.tinta); return { cost, tinta: ts ? +t.tinta : cost ? cost.zi : 0, tintaSet: ts }; }
+const MINL = OF.MINCONSTR;
+const minTxt = () => "Minimul legal în construcții, " + MINL.an + ": " + fmt(MINL.brut) + " lei brut pe lună (" + fmt(MINL.ora) + " lei pe oră); cu CAM " + fmt(OF.CAM) + "% firma plătește cel puțin " + fmt(MINL.oraCost) + " lei pe oră. Sursa: " + MINL.sursa + ".";
 
 /* ---------- oferta: forma datelor ---------- */
 function nextNr() {
@@ -81,9 +93,12 @@ function syncRows(s) {
 /* pune (sau scoate) suma scrisă de tine pe un capitol și însemnează pozițiile de care e legată */
 function setOv(r, v, s) {
   s = s || st; const xs = s.items.filter(i => i.cap === r.cap); xs.forEach(i => { delete i.ovd; });
-  if (!(v > 0)) { r.ov = 0; delete r.ovT; return; }
-  r.ov = v; let t = 0; if (!r.no) xs.forEach(i => { if (!i.no && i.pret > 0) { i.ovd = 1; t += OF.total(i, s.adaos); } }); t = r2(t);
-  if (t > 0) r.ovT = t; else { delete r.ovT; xs.forEach(i => { delete i.ovd; }); }
+  if (!(v > 0)) { r.ov = 0; delete r.ovT; delete r.ovL; return; }
+  /* pozițiile blocate (lk) rămân la prețul lor: nu se leagă de sumă; ovL ține minte cât dădeau ele (suma de pe capitol le cuprinde) */
+  r.ov = v; let t = 0, L = 0; if (!r.no) xs.forEach(i => { if (!i.no && i.pret > 0) { if (i.lk) L += OF.total(i, s.adaos); else { i.ovd = 1; t += OF.total(i, s.adaos); } } }); t = r2(t); L = r2(L);
+  if (L > 0 && (t <= 0 || v - L <= 0)) { t = 0; L = 0; xs.forEach(i => { if (!i.no && i.pret > 0) { i.ovd = 1; t += OF.total(i, s.adaos); } }); t = r2(t); }   // totul blocat sau suma mai mică decât ce e blocat: lacătul nu se poate ține aici
+  if (L > 0) r.ovL = L; else delete r.ovL;
+  if (t > 0) r.ovT = t; else { delete r.ovT; delete r.ovL; xs.forEach(i => { delete i.ovd; }); }
 }
 const rndTo = (v, s) => { if (!s) return r2(v); const q = Math.round(v / s) * s; return q > 0 ? q : r2(v); };   // un capitol mai mic decât jumătate de treaptă rămâne cum e, nu devine 0
 function rowInfo(r, s) {
@@ -91,8 +106,9 @@ function rowInfo(r, s) {
   if (r.k === "c") { let tot = 0, tOld = 0, n = 0, np = 0, nn = 0, ne = 0; for (const i of s.items) if (i.cap === r.cap) { if (i.no || r.no) { nn++; continue; } n++; if (i.pret > 0) { np++; if (!i.conf && i.src === "cat" && i.lv >= 3) ne++; } const t = OF.total(i, s.adaos); tot += t; if (i.ovd) tOld += t; } tot = r2(tot); tOld = r2(tOld);
     /* Suma pusă de tine pe capitol (ov) e legată de pozițiile care aveau preț în clipa aceea (ovd), când dădeau ovT. Dacă scoți din ele sau le schimbi,
        suma scade ori crește în aceeași măsură; pozițiile venite după aceea se adaugă la prețul lor. Așa nu oferi lucrări pe nimic și nu ceri bani pe ce nu mai ofertezi. */
-    const off = !!r.no || (n === 0 && nn > 0), scaled = r.ov > 0 && r.ovT > 0, moved = !off && scaled && (Math.abs(tOld - r.ovT) >= 0.005 || Math.abs(tot - tOld) >= 0.005);
-    return { n, np, nn, ne, tot, tOld, off, scaled, moved, val: off ? 0 : scaled ? (moved ? r2(r.ov * tOld / r.ovT + (tot - tOld)) : r.ov) : r.ov > 0 ? r.ov : rndTo(tot, s.rnd) }; }
+    const L = r.ov > 0 && r.ovT > 0 ? +r.ovL || 0 : 0;   // partea pozițiilor blocate din suma pusă (0 la ofertele fără lacăt: socoteala e ca înainte)
+    const off = !!r.no || (n === 0 && nn > 0), scaled = r.ov > 0 && r.ovT > 0, moved = !off && scaled && (Math.abs(tOld - r.ovT) >= 0.005 || Math.abs(tot - tOld - L) >= 0.005);
+    return { n, np, nn, ne, tot, tOld, off, scaled, moved, L, val: off ? 0 : scaled ? (moved ? r2((r.ov - L) * tOld / r.ovT + (tot - tOld)) : r.ov) : r.ov > 0 ? r.ov : rndTo(tot, s.rnd) }; }
   return { val: r.no ? 0 : r2((+r.cant || 0) * rowPu(r, s)) };
 }
 /* Prețul unui rând scris de mână: acces greu și urgență cresc toată manopera, deci și rândurile tale (adaosul tău rămâne doar pe pozițiile din listă, ca până acum). */
@@ -115,16 +131,35 @@ function effPrices(s) {
   s = s || st; const out = new Map(), ad = 1 + (+s.adaos || 0) / 100;
   for (const r of s.rows) {
     if (r.k !== "c") continue; const info = rowInfo(r, s), xs = info.off ? [] : s.items.filter(i => i.cap === r.cap && !i.no && i.pret > 0); if (!xs.length) continue;
-    const kOld = info.scaled ? r.ov / r.ovT : 1, k = !info.scaled && info.tot > 0 && info.val > 0 ? info.val / info.tot : 1; let sum = 0;
+    const kOld = info.scaled ? (r.ov - info.L) / r.ovT : 1, k = !info.scaled && info.tot > 0 && info.val > 0 ? info.val / info.tot : 1; let sum = 0;
     xs.forEach(i => { const p = Math.max(0.01, r2(r2(i.pret * ad) * (info.scaled ? (i.ovd ? kOld : 1) : k))); out.set(i.id, p); sum += r2((+i.cant || 0) * p); });
     const d = r2(info.val - sum); if (Math.abs(d) < 0.01 || (!info.scaled && k === 1)) continue;
-    let best = null, br = Infinity;                       // restul din rotunjiri merge pe poziția unde încape cel mai bine
-    for (const i of xs) { const q = +i.cant || 0, p0 = out.get(i.id); if (!(q > 0)) continue; const p1 = r2(p0 + d / q); if (!(p1 > 0)) continue; const res = Math.abs(r2(d - (r2(q * p1) - r2(q * p0)))); if (res < br) { br = res; best = [i.id, p1]; if (res < 0.005) break; } }
-    if (br >= 0.005) for (const i of xs) {               // nu iese la ban cu două zecimale: un singur preț primește patru zecimale (în fișier se vede tot cu două)
-      const q = +i.cant || 0, p0 = out.get(i.id); if (!(q > 0)) continue; const p1 = Math.round((p0 + d / q) * 1e4) / 1e4; if (!(p1 > 0)) continue; const res = Math.abs(r2(d - (r2(q * p1) - r2(q * p0)))); if (res < br) { br = res; best = [i.id, p1]; if (res < 0.005) break; } }
-    if (best) out.set(best[0], best[1]);
+    const xu = xs.some(i => i.lk) && xs.some(i => !i.lk && +i.cant > 0) ? xs.filter(i => !i.lk) : xs;   // restul din rotunjiri merge pe poziția unde încape cel mai bine (nu pe una blocată, dacă se poate)
+    restFit(xu, out, d);
   }
   return out;
+}
+/* Prețul pe unitate pe care îl plătește clientul pentru o poziție (cel din anexă) și de unde vine: cu adaosul, după suma capitolului sau „Vreau alt total”. */
+function cliPu(it, E) {
+  E = E || effPrices(); const ad = +st.adaos || 0, base = r2((+it.pret || 0) * (1 + ad / 100)), p = E.has(it.id) ? E.get(it.id) : base, w = [];
+  if (ad) w.push("cu adaosul"); if (Math.abs(p - base) >= 0.005) w.push("după suma capitolului");
+  return { p, cum: w.length ? " (" + w.join(", ") + ")" : "" };
+}
+/* Restul d (lei) dintre suma capitolului și pozițiile lui, după rotunjiri, pus pe prețuri: întâi pe o singură poziție, cu două zecimale, apoi cu 4, 6 sau 8
+   (în fișier se vede tot cu două; cu 30.000 m × 0,0033 lei nu iese suma la ban, cu 0,0033334 iese). Dacă nici așa nu iese pe una singură,
+   împart restul pe mai multe poziții, pe rând. Așa anexa și fișierul au exact suma din ofertă, la ban (verificarea Codex din 15.11.2026). */
+function restFit(xs, out, d) {
+  const pick = (cs, clamp) => { let best = null, br = Infinity;
+    for (const m of [100, 1e4, 1e6, 1e8]) for (const i of cs) { const q = +i.cant || 0, p0 = out.get(i.id); if (!(q > 0)) continue; let p1 = Math.round((p0 + d / q) * m) / m; if (!(p1 > 0)) { if (!clamp) continue; p1 = 1 / m; }
+      const res = Math.abs(r2(d - (r2(q * p1) - r2(q * p0)))); if (res < br) { br = res; best = [i, p1, res]; if (res < 0.005) return best; } }
+    return best; };
+  let b = pick(xs, false); if (b && b[2] < 0.005) { out.set(b[0].id, b[1]); return 0; }
+  const left = xs.slice();
+  while (left.length && Math.abs(d) >= 0.005) {
+    b = pick(left, true); if (!b || b[2] >= Math.abs(d) - 1e-9) break;
+    const q = +b[0].cant || 0; d = r2(d - (r2(q * b[1]) - r2(q * out.get(b[0].id)))); out.set(b[0].id, b[1]); left.splice(left.indexOf(b[0]), 1);
+  }
+  return d;
 }
 /* în Excel, la „nu include” apar singure și capitolele neofertate */
 const projX = () => { const p = Object.assign({}, st.proj); for (const [k] of FF) if (!p[k] && FIRMA[k]) p[k] = FIRMA[k]; const nc = noCaps(); if (nc.length) p.nuInclude = [String(p.nuInclude || "").trim()].concat(nc.map(x => x.toLowerCase())).filter(Boolean).join("\n"); return p; };
@@ -143,24 +178,32 @@ function saveCat() { if (catDirty) { catDirty = false; store.put("catalog", () =
 function saveFirma() { store.put("firma", () => FIRMA); }
 function createOffer(proj, state) {
   const id = newId(), s = normSt(state || { rows: [], items: [] });
+  if (!state && defc("clauza")) s.proj.clauza = defc("clauza");   // clauza de ajustare: doar la ofertele noi (cele vechi rămân cum au plecat)
   Object.assign(s.proj, proj || {}); if (!s.proj.nrOferta) { s.proj.nrOferta = nextNr(); s.proj.nrAuto = 1; }
   DOCS["p/" + id] = s; IDX.list.unshift({ id, nume: nameOf(s), upd: todayIso() });
   store.put("p/" + id, () => DOCS["p/" + id], 0); store.put("index", () => IDX, 0); return id;
 }
 const inLucru = s => (s.proj.stare || "lucru") === "lucru";
-/* La pornire: ofertele în lucru făcute cu reguli mai vechi își refac prețurile o singură dată (ce ai pus, ai verificat sau nu ofertezi nu se atinge).
-   Ofertele trimise, câștigate sau pierdute rămân exact cum au plecat. */
-function rematchAll() {
-  let ch = 0;
-  Object.keys(DOCS).forEach(p => { const s = DOCS[p]; if (p.indexOf("p/") !== 0 || !s.items || !s.items.length || !inLucru(s)) return;
-    if (s.mv !== OF.MV) autoMatch(null, s); else if (PIATA && !s.mk && s.items.some(i => !i.no && !(i.pret > 0))) autoMatch(s.items.filter(i => !i.no && !(i.pret > 0)), s); else return;
-    store.put(p, () => DOCS[p]); ch++; });
-  if (ch && !isOpen()) render();
+/* O ofertă salvată NU se schimbă singură. Când regulile de potrivire sunt mai noi decât oferta (mv) sau reperele de piață au sosit după ce s-au pus
+   prețurile (mk), oferta în lucru primește doar o PROPUNERE: „Am prețuri noi pentru N poziții”, cu diferența și „Aplică” (verificarea Codex din 15.11.2026).
+   Ce ai pus, ai verificat, ai aplicat sau nu ofertezi nu intră în propunere. Ofertele trimise, câștigate sau pierdute nu primesc nici propunerea. */
+const needProp = s => !!(s && s.items && s.items.length && inLucru(s) && (s.mv !== OF.MV || (PIATA && !s.mk && s.items.some(i => !i.no && !(i.pret > 0)))));
+const propOnly = s => s.mv !== OF.MV ? null : s.items.filter(i => !i.no && !(i.pret > 0));   // aceleași poziții pe care le-ar fi atins potrivirea de la pornire
+const PROPC = new WeakMap();
+function propOf(s) {
+  s = s || st; if (!needProp(s)) return []; const T = tarif();
+  const sig = s.mv + "|" + s.mk + "|" + s.items.length + "|" + s.items.reduce((a, i) => a + (+i.pret || 0) * 7.31 + (+i.id % 997) * (i.no ? 3 : 1) + (i.conf ? 5 : 0) + (i.ap ? 11 : 0) + (i.src === "manual" ? 13 : i.src === "file" ? 17 : 0) + String(i.den || "").length + String(i.um || "").length, 0);
+  const c = PROPC.get(s); if (c && c.T === T && c.sig === sig) return c.v;
+  const v = [];
+  for (const it of (propOnly(s) || s.items)) {   // la fel ca autoMatch, dar fără să scrie nimic
+    if (it.no || (it.pret > 0 && (it.src === "manual" || it.src === "file" || it.conf || it.ap))) continue;
+    const r = OF.priceItem(it, T), old = +it.pret || 0, neu = r ? r.p : (it.src === "cat" || it.src === "ref" ? 0 : old);
+    if (Math.abs(neu - old) >= 0.005) v.push({ id: it.id, old, neu, lv: r ? r.lv : 0, why: r ? r.why : "" });
+  }
+  PROPC.set(s, { T, sig, v }); return v;
 }
-function openOffer(id) {
-  CUR = id; st = DOCS["p/" + id]; SCV.LS.set("scv-oferta-cur", id);
-  if (st.items.length && st.mv !== OF.MV && inLucru(st)) { autoMatch(); save(); }
-}
+function rematchAll() { if (st && VIEW.name === "offer" && needProp(st) && !isOpen()) render(); }   // la pornire nu se schimbă nimic: doar apare propunerea, dacă e cazul
+function openOffer(id) { CUR = id; st = DOCS["p/" + id]; SCV.LS.set("scv-oferta-cur", id); }
 
 /* ---------- prețuri: catalog, potrivire, învățare ---------- */
 function rebuildCat() { pcat = OF.prepCatalog(catalog); PX = null; TAR = null; }
@@ -168,11 +211,16 @@ const catById = id => pcat.find(c => c.id === id);
 /* documentul „ref2”: rândurile din alte oferte ale tale, scrise scurt (denumire, unitate, preț, sursă) */
 function ref2Items() { const d = DOCS.ref2 || {}, src = d.src || []; return (d.items || []).concat((d.rows || []).map(r => { const z = src[r[3]] || {}; return { d: r[0], u: r[1], p: r[2], pr: z.pr || "", an: z.an || "", s: "s" }; })); }
 /* Tariful: tot ce știu despre prețurile tale, pus la un loc (prețurile puse de tine, lista ta, ofertele vechi, bugete, piață). */
+/* „Prețuri vechi aduse la zi” (Firma mea, pornit doar dacă vrei): un preț dintr-un an trecut se înmulțește cu indicele INS al costului în construcții până azi.
+   Anul e cel al sursei (oferta veche, situația); la prețurile tale fără an, anul ultimului preț pus. Oprit = prețurile rămân exact ca înainte. */
+const idxOn = () => !!FIRMA.idx;
+const idxPct = f => fp1((f - 1) * 100);
+function idxUp(e, y) { const f = OF.iccFactor(y); if (f === 1 || !(+e.pret > 0)) return e; e.pret = r2(+e.pret * f); e.lab = (e.lab || "") + " · adus la zi cu indicele INS: +" + idxPct(f) + "% față de " + parseInt(y, 10); return e; }
 function tarif() {
-  if (TAR) return TAR; const S = [];
-  catalog.forEach(c => S.push({ den: c.den, desc: c.desc, um: c.um, pret: c.pret, q: c.learned ? OF.QUAL.mine : OF.QUAL.cat, an: c.an || 2026, lab: c.learned ? (c.sec ? "prețul tău (" + String(c.sec).trim() + ")" : "prețul tău") : "lista ta de prețuri", dom: c.dom, sec: c.sec, id: c.id, learned: !!c.learned && !c.imp, fam: c.fam || undefined, sz: c.sz, vars: c.vars }));
-  REF.forEach((r, i) => S.push({ den: r.d, um: r.u, pret: r.p, q: r.s === "s" ? OF.QUAL.ref : OF.QUAL.weak, an: r.an, lab: (r.pr || "ofertă veche") + (r.an ? ", " + r.an : ""), id: "r" + i }));
-  const R2 = DOCS.ref2 || {}; (R2.pts || []).forEach((p, i) => { if (p[2] == null && OF.isBroad(p[0])) return; S.push({ den: OF.famLabel(p[0]).replace(/ \(.*$/, ""), fam: p[0], um: p[1], sz: p[2], pret: p[3], q: OF.QUAL.weak, an: R2.an || 2026, lab: R2.lab || "bugete de antreprenor", id: "b" + i }); });
+  if (TAR) return TAR; const S = [], up = idxOn() ? idxUp : (e => e);
+  catalog.forEach(c => S.push(up({ den: c.den, desc: c.desc, um: c.um, pret: c.pret, q: c.learned ? OF.QUAL.mine : OF.QUAL.cat, an: c.an || 2026, lab: c.learned ? (c.sec ? "prețul tău (" + String(c.sec).trim() + ")" : "prețul tău") : "lista ta de prețuri", dom: c.dom, sec: c.sec, id: c.id, learned: !!c.learned && !c.imp, fam: c.fam || undefined, sz: c.sz, vars: c.vars }, c.an || (c.h && c.h[0] && String(c.h[0].d || "").slice(0, 4)) || 0)));
+  REF.forEach((r, i) => S.push(up({ den: r.d, um: r.u, pret: r.p, q: r.s === "s" ? OF.QUAL.ref : OF.QUAL.weak, an: r.an, lab: (r.pr || "ofertă veche") + (r.an ? ", " + r.an : ""), id: "r" + i }, r.an)));
+  const R2 = DOCS.ref2 || {}; (R2.pts || []).forEach((p, i) => { if (p[2] == null && OF.isBroad(p[0])) return; S.push(up({ den: OF.famLabel(p[0]).replace(/ \(.*$/, ""), fam: p[0], um: p[1], sz: p[2], pret: p[3], q: OF.QUAL.weak, an: R2.an || 2026, lab: R2.lab || "bugete de antreprenor", id: "b" + i }, R2.an)); });
   ((PIATA && PIATA.lista) || []).forEach((p, i) => { const v = +p.eng || +p.tipic || (p.min && p.max ? (p.min + p.max) / 2 : 0); if (p.fam && v > 0) S.push({ den: p.lucrare, fam: p.fam, vars: p.vars, um: String(p.um || "").replace(/^lei\//, "").replace("m2", "mp"), pret: v, q: OF.QUAL.mkt, lab: "piață", lo: p.lo, hi: p.hi, id: "m" + i }); });
   return TAR = OF.buildTarif(S);
 }
@@ -195,10 +243,11 @@ function autoMatch(only, S) {
 const newCatId = () => { let m = Date.now() * 1000; for (const c of catalog) if (c.id > m) m = c.id; return m + 1 + Math.floor(Math.random() * 500); };   // două aparate pot învăța câte un preț în același timp
 function learn(it) {
   if (!(it.pret > 0) || !String(it.den || "").trim()) return;
-  const k = OF.keyOf(it.den), f = OF.umFamily(it.um); let c = catalog.find(x => x.learned && OF.keyOf(x.den) === k && OF.umFamily(x.um) === f);
+  const k = OF.keyOf(it.den), f = umK(it.um); let c = catalog.find(x => x.learned && OF.keyOf(x.den) === k && umK(x.um) === f);
   const h = { p: +it.pret, d: todayIso(), o: st ? nameOf(st, entry(CUR)) : "" };
   if (c) { if (+c.pret !== +it.pret || !(c.h || []).length) c.h = [h].concat((c.h || []).filter(x => !(x.d === h.d && x.o === h.o))).slice(0, 6); c.pret = +it.pret; }
-  else catalog.push({ id: newCatId(), dom: "ÎNVĂȚAT", sec: "", den: it.den, desc: "", um: it.um, pret: +it.pret, learned: true, h: [h] });
+  else catalog.push(c = { id: newCatId(), dom: "ÎNVĂȚAT", sec: "", den: it.den, desc: "", um: it.um, pret: +it.pret, learned: true, h: [h] });
+  if (it.pz) c.pz = Object.assign({}, it.pz); else if (c.pz && Math.abs(OF.prodPret(c.pz.t, c.pz.o, c.pz.q) - +it.pret) >= 0.005) delete c.pz;   // prețul din „câte faci pe zi” merge cu el
   catDirty = true; rebuildCat();
 }
 /* căutare în toate prețurile, pentru sugestiile de la „Rând nou” și pentru ecranul „Prețurile mele” */
@@ -252,7 +301,7 @@ const val = id => { const e = $("#" + id); return e ? e.value.trim() : ""; };
 /* ---------- drumul prin aplicație (adresa din bară) ---------- */
 function parseHash() {
   const h = location.hash.replace(/^#\/?/, "").split("/");
-  if (h[0] === "o" && h[1]) { if (h[2] === "c" && h[3]) return { name: "pos", id: h[1], row: +h[3] }; if (h[2] === "fara") return { name: "pos", id: h[1], row: 0, f: "no" }; if (h[2] === "verifica") return { name: "pos", id: h[1], row: 0, f: "est" }; return { name: "offer", id: h[1] }; }
+  if (h[0] === "o" && h[1]) { if (h[2] === "c" && h[3]) return { name: "pos", id: h[1], row: +h[3] }; if (h[2] === "fara") return { name: "pos", id: h[1], row: 0, f: "no" }; if (h[2] === "verifica") return { name: "pos", id: h[1], row: 0, f: "est" }; if (h[2] === "conteaza") return { name: "pos", id: h[1], row: 0, f: "top" }; return { name: "offer", id: h[1] }; }
   if (h[0] === "preturi") return { name: "prices" }; if (h[0] === "firma") return { name: "firma" };
   return { name: "list" };
 }
@@ -338,7 +387,7 @@ function indOf(s) {   // pe capitolele care sunt clar sanitare / termice / hidra
   return o;
 }
 let INDH = null; const INDW = new WeakMap();   // indicatorii fiecărei oferte, ținuți minte cât timp oferta nu se schimbă (altfel la fiecare ofertă deschisă s-ar socoti iar toate)
-const indSig = s => { let x = 0; for (const i of s.items) x += (+i.cant || 0) * (+i.pret || 0) + String(i.den || "").length + String(i.cap || "").length + (i.no ? 7 : 0); for (const r of s.rows) x += String(r.den || "").length + (r.no ? 3 : 0) + (+r.ov || 0) + (+r.ovT || 0) + (+r.cant || 0) * (+r.pret || 0); return s.items.length + "|" + s.rows.length + "|" + (+s.adaos || 0) + "|" + (+s.rnd || 0) + "|" + JSON.stringify(s.cond || 0) + "|" + x; };
+const indSig = s => { let x = 0; for (const i of s.items) x += (+i.cant || 0) * (+i.pret || 0) + String(i.den || "").length + String(i.cap || "").length + (i.no ? 7 : 0); for (const r of s.rows) x += String(r.den || "").length + (r.no ? 3 : 0) + (+r.ov || 0) + (+r.ovT || 0) + (+r.ovL || 0) + (+r.cant || 0) * (+r.pret || 0); return s.items.length + "|" + s.rows.length + "|" + (+s.adaos || 0) + "|" + (+s.rnd || 0) + "|" + JSON.stringify(s.cond || 0) + "|" + x; };
 function indHist() {   // mediana din ofertele tale (fără cea deschisă), pe fiecare indicator
   const key = IDX.list.length + "|" + CUR; if (INDH && INDH.key === key) return INDH.v; const acc = {};
   IDX.list.forEach(e => { if (e.id === CUR) return; const s = DOCS["p/" + e.id]; if (!s || !s.items || !s.items.length) return; const sig = indSig(s), c = INDW.get(s); let o = c && c.sig === sig ? c.o : null; if (!o) { o = {}; try { o = indOf(s); } catch (x) { } INDW.set(s, { sig, o }); } Object.keys(o).forEach(k => (acc[k] = acc[k] || []).push(o[k].per)); });
@@ -368,6 +417,18 @@ function checkOffer() {
     if (x.per < ref * 0.5 || x.per > ref * 2) out.push({ t: (x.per < ref ? "Prea puțin" : "Mult") + " pe " + IND0[k][1].replace(/^lei pe /, "") + ": " + fmt(x.per) + " lei", s: "Pe " + plural(x.n, "un aparat", "aparate") + " ies " + fmt(x.v) + " lei, adică " + fmt(x.per) + " " + IND0[k][1] + ". " + src.charAt(0).toUpperCase() + src.slice(1) + " era " + fmt(ref) + " " + IND0[k][1] + ". Poate lipsesc poziții, poate e o zecimală greșită – sau e voit.", b: [] }); }); } catch (e) { }
   // fără familie (kit evacuare, ANRE): ajunge să fie în listă cu numele
   CHK_W.forEach(w => { if (!w[3](F) || w[1].some(f => fam.get(f)) || w[2].test(txt) || (!w[1].length && (w[7] || w[2]).test(names))) return; out.push({ t: w[4], s: w[6], b: [["chkinc", w[0], "E în preț"], ["chknu", w[0], "Nu e în preț"]] }); });
+  // bani pe o zi de om: la zilele din „Îmi iese?”, față de costul firmei, ținta ta și minimul legal (cercetarea din 15.11.2026, ideile 1 și 10)
+  try { const rk = st.risk || {}, T = tarifFirma(), sub = totals().sub, oz = (+rk.muncitori || 0) * (+rk.zile || 0);
+    if (T.cost && oz > 0 && sub > 0) { const net = sub - (+rk.deplasare || 0) - (+rk.materiale || 0), pz = net / oz, po = net / (oz * (+rk.oreZi || 8)), cine = plural(oz, "o zi de om", "om-zile") + " (" + fmt(rk.muncitori) + " × " + fmt(rk.zile) + " zile, din „Îmi iese?”)";
+      if (T.cost && pz < T.cost.zi) out.push({ t: "Sub costul tău: " + fmt(pz) + " lei pe om-zi", s: "La " + cine + ", oferta aduce " + fmt(pz) + " lei pe om-zi, iar firma te costă " + fmt(T.cost.zi) + " lei pe om-zi. Așa ieși în pierdere.", b: [["risc", "", "Îmi iese?"]] });
+      else if (T.tintaSet && pz < T.tinta) out.push({ t: "Sub ținta ta: " + fmt(pz) + " lei pe om-zi", s: "La " + cine + ", oferta aduce " + fmt(pz) + " lei pe om-zi. Ținta ta e " + fmt(T.tinta) + " lei.", b: [["risc", "", "Îmi iese?"]] });
+      if (po < MINL.oraCost) out.push({ t: "Sub minimul legal pe oră: " + fmt(po) + " lei", s: "La " + cine + ", ies " + fmt(po) + " lei pe oră de om. " + minTxt(), b: [["risc", "", "Îmi iese?"]] }); }
+    // lucrările cu prețul făcut din „câte faci pe zi”: preț ÷ orele lucrării, față de minimul legal
+    /* socotit cu prețul pe care îl plătește clientul: cu adaosul și după suma capitolului / „Vreau alt total” (verificarea Codex 7 și auditul m3, 15.11.2026) */
+    const pzm = new Map(); catalog.forEach(c => { if (c.pz) pzm.set(c.id, c.pz); }); const low = [], EP = effPrices();
+    items.forEach(it => { const z = it.pz || (it.src === "cat" && it.catId != null ? pzm.get(it.catId) : null); if (!z || !(it.pret > 0) || !(z.o > 0) || !(z.q > 0)) return; const c = cliPu(it, EP), ph = r2(c.p * z.q / (z.o * 8)); if (ph < MINL.oraCost) low.push({ it, ph, z, c }); });
+    low.sort((a, b) => a.ph - b.ph).slice(0, 4).forEach(x => out.push({ t: "Preț sub minimul legal pe oră: " + (x.it.den.length > 50 ? x.it.den.slice(0, 50) + "…" : x.it.den), s: "Clientul plătește " + fmt(x.c.p) + " lei / " + (x.it.um || "buc") + x.c.cum + ". La " + fq(x.z.q) + " " + (x.it.um || "buc") + " pe zi cu " + plural(x.z.o, "un om", "oameni") + " înseamnă " + fmt(x.ph) + " lei pe oră de om. " + minTxt(), b: [["pos", x.it.id, "Deschide poziția"]] }));
+  } catch (e) { }
   if (!String(p.beneficiar || "").trim()) out.push({ t: "Lipsește beneficiarul", s: "Oferta pleacă fără numele celui căruia îi e adresată.", b: [["hben", "", "Scrie-l"]] });
   if (!String(p.santier || "").trim()) out.push({ t: "Lipsește lucrarea", s: "Scrie pentru ce lucrare e oferta (adresa sau numele șantierului).", b: [["hluc", "", "Scrie-o"]] });
   return out;
@@ -376,6 +437,7 @@ function vOffer() {
   const p = st.proj, e = entry(CUR), t = totals(), of = offered(), fara = of.filter(i => !(i.pret > 0)).length, nest = of.filter(i => stOf(i) === "est").length, ch = ic("chevron-right", 15, 2.4);
   const nu = String(p.nuInclude || "").split("\n").map(x => x.replace(/^\s*[-•]\s*/, "").trim()).filter(Boolean), inc = String(p.includeTxt || "").split("\n").map(x => x.replace(/^\s*[-•]\s*/, "").trim()).filter(Boolean);
   return `<div class="top"><button class="ibn" data-a="back" data-h="#/" aria-label="Înapoi la oferte">${ic("chevron-left", 22, 2.4)}</button><div class="tt"><b>${esc(nameOf(st, e))}</b><small>${esc(p.beneficiar || "fără beneficiar")} · ${fmt(t.sub)} lei${e && e.arh ? " · în arhivă" : ""}</small></div>${stPill}<button class="ibn" data-a="menu" aria-label="Mai multe">${ic("ellipsis", 20, 2.2)}</button></div><main>
+${(pv => pv.length ? `<div class="prop" id="bProp">${ic("refresh-cw", 18, 2.2)}<div class="pt"><b>Am prețuri noi pentru ${nrw(pv.length, "poziție", "poziții")}</b><span>Oferta rămâne cum e până apeși „Aplică”.</span></div><div class="pb"><button class="sec" data-a="propv">Vezi diferența</button><button class="pri" data-a="propok">Aplică</button></div></div>` : "")(propOf(st))}
 <div class="paper" id="paper">
 <button class="band" data-a="hnr"><div><b>OFERTĂ DE PREȚ</b><span>manoperă instalații · ${STARI[p.stare] || STARI.lucru}</span></div><div><b>Nr. ${esc(p.nrOferta || "—")}</b><span>${esc(p.data || "")} · valabilă ${plural(+p.valab || 0, "o zi", "zile")}</span></div></button>
 <button class="fr" data-a="hben"><span>Beneficiar</span><b class="${p.beneficiar ? "" : "ph"}"><i>${esc(p.beneficiar || "apasă și scrie")}</i>${ch}</b></button>
@@ -385,12 +447,14 @@ ${st.rows.length ? st.rows.map(rowHtml).join("") : '<div class="hint">Oferta e g
 <div class="add"><button data-a="row" data-id="0" id="bRow">${ic("plus", 16, 2.6)}Rând nou</button><button data-a="imp" id="bImp">${ic("file-spreadsheet", 16, 2.2)}Adu o listă</button></div>
 ${fara ? `<button class="wrn" data-a="go" data-h="#/o/${CUR}/fara">${ic("triangle-alert", 16, 2.2)}${plural(fara, "o poziție nu are", "poziții nu au")} încă preț<span>arată-le</span></button>` : ""}
 ${nest ? `<button class="wrn q" data-a="go" data-h="#/o/${CUR}/verifica">${ic("circle-help", 16, 2.2)}${plural(nest, "un preț e estimat", "prețuri sunt estimate")}<span>verifică</span></button>` : ""}
+${(tp => tp.n >= 10 ? `<button class="wrn q" data-a="go" data-h="#/o/${CUR}/conteaza" id="bTop">${ic("list-filter", 16, 2.2)}Contează cel mai mult: ${nrw(tp.xs.length, "poziție", "poziții")} = 80% din bani<span>vezi</span></button>` : "")(topOf(of))}
 ${of.length || st.rows.some(r => r.k !== "c") ? (nchk => `<button class="wrn q" data-a="chk" id="bChk">${ic("list-checks", 16, 2.2)}Verificare înainte de trimitere<span>${nchk ? plural(nchk, "un lucru", "lucruri") + " de văzut" : "e în regulă"}</span></button>`)(checkOffer().length) : ""}
 <div class="tl"><span>${fara ? "Subtotal până acum" : "Subtotal manoperă"} (fără TVA)</span><b id="tSub">${fmt(t.sub)}</b></div>
 ${condTxt() ? `<button class="am2 cnd" data-a="opts"><b>Condiții:</b> ${esc(condTxt())} – adaos total ${fq(st.adaos)}%</button>` : ""}
 <div class="tl"><span>TVA ${fq(p.tva)}%</span><b>${fmt(t.tva)}</b></div>
 <div class="tl T"><span>TOTAL CU TVA</span><span id="tTot">${fmt(t.tot)} lei</span></div>
 <button class="gr" data-a="cond"><b>Avans ${fq(p.avans)}%</b> la semnare: ${fmt(t.avans)} lei · <b>Garanție</b> ${fq(p.garantie)} luni · <b>Termen:</b> ${esc(p.termen || "—")}</button>
+${p.clauza ? `<button class="am2 clz" data-a="cond"><b>Ajustarea prețului:</b> ${esc(p.clauza)}</button>` : ""}
 ${inc.length ? `<button class="am2 inc" data-a="inc"><b>Include:</b> ${esc(inc.join(", "))}</button>` : ""}
 <button class="am2" data-a="inc"><b>Nu include:</b> ${esc(nu.join(", ") || "apasă și scrie")}</button>
 </div></main>
@@ -402,7 +466,10 @@ const stOf = it => isNo(it) ? "nu" : it.pret > 0 ? (it.conf ? "ok" : it.src === 
 const SRC = { cat: "din prețurile tale", file: "din fișier", ref: "din ofertă veche", manual: "pus de tine" };
 function posAll() { const r = VIEW.row ? st.rows.find(x => x.id === VIEW.row) : null; return { r, xs: r ? st.items.filter(i => i.cap === r.cap) : st.items }; }
 const inF = (it, f) => f === "all" || (f === "lucru" ? (s => s === "no" || s === "est")(stOf(it)) : stOf(it) === f);
-function posShown() { const f = VIEW.f || "all", q = OF.strip(VIEW.q || ""); return posAll().xs.filter(it => inF(it, f) && (!q || OF.strip(it.den + " " + (it.cod || "")).includes(q))); }
+function posShown() { const f = VIEW.f || "all", q = OF.strip(VIEW.q || ""), qf = it => !q || OF.strip(it.den + " " + (it.cod || "")).includes(q); if (f === "top") return topOf(posAll().xs).xs.filter(qf); return posAll().xs.filter(it => inF(it, f) && qf(it)); }
+/* „Contează cel mai mult” (cercetarea din 15.11.2026, ideea 5): pozițiile cu preț care fac 80% din bani, de la cea mai mare în jos */
+/* „Contează cel mai mult”: cu prețurile din ofertă (după suma pusă pe capitol și „Vreau alt total”), nu cu cele dinainte (verificarea Codex 6) */
+function topOf(xs) { const of = xs.filter(i => !isNo(i) && i.pret > 0), E = effPrices(), r = OF.topShare(of.map(i => E.has(i.id) ? r2((+i.cant || 0) * E.get(i.id)) : OF.total(i, st.adaos))); return { xs: r.idx.map(k => of[k]), sum: r.sum, tot: r.tot, pct: r.pct, n: of.length }; }
 /* ---------- piața: interval, din câte surse, și unde stă prețul tău față de ea (cercetarea din 15.11.2026) ---------- */
 let TMK = null;
 function mktTarif() {
@@ -410,7 +477,7 @@ function mktTarif() {
   ((PIATA && PIATA.lista) || []).forEach((p, i) => { const v = +p.eng || +p.tipic || (p.min && p.max ? (p.min + p.max) / 2 : 0); if (p.fam && v > 0) S.push({ den: p.lucrare, fam: p.fam, vars: p.vars, um: String(p.um || "").replace(/^lei\//, "").replace("m2", "mp"), pret: v, q: OF.QUAL.mkt, lab: "piață", id: "m" + i }); });
   TMK = { P: PIATA, T: OF.buildTarif(S), c: new Map() }; return TMK.T;
 }
-/* Reperul de piață al poziției: {min, max, tipic, n, sigur, ref, k} sau null. Doar când reperul e din aceeași familie de lucrări (nu „ceva asemănător”). */
+/* Reperul de piață al poziției: {min, max, tipic, n, sigur, ref, k} sau null. n = surse independente (piata.json: domenii diferite; aceeași rețea de site-uri contează o dată), nu numărul de linkuri. Doar când reperul e din aceeași familie de lucrări (nu „ceva asemănător”). */
 function mktOf(it) {
   if (!PIATA || !it || !String(it.den || "").trim()) return null;
   const T = mktTarif(), key = it.den + "|" + it.um + "|" + (it.cod || "") + "|" + (it.cap0 || it.cap || "");
@@ -418,7 +485,7 @@ function mktOf(it) {
   let r = null, o = null; try { r = OF.priceItem({ den: it.den, um: it.um, cod: it.cod, cap: it.cap, cap0: it.cap0 }, T); } catch (e) { }
   if (r && typeof r.id === "string" && r.id[0] === "m") {
     const p = PIATA.lista[+r.id.slice(1)], v = p ? (+p.eng || +p.tipic || (p.min + p.max) / 2) : 0, k = +r.mult || 1;   // intervalul sursei, așa cum e scris; doar la „zeci m”, „sute m” se înmulțește la fel ca prețul
-    if (p && p.min > 0 && p.max > 0 && (!r.fam || r.fam === p.fam)) o = { min: r2(p.min * k), max: r2(p.max * k), tipic: r2(v * k), n: p.n || (p.surse || []).length || 1, sigur: p.sigur || "", ref: p, k };
+    if (p && p.min > 0 && p.max > 0 && (!r.fam || r.fam === p.fam)) o = { min: r2(p.min * k), max: r2(p.max * k), tipic: r2(v * k), n: p.n > 0 ? p.n : (p.surse || []).length || 1, sigur: p.sigur || "", ref: p, k };
   }
   TMK.c.set(key, o); return o;
 }
@@ -444,7 +511,7 @@ function posCard(it, cap) {
   const tag = s === "nu" ? '<span class="tag gy">nu ofertez</span>' : s === "ok" ? tg("ok", `${ic("check", 14, 2.8)}verificat`) : s === "est" ? tg("wr", lv >= 5 ? "după piață" : lv === 4 ? "estimat larg" : "estimat") : s === "sig" ? tg("in", esc(SRC[it.src] || "preț")) : "";
   const mk = m ? `<button class="mk" data-a="why" data-id="${it.id}"><span>Piață: ${fmt(m.min)}–${fmt(m.max)} lei/${esc(it.um)} · din ${nSurse(m.n)}</span>${mp ? `<b class="${mp}">${MKT_T[mp]}</b>` : ""}</button>` : "";
   return `<div class="pos${s === "nu" ? " off" : ""} s-${s}" data-id="${it.id}"><div class="d" data-a="pexp">${esc(it.den)}</div><div class="m">${fq(it.cant)} ${esc(it.um)}${it.cod ? " · " + esc(it.cod) : ""}${cap ? " · " + esc(it.cap) : ""}${it.hid ? " · ascuns în fișier" : ""}</div>
-<div class="pr"><button class="p${it.pret > 0 && s !== "nu" ? "" : " z"}" data-a="pp" data-id="${it.id}">${s === "nu" ? "nu ofertez" : it.pret > 0 ? fmt(it.pret) + " lei/" + esc(it.um) : "pune preț"}</button>${tag}<div class="t">${it.pret > 0 && s !== "nu" ? fmt(OF.total(it, st.adaos)) + " lei" : ""}</div></div>
+<div class="pr"><button class="p${it.pret > 0 && s !== "nu" ? "" : " z"}" data-a="pp" data-id="${it.id}">${s === "nu" ? "nu ofertez" : it.pret > 0 ? fmt(it.pret) + " lei/" + esc(it.um) : "pune preț"}</button>${tag}${it.lk && s !== "nu" ? `<span class="tag gy lk" title="Nu se schimbă la „Vreau alt total”">${ic("lock", 12, 2.4)}blocată</span>` : ""}<div class="t">${it.pret > 0 && s !== "nu" ? fmt(OF.total(it, st.adaos)) + " lei" : ""}</div></div>
 ${mk}
 ${pb && s !== "nu" ? `<div class="nt">${ic("triangle-alert", 14, 2.2)} ${esc(pb)}</div>` : ""}
 ${(s === "est" || s === "sig") && it.src === "cat" && it.sugW ? `<div class="sgs${s === "sig" ? " q" : ""}">${esc(it.sugW)}${it.lab && it.sugW.indexOf(it.lab) < 0 ? " · " + esc(it.lab) : ""}${s === "est" ? `<br><button data-a="pok" data-id="${it.id}">E bun</button><button class="g" data-a="pp" data-id="${it.id}">Schimbă</button>` : ""}</div>` : ""}
@@ -457,12 +524,13 @@ function posList() {
   if (f === "est" && xs.length) h += `<button class="sec" data-a="okall" style="margin-bottom:12px">${ic("check-check", 18, 2.2)}Sunt bune toate (${xs.length})</button>`;
   if (f === "no" && xs.length) h += `<button class="sec" data-a="noall" style="margin-bottom:12px">${ic("ban", 18, 2.2)}${xs.length === 1 ? "Nu ofertez poziția rămasă fără preț" : "Nu ofertez cele " + plural(xs.length, "", "poziții") + " rămase fără preț"}</button>`;
   if (f === "nu" && xs.length) h += `<button class="sec" data-a="yesall" style="margin-bottom:12px">${ic("rotate-ccw", 18, 2.2)}Ofertez totuși ${plural(xs.length, "poziția", "poziții")}</button>`;
-  if (!xs.length) return h + '<div class="emp">Nimic aici.</div>';
+  if (f === "top") { const t = topOf(posAll().xs); if (t.xs.length) h += `<div class="topn" id="topN"><b>${nrw(t.xs.length, "poziție", "poziții")} = 80% din bani</b><span>din ${plural(t.n, "o poziție", "poziții")} cu preț · ${fmt(t.sum)} din ${fmt(t.tot)} lei (${fp1(t.pct * 100)}%). Verifică-le întâi pe ele: sunt de la cea mai mare în jos.</span></div>`; }
+  if (!xs.length) return h + (f === "top" ? '<div class="emp">Nicio poziție cu preț încă. Aici apar cele care fac 80% din bani, de la cea mai mare în jos.</div>' : '<div class="emp">Nimic aici.</div>');
   return h + xs.slice(0, lim).map(it => posCard(it, !VIEW.row)).join("") + (xs.length > lim ? `<button class="more" data-a="pmore">Arată încă ${Math.min(40, xs.length - lim)} (din ${xs.length})</button>` : "");
 }
 function vPos() {
   const { r, xs } = posAll(), f = VIEW.f || "all", cn = { all: xs.length, no: 0, est: 0, nu: 0, sig: 0, ok: 0 };
-  checks(); xs.forEach(it => { cn[stOf(it)]++; }); cn.lucru = cn.no + cn.est;
+  checks(); xs.forEach(it => { cn[stOf(it)]++; }); cn.lucru = cn.no + cn.est; { const tp = topOf(xs); cn.top = tp.n >= 3 ? tp.xs.length : 0; }
   const off = xs.filter(i => !isNo(i)), x = r ? rowInfo(r) : { val: r2(off.reduce((a, i) => a + OF.total(i, st.adaos), 0)), n: off.length, np: off.length - cn.no };
   const est = r2(off.reduce((a, i) => a + (stOf(i) === "est" ? OF.total(i, st.adaos) : 0), 0));
   const ch = (k, t) => cn[k] || k === "all" || k === f ? `<button data-a="pf" data-f="${k}" class="${f === k ? "on" : ""}">${t} · ${cn[k]}</button>` : "";
@@ -471,7 +539,7 @@ function vPos() {
 ${r && x.moved ? `<p class="s" style="margin:-4px 2px 12px">Ai pus tu suma ${fmt(r.ov)} lei când pozițiile dădeau ${fmt(r.ovT)} lei. De atunci pozițiile s-au schimbat, așa că suma a mers odată cu ele: ${fmt(x.val)} lei. O poți scrie din nou din meniul capitolului.</p>` : ""}
 ${est > 0 && !(r && (r.no || r.ov > 0)) ? `<p class="s" style="margin:-4px 2px 12px">Din sumă, ${fmt(est)} lei sunt prețuri estimate. Uită-te peste ele la „De verificat”.</p>` : ""}
 <div class="srch">${ic("search", 20, 2.2)}<input id="pq" data-i="pq" placeholder="Caută în poziții" value="${esc(VIEW.q || "")}" autocomplete="off"></div>
-<div class="fl">${ch("all", "Toate")}${cn.lucru && cn.lucru < cn.all ? ch("lucru", "De lucrat") : ""}${ch("no", "Fără preț")}${ch("est", "De verificat")}${ch("sig", "Din prețurile mele")}${ch("ok", "Verificate")}${ch("nu", "Nu ofertez")}</div>
+<div class="fl w">${ch("all", "Toate")}${ch("top", "Contează cel mai mult")}${cn.lucru && cn.lucru < cn.all ? ch("lucru", "De lucrat") : ""}${ch("no", "Fără preț")}${ch("est", "De verificat")}${ch("sig", "Din prețurile mele")}${ch("ok", "Verificate")}${ch("nu", "Nu ofertez")}</div>
 <div id="plist">${posList()}</div></main>`;
 }
 
@@ -513,7 +581,7 @@ let PDX = null;
 function prdRows() { const D = PRD(); if (!D) return []; if (PDX && PDX.d === D) return PDX.rows;
   const rows = D.items.map((x, i) => ({ i, den: String(x[0] || ""), um: x[1] || "buc", n: +x[2] || 0, nl: +x[3] || 0, fam: x[4] || null, sz: x[5] == null ? null : x[5], m: Array.isArray(x[6]) ? x[6] : null, hand: !!x[7], s: OF.strip(String(x[0] || "")) }));
   PDX = { d: D, rows }; return rows; }
-function prdPrice(e) { if (e.t === TAR && e.t) return; const T = tarif(); e.t = T; const mine = catalog.find(c => c.learned && OF.keyOf(c.den) === OF.keyOf(e.den) && OF.umFamily(c.um) === OF.umFamily(e.um));
+function prdPrice(e) { if (e.t === TAR && e.t) return; const T = tarif(); e.t = T; const mine = catalog.find(c => c.learned && OF.keyOf(c.den) === OF.keyOf(e.den) && umK(c.um) === umK(e.um));   // o sumă pe tot („ans”, „lot”) nu e prețul pe bucată al aceleiași denumiri
   e.c = mine || null; let r = null; if (!mine) { try { r = OF.priceItem({ den: e.den, um: e.um }, T); } catch (er) { } }
   if (r && r.lv >= 4) r = null;   // la produse arăt doar prețuri sigure sau socotite din prețurile tale, nu estimări largi
   e.p = mine ? +mine.pret : r ? r.p : 0; e.lv = mine ? 1 : r ? r.lv : 0; e.why = r ? r.why : ""; e.k = mine ? "m" : !r ? "z" : r.lv <= 2 ? "t" : "e"; }
@@ -569,6 +637,15 @@ ${CF.map(([k, l, t]) => `<label class="lb" for="d_${k}">${l}</label><input class
 <label class="lb" for="d_nuInclude">Oferta nu include (câte una pe rând)</label><textarea class="inp" id="d_nuInclude" data-i="fd" data-k="nuInclude" data-t="t">${esc(defc("nuInclude"))}</textarea>
 <label class="lb" for="d_includeTxt">Oferta include (câte una pe rând; poate rămâne gol)</label><textarea class="inp" id="d_includeTxt" data-i="fd" data-k="includeTxt" data-t="t">${esc(defc("includeTxt"))}</textarea>
 <label class="lb" for="f_nrStart">Numărul primei oferte din an (dacă nu vrei să înceapă de la 0001)</label><input class="inp" id="f_nrStart" data-i="ff" data-k="nrStart" value="${esc(FIRMA.nrStart || "")}" placeholder="${new Date().getFullYear()}/0001" autocomplete="off"></div>
+<div class="box" id="tfBox"><h3>Cât te costă o zi de om</h3><p class="s">Scrii o dată pe an. Aplicația scoate cât te costă firma pe o zi de om. E doar pentru tine: nu apare în oferte.</p>
+${TK.map(([k, l, ph]) => `<label class="lb" for="tf_${k}">${l}</label><input class="inp" id="tf_${k}" data-i="tf" data-k="${k}" inputmode="decimal" value="${esc(edn((FIRMA.tarif || {})[k]))}" placeholder="${esc(ph)}" autocomplete="off">`).join("")}
+<div id="tfOut">${tfOut()}</div>
+<label class="lb" for="tf_tinta">Ținta mea: cât vreau să câștig pe o zi de om (lei)</label><input class="inp" id="tf_tinta" data-i="tf" data-k="tinta" inputmode="decimal" value="${esc(edn((FIRMA.tarif || {}).tinta))}" placeholder="ex. costul + 10%" autocomplete="off">
+<p class="s" style="margin-top:8px">Cu ele: „Îmi iese?” pornește de la costul tău, verificarea dinainte de trimitere te anunță când oferta iese sub cost sau sub țintă, iar la orice lucrare poți face prețul din „câte faci pe zi”.</p></div>
+<div class="box" id="ixBox"><h3>Prețuri vechi aduse la zi</h3><p class="s">Prețurile din ofertele tale din anii trecuți se pot aduce la zi cu indicele costului în construcții (INS). Se schimbă doar prețurile propuse de acum înainte; ofertele deja făcute rămân cum sunt.</p>
+${sw("fIdx", "Adu la zi prețurile din anii trecuți", idxOn()).replace('data-a="sw"', 'data-a="sw" data-then="idxsw"')}
+<p class="s" style="margin-top:8px">${[2025, 2024, 2023, 2022].map(y => y + ": +" + idxPct(OF.iccFactor(y)) + "%").join(" · ")}</p>
+<p class="s" style="margin-top:4px;font-size:12px">Indice ${esc(OF.ICC.baza)}: acum ${fp1(OF.ICC.acum)} (${esc(OF.ICC.acumLbl)}). ${esc(OF.ICC.sursa)}. Clauza de ajustare o pui în ofertă, la „Condiții”.</p></div>
 <div class="box"><h3>Siguranță</h3><p class="s">Tot ce scrii se salvează singur și apare la fel pe telefon și pe laptop.</p>
 <button class="sec" data-a="acct">${ic("key-round", 18, 2.2)}Cont și parolă</button>
 <button class="sec" data-a="hist" style="margin-top:10px">${ic("history", 18, 2.2)}Copii automate (revino la o zi mai veche)</button>
@@ -622,7 +699,7 @@ ACT.capsok = () => { const xs = $$("#ovl .cps button.on").map(b => b.textContent
 ACT.hnr = () => { const p = st.proj; sheet(h3("Număr și dată") + fld("hNr", "Numărul ofertei", p.nrOferta, {}) + fld("hDat", "Data (zz.ll.aaaa)", p.data, {}) + fld("hVal", "Valabilă (zile)", edn(p.valab), { n: 1 }) + '<button class="pri" data-a="hsave" data-k="nr" data-ok="1">Gata</button>'); };
 ACT.hben = () => { const p = st.proj; NEW = null; sheet(h3("Beneficiar") + fld("hBen", "Firma sau numele", p.beneficiar, { af: !p.beneficiar }) + benChips() + fld("hCif", "CIF (dacă e firmă)", p.beneficiarCif, {}) + fld("hCon", "Telefon sau email", p.beneficiarContact, {}) + '<button class="pri" data-a="hsave" data-k="ben" data-ok="1">Gata</button>'); };
 ACT.hluc = () => { const p = st.proj; sheet(h3("Lucrarea") + fld("hLuc", "Lucrarea (șantierul)", p.santier, { af: !p.santier, ph: "ex. Bloc B2, instalații" }) + fld("hOb", "Titlul din ofertă (poate rămâne gol)", p.obiect, { ph: "INSTALAȚII " + (p.santier || "…").toUpperCase() }) + '<button class="pri" data-a="hsave" data-k="luc" data-ok="1">Gata</button>'); };
-ACT.cond = () => { const p = st.proj; sheet(h3("Condiții") + '<p class="s">Doar pentru oferta asta.</p>' + CF.map(([k, l, t]) => fld("c_" + k, l, t === "n" ? edn(p[k]) : p[k], { n: t === "n" })).join("") + fld("c_semnatar", "Semnează (nume)", p.semnatar || FIRMA.semnatar || "", {}) + sw("cAll", "Folosește-le și la ofertele următoare", false) + '<button class="pri" data-a="hsave" data-k="cond" data-ok="1">Gata</button>'); };
+ACT.cond = () => { const p = st.proj; sheet(h3("Condiții") + '<p class="s">Doar pentru oferta asta.</p>' + CF.map(([k, l, t]) => fld("c_" + k, l, t === "n" ? edn(p[k]) : p[k], { n: t === "n" })).join("") + fld("c_semnatar", "Semnează (nume)", p.semnatar || FIRMA.semnatar || "", {}) + sw("cClz", "Clauză de ajustare a prețului cu indicele INS", !!p.clauza) + `<p class="s" style="margin:6px 2px 0">${esc(CLAUZA)}</p>` + sw("cAll", "Folosește-le și la ofertele următoare", false) + '<button class="pri" data-a="hsave" data-k="cond" data-ok="1">Gata</button>'); };
 ACT.inc = () => { const p = st.proj; sheet(h3("Ce include și ce nu") + fld("iNu", "Oferta NU include (câte una pe rând)", p.nuInclude, { area: 1 }) + fld("iInc", "Oferta include (poate rămâne gol)", p.includeTxt, { area: 1, ph: "ex. probe la rece, probe la cald, punere în funcțiune" }) + sw("iAll", "Folosește-le și la ofertele următoare", false) + '<button class="pri" data-a="hsave" data-k="inc">Gata</button>'); };
 ACT.hsave = el => {
   const p = st.proj, k = el.dataset.k;
@@ -630,7 +707,7 @@ ACT.hsave = el => {
     if (val("hNr") !== p.nrOferta) delete p.nrAuto; p.nrOferta = val("hNr"); if (dd) p.data = OFX.fmtDate(dd); p.valab = num(val("hVal")) || p.valab; }
   if (k === "ben") { p.beneficiar = val("hBen"); p.beneficiarCif = val("hCif"); p.beneficiarContact = val("hCon"); }
   if (k === "luc") { p.santier = val("hLuc"); p.obiect = val("hOb"); }
-  if (k === "cond") { CF.forEach(([c, , t]) => { p[c] = t === "n" ? num(val("c_" + c)) : val("c_" + c); }); p.semnatar = val("c_semnatar"); if (isOn("cAll")) { FIRMA.def = FIRMA.def || {}; CF.forEach(([c]) => FIRMA.def[c] = p[c]); saveFirma(); } }
+  if (k === "cond") { CF.forEach(([c, , t]) => { p[c] = t === "n" ? num(val("c_" + c)) : val("c_" + c); }); p.semnatar = val("c_semnatar"); if (isOn("cClz")) p.clauza = p.clauza || CLAUZA; else delete p.clauza; if (isOn("cAll")) { FIRMA.def = FIRMA.def || {}; CF.forEach(([c]) => FIRMA.def[c] = p[c]); FIRMA.def.clauza = p.clauza || ""; saveFirma(); } }
   if (k === "inc") { p.nuInclude = $("#iNu").value; p.includeTxt = $("#iInc").value; if (isOn("iAll")) { FIRMA.def = FIRMA.def || {}; FIRMA.def.nuInclude = p.nuInclude; FIRMA.def.includeTxt = p.includeTxt; saveFirma(); } }
   save(); closeOvl(); render();
 };
@@ -693,18 +770,20 @@ ACT.pexp = el => el.classList.toggle("x");
 ACT.why = el => {
   const it = itemOf(el.dataset.id); if (!it) return; const s = stOf(it), m = mktOf(it), mp = mktPos(it, m), lv = it.src === "cat" ? (it.lv || 2) : 0;
   const src = s === "nu" ? "Nu o ofertezi." : !(it.pret > 0) ? "Nu are preț încă." : s === "ok" ? "Verificat de tine în oferta asta." : it.src === "cat" ? (LVT[lv] || "din prețurile tale") + (lv >= 3 ? " – socotit de aplicație, nu pus de tine." : ".") : (SRC[it.src] || "pus de tine") + ".";
-  const c = it.catId != null ? catById(it.catId) : null, k = OF.keyOf(it.den), f = OF.umFamily(it.um);
-  const mine = (c && c.h && c.h.length ? c : catalog.find(x => x.learned && OF.keyOf(x.den) === k && OF.umFamily(x.um) === f && (x.h || []).length)) || null;
+  const c = it.catId != null ? catById(it.catId) : null, k = OF.keyOf(it.den), f = umK(it.um);
+  const mine = (c && c.h && c.h.length ? c : catalog.find(x => x.learned && OF.keyOf(x.den) === k && umK(x.um) === f && (x.h || []).length)) || null;
   const hist = mine ? (mine.h || []).slice(0, 3) : [];
   const li = xs => `<ul class="wl">${xs.join("")}</ul>`;
   let h = h3("De ce acest preț?") + `<p class="s">${esc(it.den.length > 160 ? it.den.slice(0, 160) + "…" : it.den)}</p>`;
   h += `<div class="wb"><small>Prețul din ofertă</small><b>${it.pret > 0 && s !== "nu" ? fmt(it.pret) + " lei / " + esc(it.um) : "—"}</b><p>${esc(src)}</p>${it.sugW && it.src === "cat" ? `<p class="m">${esc(it.sugW)}${it.lab && it.sugW.indexOf(it.lab) < 0 ? " · " + esc(it.lab) : ""}</p>` : ""}</div>`;
   if (m) {
-    const r = m.ref, sur = (r.surse || []).slice(0, 6).map(x => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.titlu || x.url)}</a></li>`);
+    const r = m.ref, sur = (r.surse || []).slice(0, 6).map(x => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.titlu || x.url)}</a>${x.tva ? " · " + esc(x.tva) : ""}</li>`).concat((r.surse || []).length > 6 ? [`<li>și încă ${(r.surse || []).length - 6}</li>`] : []);
     h += `<div class="wb"><small>Piața${r.data ? " · " + esc(lunaAn(r.data)) : ""}</small><b>${fmt(m.min)}–${fmt(m.max)} lei / ${esc(it.um)}</b><p>Tipic ${fmt(m.tipic)} lei · din ${nSurse(m.n)} · ${esc(r.sigur || "")}${r.tva && r.tva !== "neprecizat" ? " · " + esc(r.tva) : " · TVA nespecificat"}</p>${mp ? `<p class="mt ${mp}">Prețul tău (cu adaosul) e <b>${MKT_T[mp]}</b>.</p>` : ""}<p class="m">Reper: ${esc(r.lucrare)}</p>${r.nota ? `<p class="m">${esc(r.nota)}</p>` : ""}${sur.length ? li(sur) : ""}<p class="m">Prețurile publice sunt mai ales pentru persoane fizice și renovări; la lucrări mari folosește-le ca plafon de verificare.</p></div>`;
   } else h += `<div class="wb"><small>Piața</small><p>Nu am un reper de piață pentru lucrarea asta.</p></div>`;
   const mt = matOf(it);
   if (mt) { const ss = [...new Set(mt.xs.map(x => ((PIATA.msurse || [])[x.s] || {}).titlu).filter(Boolean))]; h += `<div class="wb"><small>Material, orientativ (cu TVA)</small><b>${fmt(mt.min)}${mt.max > mt.min ? "–" + fmt(mt.max) : ""} lei / m</b><p>${plural(mt.xs.length, "un produs", "produse")}${[...new Set(mt.xs.map(x => x.marca).filter(Boolean))].length ? ": " + esc([...new Set(mt.xs.map(x => x.marca).filter(Boolean))].join(", ")) : ""} · nov. 2026</p><p class="m">${esc(ss.join(" · "))}. Prețul diferă mult după marcă; fără TVA: împarte la 1,21.</p></div>`; }
+  { const z = s !== "nu" && it.pret > 0 ? pzOf(it) : null; if (z) { const zp = OF.prodPret(z.t, z.o, z.q), c = cliPu(it), ph = r2(c.p * z.q / (z.o * 8));
+    h += `<div class="wb pzw"><small>Cum ai făcut prețul</small><b>${fmt(zp)} lei / ${esc(it.um)}</b><p>${esc(pzTxt(z, it.um))}</p><p class="m">${fmt(z.t)} × ${fq(z.o)} ÷ ${fq(z.q)} = ${fmt(zp)} lei. Clientul plătește ${fmt(c.p)} lei / ${esc(it.um)}${esc(c.cum)}, ceea ce înseamnă ${fmt(ph)} lei pe oră de om.${ph < MINL.oraCost ? " Sub minimul legal din construcții (" + fmt(MINL.oraCost) + " lei pe oră)." : ""}</p></div>`; } }
   if (hist.length) h += `<div class="wb"><small>Prețurile tale de altădată</small>${li(hist.map(x => `<li><b>${fmt(x.p)} lei</b> · ${esc(x.d || "")}${x.o ? " · " + esc(x.o) : ""}</li>`))}</div>`;
   h += `<div class="minis">${s === "est" ? `<button data-a="pok" data-id="${it.id}" data-x="1">${ic("check", 16, 2.4)}E bun</button>` : ""}<button data-a="pp" data-id="${it.id}">${ic("pencil", 16, 2.2)}Schimbă prețul</button></div>`;
   sheet(h);
@@ -718,23 +797,27 @@ ACT.noall = () => { const xs = posShown(); undoable(plural(xs.length, "O poziți
 ACT.yesall = () => { const xs = posShown(); undoable("Le ofertezi din nou.", () => { xs.forEach(it => setNo(it, 0)); autoMatch(xs.filter(it => !(it.pret > 0))); }); };
 let PP = null;
 ACT.pp = el => {
-  const it = itemOf(el.dataset.id), k = OF.keyOf(it.den), f = OF.umFamily(it.um), same = st.items.filter(o => o !== it && OF.keyOf(o.den) === k && OF.umFamily(o.um) === f && !(o.src === "manual" && o.pret > 0)).length;
+  const it = itemOf(el.dataset.id), k = OF.keyOf(it.den), f = umK(it.um), same = st.items.filter(o => o !== it && OF.keyOf(o.den) === k && umK(o.um) === f && !(o.src === "manual" && o.pret > 0)).length;
   PP = { id: it.id, same }; const caps = st.rows.filter(r => r.k === "c");
-  sheet(h3("Preț") + `<p class="s">${esc(it.den.length > 140 ? it.den.slice(0, 140) + "…" : it.den)}</p><div class="r3"><div>` + fld("ppP", "Preț (lei / " + esc(it.um) + ")", edn(it.pret), { n: 1, af: 1 }) + "</div><div>" + fld("ppQ", "Cantitate", edn(it.cant), { n: 1 }) + "</div></div>" +
+  sheet(h3("Preț") + `<p class="s">${esc(it.den.length > 140 ? it.den.slice(0, 140) + "…" : it.den)}</p><div class="r3"><div>` + fld("ppP", "Preț (lei / " + esc(it.um) + ")", edn(it.pret), { n: 1, af: 1 }) + "</div><div>" + fld("ppQ", "Cantitate", edn(it.cant), { n: 1 }) + "</div></div>" + pzBlock("ppP", it.um, pzOf(it), ((m => m ? m.max : 0)(mktOf(it)))) +
     (same ? sw("ppSame", "La fel la celelalte " + same + " cu aceeași denumire", true) : "") + sw("ppKeep", "Ține minte prețul pentru data viitoare", true) +
+    sw("ppLk", "Blocată: nu se schimbă la „Vreau alt total”", !!it.lk) +
     `<label class="lb" for="ppCap">Capitol</label><select class="inp" id="ppCap">${caps.map(r => `<option value="${esc(r.cap)}" ${r.cap === it.cap ? "selected" : ""}>${esc(r.den)}</option>`).join("")}</select>
-<div class="minis"><button data-a="ppno">${ic("ban", 16, 2.2)}Nu ofertez</button><button class="r" data-a="ppdel">${ic("trash-2", 16, 2.2)}Șterge poziția</button></div><p class="s" style="margin-top:10px">Preț 0 înseamnă că nu ofertezi poziția: rămâne în listă, dar nu intră în total și nu apare ca „fără preț”.</p><button class="pri" data-a="ppsave" data-ok="1">Gata</button>`);
+<div class="minis"><button data-a="ppno">${ic("ban", 16, 2.2)}Nu ofertez</button><button class="r" data-a="ppdel">${ic("trash-2", 16, 2.2)}Șterge poziția</button></div><p class="s" style="margin-top:10px">Preț 0 înseamnă că nu ofertezi poziția: rămâne în listă, dar nu intră în total și nu apare ca „fără preț”.</p><button class="pri" data-a="ppsave" data-ok="1">Gata</button>`); pzWire();
 };
 ACT.ppsave = () => {
   if (!itemOf(PP.id)) { closeOvl(); rePos(); toast("Poziția a fost ștearsă de pe celălalt aparat."); return; }
-  const it = itemOf(PP.id), p = num(val("ppP")), q = num(val("ppQ")), k = OF.keyOf(it.den), f = OF.umFamily(it.um), zero = /^\s*0+([.,]0*)?\s*$/.test(val("ppP"));
+  const it = itemOf(PP.id), p = num(val("ppP")), q = num(val("ppQ")), k = OF.keyOf(it.den), f = umK(it.um), zero = /^\s*0+([.,]0*)?\s*$/.test(val("ppP"));
   if (q > 0) it.cant = q; { const nc = $("#ppCap").value || it.cap; if (nc !== it.cap) { it.cap = nc; delete it.ovd; } }
-  if (zero) { setNo(it, 1); if (PP.same && isOn("ppSame")) st.items.forEach(o => { if (o !== it && OF.keyOf(o.den) === k && OF.umFamily(o.um) === f) o.no = 1; }); save(); closeOvl(); rePos(); toast("Am trecut-o la „nu ofertez”."); return; }
+  if (isOn("ppLk")) it.lk = 1; else delete it.lk;   // lacătul: la „Vreau alt total” poziția rămâne la prețul ei
+  if (zero) { setNo(it, 1); if (PP.same && isOn("ppSame")) st.items.forEach(o => { if (o !== it && OF.keyOf(o.den) === k && umK(o.um) === f) o.no = 1; }); save(); closeOvl(); rePos(); toast("Am trecut-o la „nu ofertez”."); return; }
   if (/^\s*[-−–]/.test(val("ppP"))) { toast("Prețul unei poziții nu poate fi cu minus. Pentru o reducere, pune un rând separat în ofertă."); return; }
   if (p > 0 && it.no) setNo(it, 0);
   if (p !== +it.pret || (p > 0 && !it.conf)) { it.pret = p; it.src = p > 0 ? "manual" : ""; it.conf = p > 0; it.sug = null; it.sugR = null; it.ap = 0;
-    if (p > 0) { if (PP.same && isOn("ppSame")) st.items.forEach(o => { if (o !== it && OF.keyOf(o.den) === k && OF.umFamily(o.um) === f && !(o.src === "manual" && o.pret > 0)) { o.pret = p; o.src = "manual"; o.conf = true; o.sug = null; o.sugR = null; } }); if (isOn("ppKeep")) learn(it); }
+    if (p > 0) { pzPut(it, p); if (PP.same && isOn("ppSame")) st.items.forEach(o => { if (o !== it && OF.keyOf(o.den) === k && umK(o.um) === f && !(o.src === "manual" && o.pret > 0)) { o.pret = p; o.src = "manual"; o.conf = true; o.sug = null; o.sugR = null; } }); if (isOn("ppKeep")) learn(it); }
     else autoMatch([it]); }
+  else if (p > 0) pzPut(it, p);
+  PZ = null;
   save(); closeOvl(); rePos();
 };
 ACT.ppno = () => { const it = itemOf(PP.id); setNo(it, 1); save(); closeOvl(); rePos(); toast("Am trecut-o la „nu ofertez”."); };
@@ -808,18 +891,54 @@ let DEL = "";
 ACT.stare = el => { st.proj.stare = el.dataset.k; save(); closeOvl(); render(); toast("Oferta e " + STARI[el.dataset.k] + "."); };
 ACT.dup = () => { const id = dupOffer(CUR); go("#/o/" + id); toast("Am făcut o copie. Ești în copie acum."); };
 ACT.arh = () => { const e = entry(CUR); e.arh = true; store.put("index", () => IDX, 0); go("#/"); toast("Am pus-o în arhivă.", () => { delete e.arh; store.put("index", () => IDX, 0); render(); }); };
+/* propunerea de prețuri noi: diferența, poziție cu poziție, și „Aplică” (cu „Anulează”) */
+ACT.propv = () => { const pv = propOf(st); if (!pv.length) { render(); return; } const c = JSON.parse(JSON.stringify(st)), m = new Map(pv.map(x => [x.id, x]));
+  c.items.forEach(i => { const x = m.get(i.id); if (x) i.pret = x.neu; }); const t0 = totals().sub, t1 = totals(c).sub;
+  const rows = pv.map(x => ({ x, it: itemOf(x.id) })).filter(o => o.it).sort((a, b) => Math.abs(b.x.neu - b.x.old) * (+b.it.cant || 0) - Math.abs(a.x.neu - a.x.old) * (+a.it.cant || 0)), lim = 80;
+  sheet(h3("Prețuri noi propuse") + `<p class="s">${nrw(pv.length, "poziție primește", "poziții primesc")} alt preț. Ce ai pus tu, ai verificat sau nu ofertezi nu se schimbă. Subtotalul ar trece de la <b>${fmt(t0)}</b> la <b>${fmt(t1)}</b> lei (fără TVA).</p>
+<ul class="pdl" id="propL">${rows.slice(0, lim).map(({ x, it }) => `<li><span>${esc(it.den.length > 90 ? it.den.slice(0, 90) + "…" : it.den)}</span><b>${x.old > 0 ? fmt(x.old) : "fără preț"} → ${x.neu > 0 ? fmt(x.neu) + " lei/" + esc(it.um) : "fără preț"}</b>${x.why ? `<small>${esc(x.why)}</small>` : ""}</li>`).join("")}</ul>${rows.length > lim ? `<p class="s">și încă ${plural(rows.length - lim, "una", "poziții")}.</p>` : ""}
+<button class="pri" data-a="propok">Aplică prețurile noi</button>`); };
+ACT.propok = () => { if (!needProp(st)) { closeOvl(); render(); return; } const n = propOf(st).length; closeOvl(); undoable("Am pus prețurile noi (" + nrw(n, "poziție", "poziții") + ").", () => { autoMatch(propOnly(st)); }); };
 ACT.unarh = () => { delete entry(CUR).arh; store.put("index", () => IDX, 0); closeOvl(); render(); toast("E din nou în lista de oferte."); };
 ACT.del = () => delAsk(CUR);
 ACT.delok = async () => { const id = DEL || CUR; { const mn = /^(\d{4})\/(\d+)$/.exec(String(((DOCS["p/" + id] || {}).proj || {}).nrOferta || "").trim()); if (mn) { IDX.nr = IDX.nr || {}; IDX.nr[mn[1]] = Math.max(IDX.nr[mn[1]] || 0, +mn[2]); } } IDX.list = IDX.list.filter(x => x.id !== id); (IDX.del = IDX.del || {})[id] = todayIso(); delete DOCS["p/" + id]; if (CUR === id) { CUR = ""; st = null; } store.put("index", () => IDX, 0); try { await store.remove("p/" + id); } catch (e) { } closeOvl(); if (VIEW.name === "list") render(); else go("#/"); toast("Ofertă ștearsă."); };
-ACT.target = () => { const t = totals(); sheet(h3("Vreau alt total") + `<p class="s">Acum oferta e ${fmt(t.sub)} lei fără TVA. Scrie cât vrei să fie. Toate prețurile se schimbă în aceeași măsură.</p>` + fld("tgt", "Total dorit, fără TVA (lei)", "", { n: 1, af: 1 }) + '<button class="pri" data-a="tgtok" data-ok="1">Schimbă prețurile</button>'); };
-function scaleTo(target) {
-  const cur = totals().sub; if (!(cur > 0) || !(target > 0)) return null; const f = target / cur;
-  st.rows.forEach(r => { if (r.k === "c") { const i = rowInfo(r); if (i.val > 0) setOv(r, Math.round(i.val * f)); } else if (+r.pret) r.pret = r2(r.pret * f); });   // și reducerile (rânduri cu minus) se schimbă în aceeași măsură
+/* „Vreau alt total” (cercetarea din 15.11.2026, ideea 7): alegi unde se scade sau se adaugă (capitole, rânduri), iar pozițiile blocate rămân la prețul lor.
+   Fără nimic blocat și cu toate locurile alese, socoteala e exact ca înainte: totul în aceeași măsură. Totalul cerut iese la ban (restul din rotunjiri merge pe cel mai mare loc ales). */
+const tgtRows = () => st.rows.filter(r => { const i = rowInfo(r); return !r.no && !i.off && (r.k === "c" ? i.val > 0 : +r.pret !== 0 && i.val !== 0); });
+const lkItems = () => st.items.filter(i => i.lk && !isNo(i) && i.pret > 0);
+ACT.target = () => { const t = totals(), rs = tgtRows(), lk = lkItems(), lks = r2(lk.reduce((a, i) => a + OF.total(i, st.adaos), 0));
+  sheet(h3("Vreau alt total") + `<p class="s">Acum oferta e ${fmt(t.sub)} lei fără TVA. Scrie cât vrei să fie. Prețurile din locurile alese se schimbă în aceeași măsură${lk.length ? "; pozițiile blocate rămân cum sunt" : ""}.</p>` + fld("tgt", "Total dorit, fără TVA (lei)", "", { n: 1, af: 1 }) +
+    (rs.length > 1 ? '<span class="lb">Unde se schimbă prețurile</span>' + rs.map(r => sw("tg_" + r.id, esc(r.den) + " · " + fmt(rowInfo(r).val) + " lei", true)).join("") : "") +
+    (lk.length ? `<p class="s" style="margin-top:8px;display:flex;gap:6px;align-items:flex-start">${ic("lock", 14, 2.4)}<span>${plural(lk.length, "O poziție blocată rămâne", "poziții blocate rămân")} la prețul ${lk.length === 1 ? "ei" : "lor"} (${fmt(lks)} lei).</span></p>` : '<p class="s" style="margin-top:8px">O poziție care nu trebuie să se schimbe (probe, PIF, ce compară antreprenorul) o blochezi din fișa ei de preț.</p>') +
+    '<button class="pri" data-a="tgtok" data-ok="1">Schimbă prețurile</button>'); };
+let SCERR = "";
+function scaleTo(target, opt) {
+  SCERR = ""; const cur = totals().sub; if (!(cur > 0) || !(target > 0)) return null;
+  const only = opt && opt.only && opt.only.size ? opt.only : null, ok = r => !only || only.has(r.id);
+  const lkOf = r => r.k === "c" && !r.no ? st.items.filter(i => i.cap === r.cap && i.lk && !i.no && i.pret > 0) : [];
+  const part = r => { const i = rowInfo(r), L = lkOf(r); if (!L.length) return { i, raw: 0, eff: 0 }; const kOld = i.scaled ? (r.ov - i.L) / r.ovT : 1; let raw = 0, eff = 0; L.forEach(x => { const t = OF.total(x, st.adaos); raw += t; eff += t * (i.scaled && x.ovd ? kOld : 1); }); return { i, raw, eff }; };
+  /* un capitol unde toate pozițiile cu preț sunt blocate rămâne neatins, nici rotunjirea lui nu se schimbă (portat din reparațiile echipei v3); fără lacăte nu există, deci totul e ca înainte */
+  const allLk = r => lkOf(r).length > 0 && !st.items.some(i => i.cap === r.cap && !i.lk && !i.no && i.pret > 0 && +i.cant > 0), hasLk = lkItems().length > 0;
+  let f;
+  if (!only && !lkItems().length) f = target / cur;   // ca înainte: toate prețurile în aceeași măsură
+  else {
+    let fixed = 0, lraw = 0, vr = 0;
+    st.rows.forEach(r => { const P = part(r), i = P.i; if (!ok(r) || allLk(r) || (r.k === "c" ? !(i.val > 0) : !+r.pret)) { fixed += i.val; return; } lraw += P.raw; vr += i.val - P.eff; });
+    if (!(vr > 0)) { SCERR = "Nu am ce schimba: în locurile alese totul e blocat."; return null; }
+    f = (target - fixed - lraw) / vr;
+    if (!(f > 0)) { SCERR = "Totalul dorit e mai mic decât ce rămâne neschimbat (" + fmt(r2(fixed + lraw)) + " lei: locurile nealese și pozițiile blocate)."; return null; }
+  }
+  st.rows.forEach(r => { if (!ok(r) || allLk(r)) return; if (r.k === "c") { const P = part(r); if (P.i.val > 0 && (!P.raw || P.i.val - P.eff > 0.004)) { const v0 = P.raw + (P.i.val - P.eff) * f; let v = Math.round(v0); if ((P.raw || hasLk) && v - r2(P.raw) < 0.01) v = Math.max(r2(v0), r2(P.raw + 0.01)); setOv(r, v); /* cu lacăte în ofertă, rotunjirea la leu nu lasă pozițiile neblocate ale unui capitol la 0: altfel setOv ar renunța la lacăt sau la suma capitolului (verificarea Codex, runda 3); fără lacăte, ca înainte */ } } else if (+r.pret) r.pret = r2(r.pret * f); });   // un capitol cu toate pozițiile blocate rămâne neatins   // și reducerile (rânduri cu minus) se schimbă în aceeași măsură
   const d = r2(target - totals().sub);
-  if (Math.abs(d) >= 0.005) { const c = st.rows.filter(r => (r.k === "c" && r.ov > 0) || (r.k === "r" && (+r.cant || 0) === 1 && r.pret > 0)).sort((a, b) => rowInfo(b).val - rowInfo(a).val)[0]; if (c) { if (c.k === "c") c.ov = r2(c.ov + d); else c.pret = r2(c.pret + d / condK(st)); } }   // pe un rând scris, diferența se împarte la condiții, ca valoarea să crească exact cu ea
+  /* restul din rotunjire nu merge pe un capitol cu toate pozițiile blocate (verificarea Codex 5) și nu coboară un capitol sub partea lui blocată (Codex runda 3); condiția portată din reparațiile echipei v3. Fără lacăte: ca înainte. */
+  if (Math.abs(d) >= 0.005) { const c = st.rows.filter(r => ok(r) && ((r.k === "c" && r.ov > 0 && !allLk(r) && r.ov + d - (+r.ovL || 0) >= 0.01) || (r.k === "r" && (+r.cant || 0) === 1 && r.pret > 0))).sort((a, b) => rowInfo(b).val - rowInfo(a).val)[0]; if (c) { if (c.k === "c") c.ov = r2(c.ov + d); else c.pret = r2(c.pret + d / condK(st)); } }   // pe un rând scris, diferența se împarte la condiții, ca valoarea să crească exact cu ea
   return r2(target - totals().sub);
 }
-ACT.tgtok = () => { const t = num(val("tgt")); if (!(t > 0)) { toast("Scrie suma dorită."); return; } if (!(totals().sub > 0)) { closeOvl(); toast("Oferta nu are încă prețuri."); return; } closeOvl(); let d = 0; undoable("Prețuri schimbate.", () => { d = scaleTo(t); }); if (d) toast("A ieșit " + fmt(totals().sub) + " lei (diferență de " + fmt(Math.abs(d)) + " lei din rotunjiri).", UNDO); };
+ACT.tgtok = () => { const t = num(val("tgt")); if (!(t > 0)) { toast("Scrie suma dorită."); return; } if (!(totals().sub > 0)) { closeOvl(); toast("Oferta nu are încă prețuri."); return; }
+  const sws = $$('#ovl [id^="tg_"]'), on = new Set(sws.filter(x => x.classList.contains("on")).map(x => +x.id.slice(3))); if (sws.length && !on.size) { toast("Alege cel puțin un loc unde se schimbă prețurile."); return; }
+  const only = sws.length && on.size < sws.length ? on : null; closeOvl(); let d = 0;
+  { const s0 = JSON.stringify(st); const dd = scaleTo(t, { only }); const err = SCERR; DOCS["p/" + CUR] = st = normSt(JSON.parse(s0)); if (dd === null && err) { toast(err); return; } }   // întâi încerc pe o copie: dacă nu se poate, nu schimb nimic
+  undoable("Prețuri schimbate.", () => { d = scaleTo(t, { only }); }); if (d) toast("A ieșit " + fmt(totals().sub) + " lei (diferență de " + fmt(Math.abs(d)) + " lei din rotunjiri).", UNDO); };
 /* Condiții de lucru (cercetarea din 15.11.2026): acces greu și urgență cresc toată manopera, transparent, peste adaosul tău.
    Se păstrează separat (st.cond) și adaosul total se socotește din ele de fiecare dată, ca să nu se adune de două ori. */
 const COND = { acc: [[0, "normal"], [10, "greu +10%"], [20, "foarte greu +20%"]], urg: [[0, "normal"], [25, "urgent +25%"], [50, "noapte / sărbători +50%"]] };
@@ -841,13 +960,19 @@ const RK = [["muncitori", "Câți oameni"], ["zile", "Câte zile de lucru"], ["o
 function riscOut() {
   const o = {}; RK.forEach(([k]) => o[k] = num(val("k_" + k))); const sub = totals().sub, r = OF.risc(Object.assign({}, o, { oferta: sub })), m = r.marja * 100, zi = o.muncitori * o.oreZi * o.costOra;
   const cls = !(r.ore > 0) ? "gy" : m < 15 ? "no" : m < 25 ? "wr" : "ok";
+  const T = tarifFirma(), oz = o.muncitori * o.zile, net = sub - o.deplasare - o.materiale, pz = oz > 0 ? net / oz : 0, po = r.ore > 0 ? net / r.ore : 0;   // lei pe om-zi rămași după drum și alte cheltuieli
+  const zz = !T.cost || !(r.ore > 0) || !(sub > 0) ? "" : `<div class="tl"><span>Încasezi pe o zi de om</span><b>${fmt(pz)} lei</b></div>` + (T.cost ? `<p class="s" style="margin-top:6px">Firma te costă ${fmt(T.cost.zi)} lei pe om-zi${T.tintaSet ? ", ținta ta e " + fmt(T.tinta) : ""}. ${pz < T.cost.zi ? "<b>Ești sub cost.</b>" : T.tintaSet && pz < T.tinta ? "<b>Ești sub țintă.</b>" : "Ești peste " + (T.tintaSet ? "țintă" : "cost") + "."}</p>` : "") + (po > 0 && po < MINL.oraCost ? `<div class="nt">Ies ${fmt(po)} lei pe oră de om: sub minimul legal din construcții (${fmt(MINL.oraCost)} lei pe oră cu CAM, ${MINL.an}).</div>` : "");
   $("#kOut").innerHTML = !(r.ore > 0) ? '<div class="nt">Scrie câți oameni și câte zile.</div>' : `<div class="tl"><span>Oferta (fără TVA)</span><b>${fmt(sub)} lei</b></div><div class="tl"><span>Te costă (${fmt(r.ore)} ore de om + cheltuieli)</span><b>${fmt(r.cost)} lei</b></div><div class="tl"><span>Îți rămâne</span><b>${fmt(r.profit)} lei</b></div>
-<div class="tag ${cls}" style="margin-top:10px;width:100%;justify-content:center;min-height:40px">${r.profit < 0 ? "Ieși în pierdere." : "Rămâi cu " + fmt(m) + "% din ofertă."} ${r.ore ? "Încasezi " + fmt(sub / r.ore) + " lei pe ora de om." : ""}</div>${zi > 0 ? `<p class="s" style="margin-top:10px">Banii din ofertă ajung pentru ${fmt(Math.floor((sub - o.deplasare - o.materiale) / zi))} zile cu ${fmt(o.muncitori)} oameni. Peste atât, lucrezi în pierdere.</p>` : ""}`;
+<div class="tag ${cls}" style="margin-top:10px;width:100%;justify-content:center;min-height:40px">${r.profit < 0 ? "Ieși în pierdere." : "Rămâi cu " + fmt(m) + "% din ofertă."} ${r.ore ? "Încasezi " + fmt(sub / r.ore) + " lei pe ora de om." : ""}</div>${zi > 0 ? `<p class="s" style="margin-top:10px">Banii din ofertă ajung pentru ${fmt(Math.floor((sub - o.deplasare - o.materiale) / zi))} zile cu ${fmt(o.muncitori)} oameni. Peste atât, lucrezi în pierdere.</p>` : ""}${zz}`;
   return o;
 }
-ACT.risc = () => { const d = Object.assign({ muncitori: 4, zile: 0, oreZi: 8, costOra: 50, deplasare: 0, materiale: 0 }, FIRMA.risc || {}, st.risk && st.risk.zile ? st.risk : {}); sheet(h3("Îmi iese?") + '<p class="s">Socoteala e doar pentru tine. Nu apare în ofertă.</p>' + RK.map(([k, l]) => fld("k_" + k, l, edn(d[k]), { n: 1 })).join("") + '<div id="kOut" style="margin-top:14px"></div><button class="pri" data-a="riscok">Gata</button>'); $$("#ovl .sheet input").forEach(i => i.setAttribute("data-i", "krisc")); riscOut(); };
+/* costul pe oră de la care pornește „Îmi iese?”: cel din „Firma mea” (dacă l-ai socotit), altfel cel scris data trecută, altfel 50 */
+const costOraFirma = oreZi => { const T = tarifFirma(); return T.cost ? r2(T.cost.zi / (+oreZi || 8)) : 0; };
+ACT.risc = () => { const d = Object.assign({ muncitori: 4, zile: 0, oreZi: 8, costOra: 50, deplasare: 0, materiale: 0 }, FIRMA.risc || {}, st.risk && st.risk.zile ? st.risk : {}), cf = costOraFirma(d.oreZi);
+  if (cf && !(st.risk && st.risk.zile && st.risk.cm)) d.costOra = cf;   // pe oferta asta ai scris tu alt cost: rămâne al tău
+  sheet(h3("Îmi iese?") + '<p class="s">Socoteala e doar pentru tine. Nu apare în ofertă.</p>' + RK.map(([k, l]) => fld("k_" + k, l, edn(d[k]), { n: 1 })).join("") + (cf ? `<p class="s" id="kCf" style="margin-top:6px">Costul pe oră vine din „Firma mea”: ${fmt(tarifFirma().cost.zi)} lei pe om-zi.</p>` : "") + '<div id="kOut" style="margin-top:14px"></div><button class="pri" data-a="riscok">Gata</button>'); $$("#ovl .sheet input").forEach(i => i.setAttribute("data-i", "krisc")); riscOut(); };
 INP.krisc = () => riscOut();
-ACT.riscok = () => { const o = riscOut(); st.risk = Object.assign(st.risk || {}, o); FIRMA.risc = { muncitori: o.muncitori, oreZi: o.oreZi, costOra: o.costOra }; saveFirma(); save(); closeOvl(); };
+ACT.riscok = () => { const o = riscOut(), cf = costOraFirma(o.oreZi); st.risk = Object.assign(st.risk || {}, o); if (cf && Math.abs(o.costOra - cf) >= 0.005) st.risk.cm = 1; else delete st.risk.cm; FIRMA.risc = { muncitori: o.muncitori, oreZi: o.oreZi, costOra: cf ? (FIRMA.risc || {}).costOra || o.costOra : o.costOra }; saveFirma(); save(); closeOvl(); };
 
 /* ---------- adu o listă: fișier (Excel, CSV, PDF) sau text lipit ---------- */
 let IM = null; const FILES = {};
@@ -980,8 +1105,33 @@ ACT.prsf = el => { VIEW.sf = el.dataset.f; VIEW.lim = 50; render(); };
 ACT.prmore = () => { VIEW.lim = (VIEW.lim || 50) + 50; $("#prl").innerHTML = priceRows(); };
 INP.prq = el => { VIEW.q = el.value; VIEW.lim = 50; $("#prl").innerHTML = priceRows(); };
 ACT.fam = el => { const g = {}; OF.famList().forEach(f => (g[f.grp] = g[f.grp] || []).push(f)); $("#famList").innerHTML = Object.keys(g).map(k => `<h4>${esc(k)}</h4><ul>${g[k].map(f => `<li>${esc(f.label)}${f.soft ? ' <span class="mut">– prețul rămâne de verificat</span>' : ""}</li>`).join("")}</ul>`).join(""); el.remove(); };
+/* „Calculează din câte faci pe zi” (cercetarea din 15.11.2026, ideea 4): preț = lei pe om-zi × oameni ÷ bucăți (metri) pe zi.
+   Prețul ales devine prețul tău (ca la „pune preț”); la lucrare se ține minte cum a ieșit (pz), ca să apară la „De ce acest preț?”. */
+let PZ = null;
+const pzTxt = (z, um) => "din productivitate: " + fq(z.o) + " " + (+z.o === 1 ? "om" : "oameni") + ", " + fq(z.q) + " " + (um || "buc") + "/zi, " + fmt(z.t) + " lei/om-zi";
+const pzOf = it => it.pz || (it.src === "cat" && it.catId != null ? (catalog.find(c => c.id === it.catId) || {}).pz : null) || null;   // prețul vine dintr-o lucrare din prețurile tale făcută din productivitate
+/* căsuța „Din câte faci pe zi” se face abia când o deschizi (sau deschisă de la început, dacă prețul a fost făcut așa): fără butoane ascunse în fișă */
+function pzInner(z) {
+  const T = tarifFirma(), t = z ? z.t : T.tinta;
+  return `<span class="lb">Din câte faci pe zi</span><div class="r3"><div>${fld("pzO", "Oameni", z ? edn(z.o) : "", { n: 1 })}</div><div>${fld("pzQ", esc(PZ.um) + " pe zi", z ? edn(z.q) : "", { n: 1 })}</div><div>${fld("pzT", "Lei pe om-zi", edn(t), { n: 1 })}</div></div><p class="s" id="pzOut"></p><button class="sec" data-a="pzuse" id="pzUse" disabled>Folosește prețul</button>${!T.cost && !z ? '<p class="s" style="margin-top:6px">Câți lei pe o zi de om: socotești o dată în „Firma mea”, la „Cât te costă o zi de om”.</p>' : ""}`;
+}
+function pzBlock(tgt, um, z, mk) {
+  PZ = { tgt, um: um || "buc", p: 0, used: 0, mk: mk || 0 };   // mk: cel mai mare preț de piață pentru lucrarea asta (pentru avertismentul „de peste 10 ori”)
+  return z ? `<div class="pzx" id="pzBox">${pzInner(z)}</div>` : `<button class="lnk pzb" data-a="pzopen" id="pzOpen">${ic("calculator", 16, 2.2)}Calculează din câte faci pe zi</button><div class="pzx" id="pzBox" hidden></div>`;
+}
+function pzWire() { $$("#pzBox input").forEach(i => i.setAttribute("data-i", "pz")); pzCalc(); }
+function pzCalc() {
+  if (!PZ || !$("#pzBox")) return 0; const o = num(val("pzO")), q = num(val("pzQ")), t = num(val("pzT")), p = OF.prodPret(t, o, q), e = $("#pzOut"), b = $("#pzUse"); Object.assign(PZ, { o, q, t, p });
+  if (e) e.innerHTML = p > 0 ? `${fmt(t)} lei pe om-zi × ${fq(o)} ${o === 1 ? "om" : "oameni"} ÷ ${fq(q)} ${esc(PZ.um)} pe zi = <b>${fmt(p)} lei / ${esc(PZ.um)}</b>` + (r2(t / 8) < MINL.oraCost ? `<br>Atenție: ${fmt(r2(t / 8))} lei pe oră e sub minimul legal din construcții (${fmt(MINL.oraCost)} lei).` : "") + (PZ.mk > 0 && p > 10 * PZ.mk ? `<br>Atenție: prețul e de peste 10 ori reperul de piață (cel mult ${fmt(PZ.mk)} lei / ${esc(PZ.um)}). Verifică câte ${esc(PZ.um)} faci pe zi.` : "") : "Scrie câți oameni, câte " + esc(PZ.um) + " fac pe zi și câți lei vrei pe o zi de om.";
+  if (b) b.disabled = !(p > 0); return p;
+}
+ACT.pzopen = () => { const b = $("#pzBox"); if (!b || !PZ) return; b.innerHTML = pzInner(null); b.hidden = false; const o = $("#pzOpen"); if (o) o.remove(); pzWire(); const f = $("#pzO"); if (f) f.focus(); };
+INP.pz = () => pzCalc();
+ACT.pzuse = () => { const p = pzCalc(); if (!(p > 0)) return; const f = $("#" + PZ.tgt); if (f) { f.value = edn(p); f.dispatchEvent(new Event("input", { bubbles: true })); } PZ.used = p; const e = $("#pzOut"); if (e) e.innerHTML += `<br><b>Am pus prețul: ${fmt(p)} lei.</b> Apasă „Gata” ca să-l ții minte.`; };
+/* la salvare: ce a ieșit din „câte faci pe zi” rămâne lângă preț; dacă ai schimbat prețul de mână după aceea, nu mai e „din productivitate” */
+function pzPut(o, p) { if (PZ && PZ.used > 0 && Math.abs(PZ.used - p) < 0.005 && PZ.o > 0 && PZ.q > 0) o.pz = { o: PZ.o, q: PZ.q, t: PZ.t }; else if (o.pz && Math.abs(OF.prodPret(o.pz.t, o.pz.o, o.pz.q) - p) >= 0.005) delete o.pz; }
 let PE = null;
-function priceSheet(c) { PE = c ? c.id : 0; const h = (c && c.h) || []; sheet(h3(c ? "Preț" : "Preț nou") + fld("eDen", "Lucrarea", c ? c.den : "", { af: !c }) + '<div class="r3"><div>' + fld("eP", "Preț (lei)", c ? edn(c.pret) : "", { n: 1 }) + '</div><div class="um">' + fld("eUm", "UM", c ? c.um : "buc", {}) + "</div></div>" + (c && c.desc ? `<p class="s" style="margin-top:10px">${esc(c.desc)}</p>` : "") + (h.length ? `<p class="s" style="margin-top:10px">Ultimele prețuri puse: ${h.map(x => fmt(x.p) + " lei (" + String(x.d).split("-").reverse().join(".") + (x.o ? ", " + esc(x.o) : "") + ")").join(" · ")}</p>` : "") + (c ? `<div class="minis"><button class="r" data-a="edel">${ic("trash-2", 16, 2.2)}Șterge prețul</button></div>` : "") + '<button class="pri" data-a="esave" data-ok="1">Gata</button>'); }
+function priceSheet(c) { PE = c ? c.id : 0; const h = (c && c.h) || []; sheet(h3(c ? "Preț" : "Preț nou") + fld("eDen", "Lucrarea", c ? c.den : "", { af: !c }) + '<div class="r3"><div>' + fld("eP", "Preț (lei)", c ? edn(c.pret) : "", { n: 1 }) + '</div><div class="um">' + fld("eUm", "UM", c ? c.um : "buc", {}) + "</div></div>" + pzBlock("eP", c ? c.um : "buc", c && c.pz) + (c && c.pz ? `<p class="s" style="margin-top:10px">Prețul tău e ${esc(pzTxt(c.pz, c.um))}.</p>` : "") + (c && c.desc ? `<p class="s" style="margin-top:10px">${esc(c.desc)}</p>` : "") + (h.length ? `<p class="s" style="margin-top:10px">Ultimele prețuri puse: ${h.map(x => fmt(x.p) + " lei (" + String(x.d).split("-").reverse().join(".") + (x.o ? ", " + esc(x.o) : "") + ")").join(" · ")}</p>` : "") + (c ? `<div class="minis"><button class="r" data-a="edel">${ic("trash-2", 16, 2.2)}Șterge prețul</button></div>` : "") + '<button class="pri" data-a="esave" data-ok="1">Gata</button>'); pzWire(); }
 ACT.pnew = () => priceSheet(null);
 ACT.pprd = el => { const e = prdRows()[+el.dataset.k]; if (!e) return; prdPrice(e);
   nomSheet({ prd: 1, den: e.den, um: OF.umFamily(e.um), fam: e.fam, sz: e.sz, vars: [], c: e.c, p: e.p, k: e.k, why: e.why, lv: e.lv, tier: 0, n: e.n, nl: e.nl, mat: prdMat(e) }); };
@@ -1014,14 +1164,15 @@ ACT.pprod = el => nomSheet(prodRows()[+el.dataset.k]);
 function nomSheet(e) { if (!e) return; NE = e; const c = e.c, h = (c && c.h) || [];
   sheet(h3(e.den.length > 90 ? e.den.slice(0, 90) + "…" : e.den) + `<p class="s">${e.prd ? (e.nl > 1 ? "Apare în " + e.nl + " liste (de " + e.n + " ori)." : e.n > 1 ? "Apare de " + e.n + " ori." : "Apare o dată.") + " " + (e.k === "m" ? "Aici ai pus tu prețul de manoperă." : e.k === "z" ? "Nu am niciun preț de manoperă din care să-l socotesc." : e.k === "t" ? "Prețul de manoperă vine din prețurile tale: " + esc(e.why) + "." : "Preț de manoperă propus, de verificat: " + esc(e.why) + ".") + (e.mat ? "</p><p class=\"s\" style=\"margin-top:6px\"><b>Material: " + esc(e.mat) + "</b>" : "") : e.prod ? "Apare " + (e.n === 1 ? "o dată" : "de " + e.n + " ori") + " în ofertele tale. Aplicația nu o recunoaște încă; după ce îi pui prețul, îl pun singură de câte ori apare denumirea asta într-o listă." : e.k === "m" ? "Aici ai pus tu prețul." : e.k === "z" ? "Nu ai încă niciun preț pentru lucrarea asta și nici unul din care să-l pot socoti." : e.k === "t" ? "Prețul vine din prețurile tale: " + esc(e.why) + "." : "Preț propus, de verificat: " + esc(e.why) + "."}${e.tier === 3 ? " Apare des în listele de cantități." : ""}</p>` +
     fld("nP", "Prețul tău (lei / " + esc(umShow(e.um)) + ")", c ? edn(c.pret) : "", { n: 1, af: 1, ph: !c && e.p > 0 ? "propus: " + fmt(e.p) : "" }) +
+    pzBlock("nP", umShow(e.um), c && c.pz) + (c && c.pz ? `<p class="s" style="margin-top:10px">Prețul tău e ${esc(pzTxt(c.pz, umShow(e.um)))}.</p>` : "") +
     (h.length ? `<p class="s" style="margin-top:10px">Ultimele prețuri puse: ${h.map(x => fmt(x.p) + " lei (" + String(x.d).split("-").reverse().join(".") + ")").join(" · ")}</p>` : "") +
     (!c && e.p > 0 && e.k !== "z" ? `<button class="sec" data-a="nomacc" style="margin-top:12px">E bun prețul propus: ${fmt(e.p)} lei</button>` : "") +
-    (c ? `<div class="minis"><button class="r" data-a="nomdel">${ic("trash-2", 16, 2.2)}Șterge prețul meu</button></div>` : "") + '<button class="pri" data-a="nomsave" data-ok="1">Gata</button>'); }
+    (c ? `<div class="minis"><button class="r" data-a="nomdel">${ic("trash-2", 16, 2.2)}Șterge prețul meu</button></div>` : "") + '<button class="pri" data-a="nomsave" data-ok="1">Gata</button>'); pzWire(); }
 function nomPut(p) { const e = NE; if (!e) return; if (!(p > 0)) { toast("Scrie prețul."); return; }
   const old = JSON.stringify(catalog), c = e.c && catalog.find(x => x.id === e.c.id);
-  if (c) { if (+c.pret !== p) c.h = [{ p, d: todayIso(), o: "" }].concat(c.h || []).slice(0, 6); c.pret = p; }
-  else catalog.unshift({ id: newCatId(), dom: "MEU", sec: "", den: e.den, desc: "", um: umShow(e.um), pret: p, learned: true, fam: e.fam || undefined, sz: e.fam ? e.sz : undefined, vars: e.vars.length ? e.vars : undefined, h: [{ p, d: todayIso(), o: "" }] });
-  NE = null; catDirty = true; rebuildCat(); saveCat(); closeOvl(); render();
+  if (c) { if (+c.pret !== p) c.h = [{ p, d: todayIso(), o: "" }].concat(c.h || []).slice(0, 6); c.pret = p; pzPut(c, p); }
+  else { const o = { id: newCatId(), dom: "MEU", sec: "", den: e.den, desc: "", um: umShow(e.um), pret: p, learned: true, fam: e.fam || undefined, sz: e.fam ? e.sz : undefined, vars: e.vars.length ? e.vars : undefined, h: [{ p, d: todayIso(), o: "" }] }; pzPut(o, p); catalog.unshift(o); }
+  NE = null; PZ = null; catDirty = true; rebuildCat(); saveCat(); closeOvl(); render();
   toast("Am ținut minte: " + e.den + " – " + fmt(p) + " lei / " + umShow(e.um) + ".", () => { catalog = JSON.parse(old); catDirty = true; rebuildCat(); saveCat(); render(); }); }
 ACT.nomsave = () => nomPut(num(val("nP")));
 ACT.nomacc = () => nomPut(NE ? NE.p : 0);
@@ -1046,17 +1197,26 @@ function learnSheet() { const L = LRN, nw = L.nw;
 ACT.plearnok = () => { const nw = LRN.nw, old = JSON.stringify(catalog), y = new Date().getFullYear(); nw.forEach(x => catalog.push({ id: newCatId(), dom: "OFERTE VECHI", sec: String(x.f).replace(/\.\w+$/, ""), den: x.den, desc: "", um: x.um, pret: x.pret, learned: true, imp: 1, an: y })); LRN = null; catDirty = true; rebuildCat(); saveCat(); closeOvl(); VIEW.f = "m"; VIEW.q = ""; render();
   toast("Am ținut minte " + plural(nw.length, "un preț", "prețuri") + ".", () => { catalog = JSON.parse(old); catDirty = true; rebuildCat(); saveCat(); render(); }); };
 ACT.pcat = el => priceSheet(catalog.find(c => c.id == el.dataset.k));
-ACT.esave = () => { const den = val("eDen"), p = num(val("eP")), um = val("eUm") || "buc"; if (!den) { toast("Scrie lucrarea."); return; } const c = PE ? catalog.find(x => x.id === PE) : null; if (c) { if (+c.pret !== p) c.h = [{ p, d: todayIso(), o: "" }].concat(c.h || []).slice(0, 6); Object.assign(c, { den, um, pret: p }); } else catalog.unshift({ id: nextCatId++, dom: "MEU", sec: "", den, desc: "", um, pret: p, learned: true, h: [{ p, d: todayIso(), o: "" }] }); catDirty = true; rebuildCat(); saveCat(); closeOvl(); render(); };
+ACT.esave = () => { const den = val("eDen"), p = num(val("eP")), um = val("eUm") || "buc"; if (!den) { toast("Scrie lucrarea."); return; } const c = PE ? catalog.find(x => x.id === PE) : null; if (c) { if (+c.pret !== p) c.h = [{ p, d: todayIso(), o: "" }].concat(c.h || []).slice(0, 6); Object.assign(c, { den, um, pret: p }); pzPut(c, p); } else { const o = { id: nextCatId++, dom: "MEU", sec: "", den, desc: "", um, pret: p, learned: true, h: [{ p, d: todayIso(), o: "" }] }; pzPut(o, p); catalog.unshift(o); } PZ = null; catDirty = true; rebuildCat(); saveCat(); closeOvl(); render(); };
 ACT.edel = () => { const id = PE, old = JSON.stringify(catalog); catalog = catalog.filter(c => c.id !== id); catDirty = true; rebuildCat(); saveCat(); closeOvl(); render(); toast("Preț șters.", () => { catalog = JSON.parse(old); catDirty = true; rebuildCat(); saveCat(); render(); }); };
 ACT.pref = el => { const r = REF[+el.dataset.k]; PE = +el.dataset.k; sheet(h3("Din ofertele tale vechi") + `<p style="font-weight:700;margin:6px 0 0">${esc(r.d)}</p><p class="s" style="margin-top:6px">${fmt(r.p)} lei / ${esc(r.u)} · ${esc(r.pr || "")}${r.an ? ", " + esc(r.an) : ""}${r.s === "p" ? " · de verificat" : ""}</p><button class="pri" data-a="prefok">Pune-l în prețurile mele</button>`); };
 ACT.prefok = () => { const r = REF[PE]; catalog.unshift({ id: newCatId(), dom: "OFERTE VECHI", sec: (r.pr || "") + " " + (r.an || ""), den: r.d, desc: "", um: r.u, pret: +r.p, learned: true }); catDirty = true; rebuildCat(); saveCat(); closeOvl(); VIEW.f = "m"; VIEW.q = ""; render(); toast("L-am pus în prețurile tale."); };
 ACT.pmat = el => { const x = matIdx()[+el.dataset.k]; if (!x) return; const so = (PIATA.msurse || [])[x.s] || {}; sheet(h3("Preț de material") + `<p style="font-weight:700;margin:6px 0 0">${esc(x.den)}</p><div class="wb"><small>La magazin, ${esc(lunaAn(x.data))}</small><b>${fmt(x.pret)} lei / ${esc(x.um)} cu TVA</b><p>Fără TVA: ${fmt(r2(x.pret / 1.21))} lei${x.marca ? " · " + esc(x.marca) : ""}</p>${so.url ? `<ul class="wl"><li><a href="${esc(so.url)}" target="_blank" rel="noopener noreferrer">${esc(so.titlu)}</a></li></ul>` : ""}<p class="m">Doar orientativ: aplicația ofertează manopera. Prețurile de raft se schimbă des.</p></div><button class="pri" data-a="x">Gata</button>`); };
-ACT.ppia = el => { const p = PIATA.lista[+el.dataset.k]; sheet(h3("Reper de piață") + `<p style="font-weight:700;margin:6px 0 0">${esc(p.lucrare)}</p><div class="tl" style="margin-top:10px"><span>De la – până la</span><b>${fmt(p.min)} – ${fmt(p.max)} ${esc(p.um || "")}</b></div>${p.tipic ? `<div class="tl"><span>Cel mai des</span><b>${fmt(p.tipic)}</b></div>` : ""}<p class="s" style="margin-top:10px">${esc(p.nota || "")}</p><p class="s">TVA: ${esc(p.tva || "neprecizat")} · cât de sigur: ${esc(p.sigur || "orientativ")} · ${esc(PIATA.data || "")}</p><div class="src">${(p.surse || []).map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.titlu)}</a>`).join("")}</div><p class="s" style="margin-top:12px">${p.fam ? "E un reper de pe internet. Îl folosesc doar unde nu ai tu niciun preț, iar poziția apare cu „după piață”, ca să o verifici." : "E doar un reper de pe internet. Nu se pune singur în ofertă."}</p><button class="pri" data-a="x">Am înțeles</button>`); };
+ACT.ppia = el => { const p = PIATA.lista[+el.dataset.k]; sheet(h3("Reper de piață") + `<p style="font-weight:700;margin:6px 0 0">${esc(p.lucrare)}</p><div class="tl" style="margin-top:10px"><span>De la – până la</span><b>${fmt(p.min)} – ${fmt(p.max)} ${esc(p.um || "")}</b></div>${p.tipic ? `<div class="tl"><span>Cel mai des</span><b>${fmt(p.tipic)}</b></div>` : ""}<p class="s" style="margin-top:10px">${esc(p.nota || "")}</p><p class="s">TVA: ${esc(p.tva || "neprecizat")} · cât de sigur: ${esc(p.sigur || "orientativ")} · ${esc(PIATA.data || "")}</p><div class="src">${(p.surse || []).map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.titlu)}${s.tva ? " (" + esc(s.tva) + ")" : ""}</a>`).join("")}</div><p class="s" style="margin-top:12px">${p.fam ? "E un reper de pe internet. Îl folosesc doar unde nu ai tu niciun preț, iar poziția apare cu „după piață”, ca să o verifici." : "E doar un reper de pe internet. Nu se pune singur în ofertă."}</p><button class="pri" data-a="x">Am înțeles</button>`); };
 ACT.pidx = () => { sheet(h3("Schimbă toate prețurile") + `<p class="s">Se schimbă cele ${catalog.length} prețuri din „Puse de mine” și „Catalogul meu”. Ofertele deja făcute rămân cum sunt.</p>` + fld("ixP", "Cu cât la sută? (ex. 8 sau -5)", "", { n: 1, af: 1 }) + '<button class="pri" data-a="pidxok" data-ok="1">Schimbă</button>'); };
 ACT.pidxok = () => { const s = val("ixP").replace(/\s/g, ""), p = (s[0] === "-" ? -1 : 1) * num(s.replace(/^[-+]/, "")); if (!p || p < -90 || p > 300) { toast("Scrie un procent, de exemplu 8."); return; } const old = JSON.stringify(catalog); catalog.forEach(c => { if (c.pret > 0) c.pret = r2(c.pret * (1 + p / 100)); }); catDirty = true; rebuildCat(); saveCat(); closeOvl(); render(); toast("Prețuri schimbate cu " + fmt(p) + "%.", () => { catalog = JSON.parse(old); catDirty = true; rebuildCat(); saveCat(); render(); }); };
 
 /* ---------- firma mea ---------- */
 INP.ff = el => { FIRMA[el.dataset.k] = el.value; saveFirma(); };
+/* „Cât te costă o zi de om” */
+function tfOut() {
+  const T = tarifFirma(), c = T.cost, t = FIRMA.tarif || {};
+  if (!c) return '<div class="nt q">Scrie câți oameni ai, salariul și zilele de lucru: aici apare cât te costă o zi de om.</div>';
+  const sub = +t.salariu > 0 && +t.salariu < MINL.brut ? `<div class="nt">Salariul scris e sub minimul din construcții (${fmt(MINL.brut)} lei brut pe lună în ${MINL.an}).</div>` : "";
+  return `<div class="wb tf"><small>Te costă</small><b>${fmt(c.zi)} lei pe om-zi</b><p>${fmt(c.ora)} lei pe oră, la 8 ore pe zi.</p><p class="m">Pe an: ${fmt0(c.an)} lei (salarii cu CAM ${fmt(OF.CAM)}%: ${fmt0(c.sal)} lei + cheltuieli: ${fmt0(c.fixe)} lei), împărțit la ${fmt0(c.omZile)} om-zile lucrate (${fmt0(c.zileOm)} pe om).</p><p class="m">${T.tintaSet ? "Ținta ta: " + fmt(T.tinta) + " lei pe om-zi (" + (T.tinta >= c.zi ? "+" : "") + fp1((T.tinta / c.zi - 1) * 100) + "% față de cost)." : "Fără țintă scrisă, folosesc costul (fără profit). Cu 10% profit ar fi " + fmt(r2(c.zi * 1.1)) + " lei pe om-zi."}</p></div>${sub}`;
+}
+INP.tf = el => { FIRMA.tarif = FIRMA.tarif || {}; const v = num(el.value); if (el.value.trim() === "") delete FIRMA.tarif[el.dataset.k]; else FIRMA.tarif[el.dataset.k] = v; saveFirma(); const o = $("#tfOut"); if (o) o.innerHTML = tfOut(); };
+ACT.idxsw = el => { FIRMA.idx = el.classList.contains("on") ? 1 : 0; saveFirma(); TAR = null; PX = null; NX = null; toast(FIRMA.idx ? "Prețurile din anii trecuți se aduc la zi cu indicele INS. Ofertele făcute rămân cum sunt; la una în lucru apasă „Pune din nou prețurile”." : "Prețurile vechi rămân cum au fost scrise."); };
 INP.fd = el => { FIRMA.def = FIRMA.def || {}; FIRMA.def[el.dataset.k] = el.dataset.t === "n" ? num(el.value) : el.value; saveFirma(); };
 ACT.acct = () => SCV.account({ pending: () => store ? store.pending() : 0 });
 ACT.bkp = () => { const o = {}; Object.keys(DOCS).forEach(p => o[p] = DOCS[p]); o.index = IDX; o.firma = FIRMA; o.catalog = { items: catalog }; SCV.saveFile("ofertare_tot_" + todayIso() + ".json", JSON.stringify(o), "application/json"); };
@@ -1079,7 +1239,7 @@ function onRemote(path, data) {
   if (path === "index" && data && Array.isArray(data.list)) { IDX = data; const gone = Object.keys(IDX.del || {}).filter(id => DOCS["p/" + id]);
     gone.forEach(id => { delete DOCS["p/" + id]; store.remove("p/" + id).catch(() => { }); });   // ce era de trimis pentru o ofertă ștearsă se aruncă (altfel ar bloca salvarea celorlalte)
     if (CUR && IDX.del && IDX.del[CUR]) { CUR = ""; st = null; closeOvl(); go("#/"); toast("Oferta a fost ștearsă de pe celălalt aparat."); return; } }
-  else if (path === "firma") FIRMA = data || {};
+  else if (path === "firma") { const ix = idxOn(); FIRMA = data || {}; if (ix !== idxOn()) { TAR = null; PX = null; NX = null; } }
   else if (path === "hist") OF.HIST = data || {};
   else if (path === "produse") { DOCS.produse = data; PDX = null; }
   else if (path === "ref" || path === "ref2") { DOCS[path] = data; REF = ((DOCS.ref && DOCS.ref.items) || []).concat(ref2Items()); TAR = null; PX = null; }
@@ -1090,7 +1250,7 @@ function onRemote(path, data) {
 }
 
 /* ---------- pornire ---------- */
-window.__of = { prd: () => prdRows().map(e => (prdPrice(e), e)), check: () => checkOffer(), prod: () => prodRows(), prodOpen: i => ACT.pprod({ dataset: { k: i } }), nom: () => nomRows(), nomOpen: i => ACT.pnom({ dataset: { k: i } }), tarif, autoMatch, offered, effPrices, get st() { return st; }, get docs() { return DOCS; }, get idx() { return IDX; }, get cat() { return catalog; }, get firma() { return FIRMA; }, totals, rowInfo, searchPrices, scaleTo, checks, num, fmt, ref2n: () => ref2Pts().length };
+window.__of = { prd: () => prdRows().map(e => (prdPrice(e), e)), check: () => checkOffer(), prod: () => prodRows(), prodOpen: i => ACT.pprod({ dataset: { k: i } }), nom: () => nomRows(), nomOpen: i => ACT.pnom({ dataset: { k: i } }), tarif, autoMatch, offered, effPrices, prop: x => propOf(x || st), norm: x => normSt(x), use: x => { const o = st; st = x; return () => { st = o; }; }, why: id => ACT.why({ dataset: { id } }), risc: () => ACT.risc(), get piata() { return PIATA; }, mkt: () => mktTarif(), topOf, tarifFirma, pzOf, get st() { return st; }, get docs() { return DOCS; }, get idx() { return IDX; }, get cat() { return catalog; }, get firma() { return FIRMA; }, totals, rowInfo, searchPrices, scaleTo, checks, num, fmt, ref2n: () => ref2Pts().length };
 (async function () {
   const fail = m => { $("#app").innerHTML = '<main><div class="emp">' + m + '<br><br><button class="sec" onclick="location.reload()">Încearcă din nou</button></div></main>'; };
   try {

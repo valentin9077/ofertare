@@ -1223,6 +1223,19 @@
     }).catch(function (e) { return fail(ext || "text", "Nu am putut citi fișierul."); });
   }
 
+  /* Textele citite din fișiere sau lipite pot avea caractere de control (U+0000 din Excel/PDF vechi). Baza de date refuză un document cu U+0000,
+     iar celelalte nu se văd: le scot (o serie din ele devine un spațiu), în afară de tab și linie nouă. Restul textului rămâne neatins (verificarea din 15.11.2026). */
+  var CTL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]+/g;
+  function cleanStr(v) { return typeof v === "string" && (CTL.lastIndex = 0, CTL.test(v)) ? v.replace(CTL, " ") : v; }
+  function cleanDeep(o, seen) {
+    if (!o || typeof o !== "object") return o; seen = seen || new Set(); if (seen.has(o) || ArrayBuffer.isView(o) || o instanceof ArrayBuffer) return o; seen.add(o);
+    if (Array.isArray(o)) { for (var i = 0; i < o.length; i++) { if (typeof o[i] === "string") o[i] = cleanStr(o[i]); else if (o[i] && typeof o[i] === "object") cleanDeep(o[i], seen); } }
+    else for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) { var v = o[k]; if (typeof v === "string") o[k] = cleanStr(v); else if (v && typeof v === "object") cleanDeep(v, seen); }
+    return o;
+  }
+  var readText0 = readText, readFile0 = readFile;
+  readText = function (text, name, opt) { return cleanDeep(readText0(cleanStr(String(text == null ? "" : text)), name, opt)); };
+  readFile = function (file) { return readFile0(file).then(function (r) { return cleanDeep(r); }); };
   var api = { readFile: readFile, readText: readText, parseLine: parseLine, parseLines: parseLines, num: num, normUm: normUm, libs: function (o) { for (var k in o) L[k] = o[k]; return api; }, _analyze: analyze, _segs: segsOf, _pdfTable: pdfTable };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.IMP = api;
 })(typeof window !== "undefined" ? window : typeof self !== "undefined" ? self : this);

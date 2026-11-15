@@ -32,7 +32,7 @@
   const attr = (s, n) => { const m = new RegExp("(?:^|\\s)" + n + "\\s*=\\s*(?:\"([^\"]*)\"|'([^']*)')").exec(s || ""); return m ? (m[1] != null ? m[1] : m[2]) : null; };
   const setAttr = (s, n, v) => { const re = new RegExp("(^|\\s)" + n + "\\s*=\\s*(?:\"[^\"]*\"|'[^']*')"); return re.test(s) ? s.replace(re, (m, a) => a + n + '="' + v + '"') : s + " " + n + '="' + v + '"'; };
   const delAttr = (s, n) => s.replace(new RegExp("\\s+" + n + "\\s*=\\s*(?:\"[^\"]*\"|'[^']*')"), "");
-  const numS = v => { const n = Math.round((+v || 0) * 1e4) / 1e4; return String(n); };                       // cel mult 4 zecimale, fără scriere cu „e”
+  const numS = v => { const n = Math.round((+v || 0) * 1e8) / 1e8; return n !== 0 && Math.abs(n) < 1e-6 ? n.toFixed(8).replace(/0+$/, "") : String(n); };   // cel mult 8 zecimale (de obicei 2; mai multe doar după „alt total”, ca suma să iasă la ban), fără scriere cu „e”
   const r2 = x => { const v = Math.round((+x || 0) * 1e6) / 1e4; return Math.round(v + (v >= 0 ? 1e-9 : -1e-9)) / 100; };
   const bytes = d => d instanceof Uint8Array ? d : new Uint8Array(d || 0);
   const extOf = n => { const m = /\.([a-z0-9]+)$/i.exec(n || ""); return m ? m[1].toLowerCase() : ""; };
@@ -434,7 +434,7 @@
         if ((it.cap0 || "") !== (cap || "") && it.cap0 && it.cap0 !== t.title) { cap = it.cap0; ws.mergeCells(r, 1, r, C.length); const c = ws.getCell(r, 1); c.value = cap; c.font = { bold: true }; c.border = box; c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF3F4F6" } }; r++; }
         const p = prices.has(+it.row) ? prices.get(+it.row) : (+it.pret > 0 ? +it.pret : null);
         C.forEach((c, i) => { const x = ws.getCell(r, i + 1); x.border = box;
-          if (c[2] === "p") { if (p != null) { x.value = Math.round(p * 1e4) / 1e4; n++; } x.numFmt = "#,##0.00"; }
+          if (c[2] === "p") { if (p != null) { x.value = Math.round(p * 1e8) / 1e8; n++; } x.numFmt = "#,##0.00######"; }   // cel puțin 2 zecimale, până la 8 (după „alt total” prețul poate fi 0,00333333)
           else if (c[2] === "v") { x.value = { formula: Lq + r + "*" + Lp + r, result: p != null ? r2((+it.cant || 0) * p) : 0 }; x.numFmt = "#,##0.00"; }
           else if (c[2] === "cant") { x.value = +it.cant || 0; x.numFmt = "#,##0.##"; }
           else { x.value = it[c[2]] == null ? "" : it[c[2]]; if (c[2] === "den") x.alignment = { wrapText: true, vertical: "top" }; } });

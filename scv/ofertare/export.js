@@ -83,7 +83,7 @@
       av > 0 ? `Avans ${nz(p.avans, 30)}% la semnare; restul pe situații de lucrări, conform graficului de decontare.` : "Fără avans; plata pe situații de lucrări, conform graficului de decontare.",
       (nz(p.tva, 21) > 0 ? `TVA ${nz(p.tva, 21)}% la încasare (art. 282 CF). ` : "Prețurile sunt fără TVA. ") + `Termen de execuție: ${p.termen || "conform contractului"}.`,
       `Oferta este valabilă ${cu(vz, "o zi", "zile")} de la data emiterii (${fmtDate(d0)}).`,
-      `Execuție conform normativelor: ${p.normative || "I9, I13, GP 043, NP 059"}.`], GREY, "FF0F172A");
+      `Execuție conform normativelor: ${p.normative || "I9, I13, GP 043, NP 059"}.`, String(p.clauza || "").trim()], GREY, "FF0F172A");   // clauza de ajustare cu indicele INS, doar dacă e aleasă în ofertă
     block("GARANȚIE", [`${cu(nz(p.garantie, 24), "o lună", "luni")} pentru manoperă, de la recepție.`], GREEN, "FFFFFFFF");
     if (String(p.includeTxt || "").trim()) block("OFERTA INCLUDE", String(p.includeTxt).split("\n").map(x => x.replace(/^\s*[-•]\s*/, "")), GREY, "FF0F172A");
     block("OFERTA NU INCLUDE", String(p.nuInclude || "").split("\n").map(x => x.replace(/^\s*[-•]\s*/, "")), AMBER, "FF92400E");
@@ -108,10 +108,10 @@
       const total = it => r2((+it.cant || 0) * r2((+it.pret || 0) * (1 + (st.adaos || 0) / 100)));
       (st.items.some(it => it.ord != null) ? st.items.slice().sort((a, b) => (a.ord || 0) - (b.ord || 0)) : st.items.slice().sort((a, b) => String(a.cap).localeCompare(String(b.cap), "ro", { numeric: true }))).forEach(it => {
         if (it.cap !== cur) { cur = it.cap; const rr = wa.addRow([cur]); wa.mergeCells(`A${rr.number}:G${rr.number}`); rr.getCell(1).font = { bold: true }; fill(rr.getCell(1), GREY); }
-        const unit = Math.round((+it.pret || 0) * (1 + (st.adaos || 0) / 100) * 1e4) / 1e4;   // până la 4 zecimale: așa cantitate × preț dă exact valoarea de pe rând
+        const unit = Math.round((+it.pret || 0) * (1 + (st.adaos || 0) / 100) * 1e8) / 1e8;   // până la 8 zecimale (de obicei 2): așa cantitate × preț dă exact valoarea de pe rând și după „alt total”
         const rr = wa.addRow([++n, it.cod, it.den, it.um, it.cant, it.pret > 0 ? unit : null, it.pret > 0 ? (it.tot != null ? it.tot : total(it)) : null]);
         rr.eachCell(c => c.border = box); rr.getCell(3).alignment = { wrapText: true, vertical: "top" };
-        rr.getCell(6).numFmt = "#,##0.00##"; rr.getCell(7).numFmt = NUM; rr.getCell(5).numFmt = "#,##0.##";
+        rr.getCell(6).numFmt = "#,##0.00######"; rr.getCell(7).numFmt = NUM; rr.getCell(5).numFmt = "#,##0.##";
       });
       wa.views = [{ state: "frozen", ySplit: 2 }];
     }
@@ -145,6 +145,7 @@
     const nu = String(p.nuInclude || "").split("\n").map(x => x.trim()).filter(Boolean);
     if (nu.length) { line("OFERTA NU INCLUDE", { font: { bold: true } }); nu.forEach(x => line(x.startsWith("-") ? x : "-" + x)); r++; }
     line("Valabilitate oferta: " + cu(+p.valab > 0 ? Math.round(+p.valab) : 30, "o zi", "zile")); r++;
+    if (String(p.clauza || "").trim()) { line(String(p.clauza).trim(), { h: 32 }); r++; }
     line("In speranta ca oferta noastra intruneste toate cerintele, asteptam raspunsul dumneavoastra.", { h: 32 }); r++;
     line("Cu stimă,"); line(p.semnatar || "", { font: { bold: true } });
     return wb;
