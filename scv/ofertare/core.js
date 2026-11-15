@@ -189,7 +189,7 @@
     // --- fixări (brățară = bridă = colier = clemă; suporți)
     ["fixare", "Fixare conducte: brățări, bride, coliere, cleme, suporți", "s", /\bbratar[aiă]|\bbratari\b|\bbrid[ae]\b|\bbride\b|\bcolier|\bclem[ae]\b|\bcleme\b|\bsuport[i]?\b|dispozitive de (?:sustinere|fixare)|elemente de sustinere|\bconsol[ae]\b|\bconsole\b/, "dn"],
     // --- fitinguri mărunte
-    ["racord", "Racord (olandez, eurocon, flexibil)", "s", /\bracord(?!\w* (?:fix |tip |incendiu tip )?storz)/, "dn"],
+    ["racord", "Racord (olandez, eurocon, flexibil)", "s", /\bracord(?!\w* (?:fix |tip |incendiu tip )?storz)|\badaptor/, "dn"],
     ["fiting", "Fitinguri (cot, teu, mufă, reducție, niplu, dop)", "s", /\bcot\b|\bcoturi\b|\bcurba\b|\bteu\b|\bteuri\b|\bmuf[ae]\b|\bmufe\b|reducti[ei]|\bnipl[ue]|\bdop\b|\bdopuri\b|\bflans[ae]\b/, "dn"],
     // --- țevi (la urmă: multe denumiri conțin „țeavă” în descriere)
     ["rob_trecere", "", "s", /\brobineti?\b(?! (?:de )?(?:hidrant|incendiu))/, "dn"],
@@ -228,6 +228,11 @@
     let cls = "metal";
     if (fam[0] === "teava" || fam[0] === "tub_protectie") { const m = pipeMat(t.slice(at)); if (m) { o.mat = m.id; cls = m.cls; o.cls = cls; if (fam[0] === "teava") o.fam = "teava:" + m.id; } }
     else if (["curatire", "sifon_pard", "receptor", "caciula", "aerator"].includes(fam[0])) cls = "sewer";
+    if (fam[0] === "fiting" || fam[0] === "racord") {   // fitingul de plastic (cot PP 110x45, mufă PPR 20) nu ia prețul unuia de oțel sau canelat, și invers
+      const m = pipeMat(t); if (m) o.pc = m.cls === "metal" ? "metal" : "plast";
+      else if (/canelat|victaulic|\bsudat|filet|\bzincat|fonta|\bnegru\b|\binox|\d\/\d|\d ?"|\btol|\bdn ?\d/.test(t)) o.pc = "metal";
+      else if (/(?:^|[^\d.,])(?:16|20|25|32|40|50|63|75|90|110|125|160|200|250|315) ?[x×]/.test(t) || /(?:^| )(?:16|20|25|32|40|50|63|75|90|110|125|160)(?: |$)/.test(t)) o.pc = "plast";
+    }
     if (fam[4] === "dn") { o.dn = sizes(t, cls); if (!o.dn.length) o.dn = sizesShort(t, cls); }
     else if (fam[4] === "thick") o.thick = thickOf(t);
     else if (fam[4] === "rad") o.rad = radOf(t);
@@ -378,7 +383,7 @@
   const famInfo = c => { const k0 = KINDOF(c.fam), z = +c.sz || null, base = c.fam.replace(/:.*$/, ""), mat = c.fam.startsWith("teava:") ? c.fam.slice(6) : null;
     return { t: norm(c.den), fam: c.fam, grp: (FAM[base] || [])[2] || null, um: umFamily(c.um), mat, dn: k0 === "dn" && z ? [z] : [], thick: k0 === "thick" ? z : null, rad: k0 === "rad" && z ? { h: null, l: z } : null, mm: k0 === "mm" ? z : null, vars: c.vars || [] }; };
   function buildTarif(src) {
-    const T = { by: new Map(), name: new Map(), same: new Map(), n: 0 };
+    const T = { by: new Map(), name: new Map(), same: new Map(), sameW: new Map(), n: 0 };
     for (const c of src) {
       if (!(+c.pret > 0)) continue;
       let f;
@@ -388,6 +393,7 @@
         if (f.fam && fd.fam === f.fam) { for (const d of fd.dn) if (!f.dn.includes(d)) f.dn.push(d); if (f.thick == null) f.thick = fd.thick; if (!f.rad) f.rad = fd.rad; if (f.mm == null) f.mm = fd.mm; } }
       if (c.learned) T.name.set(keyOf(c.den) + "|" + f.um, { p: +c.pret, id: c.id, lab: c.lab || "prețul tău" });
       else if ((c.q == null ? QUAL.ref : c.q) >= QUAL.ref) { const k0 = keyOf(c.desc && String(c.desc).trim().length > 14 ? c.desc : c.den) + "|" + f.um, o = T.same.get(k0); if (!o || (c.q || 0) > o.q || ((c.q || 0) === o.q && (+c.an || 0) > o.an)) T.same.set(k0, { p: +c.pret, id: c.id, lab: c.lab || "", q: c.q || 0, an: +c.an || 0 }); }
+      else if ((c.q || 0) >= QUAL.weak) { const k0 = keyOf(c.den) + "|" + f.um, o = T.sameW.get(k0); if (!o || (+c.an || 0) > o.an) T.sameW.set(k0, { p: +c.pret, id: c.id, lab: c.lab || "", an: +c.an || 0 }); }   // aceeași denumire într-o ofertă / situație veche „de verificat”
       if (!f.fam) continue;
       const kind = KINDOF(f.fam), pt = { fam: f.fam, f, kind, tk: toks(f.t || norm(c.den)), sz: sizeOf(f, kind), lo: c.lo || null, hi: c.hi || null, p: +c.pret, q: c.q == null ? QUAL.ref : c.q, an: +c.an || 0, lab: c.lab || "", d: c.d != null ? c.d : domOf(c), id: c.id, den: c.den, lump: isLump(c.um) };
       const k = f.fam + "|" + f.um; let a = T.by.get(k); if (!a) T.by.set(k, a = []); a.push(pt); T.n++;
@@ -411,6 +417,7 @@
   const toks = t => { const o = []; for (const w of String(t).slice(0, 160).split(/[^a-z0-9]+/)) { if (w.length < 4 || /^\d/.test(w)) continue; const k = w.slice(0, 5); if (!STOPW.has(k) && !o.includes(k)) o.push(k); if (o.length >= 10) break; } return o; };
   const simOf = (a, b) => { if (!a.length || !b.length) return 0; let n = 0; for (const w of a) if (b.includes(w)) n++; const v = n / Math.sqrt(a.length * b.length); return a[0] === b[0] ? Math.max(v, 0.5) : v; };
   const okSize = (kind, fam, v) => v == null ? null : kind === "mm" ? (fam === "clima_teava" ? (v >= 4 && v <= 60 ? v : null) : (v >= 80 && v <= 2500 ? v : null)) : v;
+  const PIECE = new Set(["fiting", "racord"]), STRONGV = ["canelat", "hidrant", "inox", "fonta", "solar"];
   function pickIn(fi, pts, dItem, far) {
     if (!pts || !pts.length) return null;
     const kind = KINDOF(fi.fam); let x = okSize(kind, fi.fam, far ? sizeOf(fi, KINDOF(far)) : sizeOf(fi, kind)), assumed = 0;
@@ -418,7 +425,7 @@
     const short = famLabel(far || fi.fam).replace(/ \(.*$/, "").replace(/:.*$/, ""), tk = toks(fi.t);
     const mm = a => [Math.min.apply(null, a), Math.max.apply(null, a)];
     for (const tier of [[3, 9], [2, 2], [1, 1], [0, 0]]) {            // 1) lista ta de prețuri; 2) alte oferte ale tale; 3) surse mai slabe (bugete, prețuri deduse); 4) piață
-      const S = pts.filter(p => p.q >= tier[0] && p.q <= tier[1]); if (!S.length) continue;
+      const S = pts.filter(p => p.q >= tier[0] && p.q <= tier[1] && !(PIECE.has(fi.fam) && (p.f.vars.some(v => STRONGV.includes(v) && !fi.vars.includes(v)) || (fi.pc && p.f.pc && fi.pc !== p.f.pc)))); if (!S.length) continue;   // un cot de PP nu ia prețul unui cot canelat de hidranți
       const sc = S.map(p => ({ p, sz: okSize(kind, fi.fam, p.sz), dm: p.q >= QUAL.mine ? 1 : (dItem && p.d ? (dItem === p.d ? 1 : 0) : 0.5), dv: varFit(fi, p.f), sim: Math.round(simOf(tk, p.tk) * 4) / 4 }));
       sc.forEach(e => { e.ex = !kind ? 1 : (x != null && (e.sz === x || (e.p.lo && x >= e.p.lo && x <= e.p.hi) || (kind === "dn" && fi.dn.some(d => e.p.f.dn.includes(d))))) ? 1 : 0; });
       const mineFirst = !!kind || !(LOOSE.has(fi.fam) || SOFT.has(fi.fam));        // la aceeași lucrare, prețul pus de tine bate lista, oricum ar fi scrisă denumirea
@@ -475,7 +482,9 @@
     if (ex) return { p: ex.p, lv: 1, why: "aceeași denumire, preț pus de tine", lab: ex.lab, id: ex.id, fam: "", src: item.den };
     const sm = T.same.get(keyOf(item.den) + "|" + um);
     if (sm && keyOf(item.den).length > 14) return { p: sm.p, lv: 2, why: "aceeași denumire ca în prețurile tale", lab: sm.lab, id: sm.id, fam: "", src: item.den };
-    const fi = item.fam ? famInfo(item) : classify(item.den, item.um); if (!fi.fam) return null;
+    const kn = keyOf(item.den), sw = kn.length > 5 ? T.sameW.get(kn + "|" + um) : null;
+    const swR = () => ({ p: sw.p, lv: 3, why: "aceeași denumire, dintr-o ofertă veche de-a ta (de verificat)", lab: sw.lab, id: sw.id, fam: "", src: item.den });
+    const fi = item.fam ? famInfo(item) : classify(item.den, item.um); if (!fi.fam) return sw ? swR() : null;
     const dItem = (FAM[fi.fam] || [])[2] === "h" || domOfCap(item.cap) === "h" ? "h" : (domOfCap(item.cap0) || domOfCap(item.cap));
     if (isLump(item.um) && /\bvrf\b|\bvrv\b|multisplit/.test(fi.t)) return null;   // un sistem VRF întreg: nu există reper care să i se potrivească
     const lumpStrict = isLump(item.um) && WORKFAM.has(fi.fam.replace(/:.*$/, ""));
@@ -483,6 +492,7 @@
     let r = pickIn(fi, ptsOf(fi.fam + "|" + fi.um), dItem, "");
     if (r && r.lv <= 3) return r;
     for (const alt of alikeOf(fi.fam)) { const r2_ = pickIn(Object.assign({}, fi, { fam: alt, vars: fi.vars }), ptsOf(alt + "|" + fi.um), dItem, fi.fam && alt); if (r2_ && (!r || r2_.lv < r.lv)) { r = r2_; r.fam = fi.fam; break; } }
+    if (sw && (!r || r.lv >= 4)) return swR();
     return r;
   }
   /** Domeniul unei poziții (s, t, h, v, c, g, e, p, x) – pentru „ce ofertez din lista asta”. */

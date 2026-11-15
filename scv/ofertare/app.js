@@ -15,6 +15,7 @@ const num = v => {
   const n = parseFloat(s); return isNaN(n) ? 0 : n;
 };
 const fmt = n => { n = +n || 0; const w = Math.abs(n - Math.round(n)) < 0.005; return n.toLocaleString("ro-RO", { minimumFractionDigits: w ? 0 : 2, maximumFractionDigits: w ? 0 : 2 }); };
+const fmt0 = n => Math.round(+n || 0).toLocaleString("ro-RO");
 const fq = n => (+n || 0).toLocaleString("ro-RO", { maximumFractionDigits: 3 });
 const edn = n => (+n ? String(Math.round(+n * 1000) / 1000).replace(".", ",") : "");
 const p2 = n => String(n).padStart(2, "0");
@@ -424,25 +425,40 @@ function prodRows() {
   PRX = { sig, rows }; return rows;
 }
 
+/* ---------- produsele din listele tale: document privat „produse” (doar în contul tău) ---------- */
+const PRD = () => (DOCS.produse && Array.isArray(DOCS.produse.items)) ? DOCS.produse : null;
+let PDX = null;
+function prdRows() { const D = PRD(); if (!D) return []; if (PDX && PDX.d === D) return PDX.rows;
+  const rows = D.items.map((x, i) => ({ i, den: String(x[0] || ""), um: x[1] || "buc", n: +x[2] || 0, nl: +x[3] || 0, fam: x[4] || null, sz: x[5] == null ? null : x[5], m: Array.isArray(x[6]) ? x[6] : null, hand: !!x[7], s: OF.strip(String(x[0] || "")) }));
+  PDX = { d: D, rows }; return rows; }
+function prdPrice(e) { if (e.t === TAR && e.t) return; const T = tarif(); e.t = T; const mine = catalog.find(c => c.learned && OF.keyOf(c.den) === OF.keyOf(e.den) && OF.umFamily(c.um) === OF.umFamily(e.um));
+  e.c = mine || null; let r = null; if (!mine) { try { r = OF.priceItem({ den: e.den, um: e.um }, T); } catch (er) { } }
+  if (r && r.lv >= 4) r = null;   // la produse arăt doar prețuri sigure sau socotite din prețurile tale, nu estimări largi
+  e.p = mine ? +mine.pret : r ? r.p : 0; e.lv = mine ? 1 : r ? r.lv : 0; e.why = r ? r.why : ""; e.k = mine ? "m" : !r ? "z" : r.lv <= 2 ? "t" : "e"; }
+const prdMat = e => { if (!e.m) return ""; const src = ((PRD() || {}).src || [])[e.m[1]] || ""; return fmt(e.m[0]) + (e.m[3] === "eur" ? " €" : " lei") + (src ? " (" + src + ")" : ""); };
+const prdBtn = e => { prdPrice(e); return `<button data-a="pprd" data-k="${e.i}"><p>${esc(e.den)}<small>${e.nl > 1 ? "în " + e.nl + " liste" : e.n > 1 ? "de " + e.n + " ori" : "o dată"}${e.hand ? " · scris de tine" : ""}${e.m ? " · material " + fmt(e.m[0]) + (e.m[3] === "eur" ? " €" : " lei") : ""} · ${e.k === "m" ? "prețul tău" : e.k === "t" ? "din prețurile tale" : e.k === "z" ? "fără preț" : "estimat"}</small></p><b>${e.p > 0 ? fmt(e.p) + " lei" : "—"}<small>/ ${esc(umShow(OF.umFamily(e.um)))}</small></b></button>`; };
+function prdFind(q) { const ws = OF.strip(q).split(/[^a-z0-9./"']+/).filter(w => w.length > 1); if (!ws.length) return []; return prdRows().filter(e => ws.every(w => e.s.includes(w))).slice(0, 40); }
+
 /* ---------- prețurile mele ---------- */
 function priceRows() {
   const q = (VIEW.q || "").trim(), f = VIEW.f || (catalog.some(c => c.learned) ? "m" : "c"), lim = VIEW.lim || 50;
   let xs;
-  if (q.length > 1) xs = searchPrices(q, 80).map(e => ({ e })).concat(nomFind(q).map(n => ({ n }))).concat(piataFind(q).map(p => ({ p })));
+  if (q.length > 1) xs = searchPrices(q, 80).map(e => ({ e })).concat(nomFind(q).map(n => ({ n }))).concat(prdFind(q).map(d => ({ d }))).concat(piataFind(q).map(p => ({ p })));
+  else if (f === "d") { const sf = VIEW.sf || "all"; xs = prdRows().filter(e => sf === "all" || (sf === "mat" ? !!e.m : sf === "hand" ? e.hand : !e.fam)).map(d => ({ d })); }
   else if (f === "n" || f === "z") { xs = nomRows().filter(e => f === "n" || e.k === "z"); if (f === "z") xs = xs.slice().sort((a, b) => b.tier - a.tier); xs = xs.map(n => ({ n, g: f === "n" ? n.g : (n.tier === 3 ? "Apar des în listele de cantități" : n.tier === 2 ? "Apar uneori" : "Apar rar") }))
     .concat(prodRows().filter(e => f === "n" || e.k === "z").map(n => ({ n, g: n.g }))); }
   else if (f === "p") xs = ((PIATA && PIATA.lista) || []).filter(p => p.min || p.max).map(p => ({ p }));
   else { xs = priceIndex().filter(e => e.t === f); if (f !== "r") xs = xs.map(e => ({ e, g: OF.famLabel(e.fam).replace(/ \(.*$/, "") || "Altele" })).sort((a, b) => (a.g === "Altele") - (b.g === "Altele") || a.g.localeCompare(b.g, "ro") || a.e.den.localeCompare(b.e.den, "ro", { numeric: true })); else xs = xs.map(e => ({ e })); }
-  if (!xs.length) return `<div class="emp">${q.length > 1 ? "Nu am găsit nimic pentru „" + esc(q) + "”." : f === "m" ? "<b>Aici se adună prețurile pe care le pui tu.</b>De fiecare dată când scrii un preț într-o ofertă, îl țin minte." : f === "z" ? "<b>Toate lucrările din catalog au un preț.</b>" : "Nimic aici."}</div>`;
+  if (!xs.length) return `<div class="emp">${q.length > 1 ? "Nu am găsit nimic pentru „" + esc(q) + "”." : f === "m" ? "<b>Aici se adună prețurile pe care le pui tu.</b>De fiecare dată când scrii un preț într-o ofertă, îl țin minte." : f === "z" ? "<b>Toate lucrările din catalog au un preț.</b>" : f === "d" ? "<b>Aici apar toate produsele din listele tale.</b>Apasă „Adaugă produse” și alege fișierul cu produsele (primit de la Claude) sau listele tale de cantități." : "Nimic aici."}</div>`;
   let lastG = null; const grp = x => x.g && x.g !== lastG ? (lastG = x.g, `</div><div class="prg">${esc(x.g)}</div><div class="prl">`) : "";
-  return '<div class="prl">' + xs.slice(0, lim).map(x => grp(x) + (x.n ? nomBtn(x.n) : x.p
+  return '<div class="prl">' + xs.slice(0, lim).map(x => grp(x) + (x.d ? prdBtn(x.d) : x.n ? nomBtn(x.n) : x.p
     ? `<button data-a="ppia" data-k="${PIATA.lista.indexOf(x.p)}"><p>${esc(x.p.lucrare)}<small>reper de piață · ${esc(x.p.cat || "")}${x.p.dim ? " · " + esc(x.p.dim) : ""}</small></p><b>${fmt(x.p.min)}–${fmt(x.p.max)}<small>${esc(x.p.um || "")}</small></b></button>`
     : `<button data-a="${x.e.t === "r" ? "pref" : "pcat"}" data-k="${x.e.t === "r" ? x.e.ri : x.e.id}"><p>${esc(x.e.den)}<small>${esc(x.e.sub)}</small></p><b>${fmt(x.e.p)} lei<small>/ ${esc(x.e.um)}</small></b></button>`)).join("").replace('<div class="prl"></div>', "") + "</div>" + (xs.length > lim ? `<button class="more" data-a="prmore">Arată mai multe (din ${xs.length})</button>` : "");
 }
 function piataFind(q) { const ws = OF.strip(q).split(" ").filter(w => w.length > 1); return ((PIATA && PIATA.lista) || []).filter(p => { const s = OF.strip(p.lucrare + " " + (p.cat || "")); return ws.every(w => s.includes(w)); }).slice(0, 20); }
 function vPrices() {
   const nr = nomRows(), pr = nr.length ? prodRows() : [], nz = nr.filter(e => e.k === "z").length, pz = pr.filter(e => e.k === "z").length;
-  const n = { m: catalog.filter(c => c.learned).length, c: catalog.filter(c => !c.learned).length, r: REF.length, p: ((PIATA && PIATA.lista) || []).filter(p => p.min || p.max).length, n: nr.length + pr.length, z: nz + pz }, f = VIEW.f || (n.m ? "m" : "c");
+  const pdr = prdRows(), n = { m: catalog.filter(c => c.learned).length, c: catalog.filter(c => !c.learned).length, r: REF.length, p: ((PIATA && PIATA.lista) || []).filter(p => p.min || p.max).length, n: nr.length + pr.length, z: nz + pz, d: pdr.length }, f = VIEW.f || (n.m ? "m" : "c");
   const ne = nr.filter(e => e.k === "e").length;
   const ch = (k, t) => `<button data-a="prf" data-f="${k}" class="${f === k ? "on" : ""}">${t} · ${n[k]}</button>`;
   return `<div class="top"><div class="tt"><h1>Prețurile mele</h1></div>${stPill}</div><main>
@@ -450,7 +466,9 @@ function vPrices() {
 <button class="sec" data-a="plearn" id="bLearn" style="margin-top:10px">${ic("book-open", 18, 2.2)}Învață prețurile dintr-o ofertă veche</button>
 <p class="s" style="margin:12px 2px 0">Când aduci o listă, pornesc de la ${plural(n.m + n.c, "un preț al tău", "prețuri ale tale")}, apoi de la cele ${n.r} din ofertele tale vechi, și la urmă de la ${ref2Pts().length} repere din bugete de antreprenor și ${((PIATA && PIATA.lista) || []).filter(x => x.fam).length} de pe piață.</p>
 <div class="srch" style="margin-top:14px">${ic("search", 20, 2.2)}<input id="prq" data-i="prq" placeholder="Caută: calorifer, țeavă PPR 25, hidrant…" value="${esc(VIEW.q || "")}" autocomplete="off"></div>
-<div class="fl w">${ch("m", "Puse de mine")}${ch("c", "Catalogul meu")}${ch("r", "Din oferte vechi")}${ch("p", "Piață")}${n.n ? ch("n", "Toate lucrările") + ch("z", "De pus preț") : ""}</div>
+<div class="fl w">${ch("m", "Puse de mine")}${ch("c", "Catalogul meu")}${ch("r", "Din oferte vechi")}${ch("p", "Piață")}${n.n ? ch("n", "Toate lucrările") + ch("z", "De pus preț") : ""}${ch("d", "Produse din listele tale")}</div>
+${f === "d" ? (() => { const sf = VIEW.sf || "all", c2 = { all: pdr.length, mat: pdr.filter(e => e.m).length, hand: pdr.filter(e => e.hand).length, nr: pdr.filter(e => !e.fam).length }, b = (k, t) => `<button data-a="prsf" data-f="${k}" class="${sf === k ? "on" : ""}">${t} · ${fmt0(c2[k])}</button>`;
+  return `<p class="s" style="margin:10px 2px 0">${pdr.length ? "Toate produsele din listele, ofertele și necesarele tale: " + fmt0(pdr.length) + ". Cele care apar în cele mai multe liste sunt primele. Apasă pe un produs ca să-i pui prețul de manoperă; la unele vezi și prețul de material de pe facturile tale." : "Încă nu ai produse aici."}</p>` + (pdr.length ? `<div class="fl w" style="margin-top:8px">${b("all", "Toate")}${b("mat", "Cu preț de material")}${b("hand", "Scrise de tine")}${b("nr", "Nerecunoscute")}</div>` : "") + `<button class="sec" data-a="prdadd" id="bPrdAdd" style="margin-top:10px">${ic("plus", 18, 2.4)}Adaugă produse (fișier sau liste)</button>`; })() : ""}
 ${n.n && (f === "n" || f === "z") ? `<p class="s" style="margin:10px 2px 0">Catalogul are ${plural(nr.length, "o lucrare", "lucrări")}: la ${nr.length - nz - ne} ai prețul tău, ${ne} sunt socotite sau estimate (de verificat), iar ${nz === 1 ? "una nu are" : nz + " nu au"} încă preț. Apasă pe o lucrare ca să-i pui prețul; îl folosesc apoi singură la toate listele.${pr.length ? " La sfârșit sunt și " + plural(pr.length, "un produs", "produse") + " din ofertele tale pe care încă nu le recunosc: le poți pune preț și lor." : ""}</p>` : ""}
 <div id="prl">${priceRows()}</div>
 <div class="box"><h3>Toate prețurile deodată</h3><p class="s">La început de an poți crește sau scădea toate prețurile tale cu un procent.</p><button class="sec" data-a="pidx">${ic("percent", 18, 2.2)}Schimbă toate prețurile cu un procent</button></div>
@@ -843,21 +861,46 @@ function clientDiff(fi) {
 
 /* ---------- prețurile mele ---------- */
 ACT.prf = el => { VIEW.f = el.dataset.f; VIEW.lim = 50; VIEW.q = ""; render(); };
+ACT.prsf = el => { VIEW.sf = el.dataset.f; VIEW.lim = 50; render(); };
 ACT.prmore = () => { VIEW.lim = (VIEW.lim || 50) + 50; $("#prl").innerHTML = priceRows(); };
 INP.prq = el => { VIEW.q = el.value; VIEW.lim = 50; $("#prl").innerHTML = priceRows(); };
 ACT.fam = el => { const g = {}; OF.famList().forEach(f => (g[f.grp] = g[f.grp] || []).push(f)); $("#famList").innerHTML = Object.keys(g).map(k => `<h4>${esc(k)}</h4><ul>${g[k].map(f => `<li>${esc(f.label)}${f.soft ? ' <span class="mut">– prețul rămâne de verificat</span>' : ""}</li>`).join("")}</ul>`).join(""); el.remove(); };
 let PE = null;
 function priceSheet(c) { PE = c ? c.id : 0; const h = (c && c.h) || []; sheet(h3(c ? "Preț" : "Preț nou") + fld("eDen", "Lucrarea", c ? c.den : "", { af: !c }) + '<div class="r3"><div>' + fld("eP", "Preț (lei)", c ? edn(c.pret) : "", { n: 1 }) + '</div><div class="um">' + fld("eUm", "UM", c ? c.um : "buc", {}) + "</div></div>" + (c && c.desc ? `<p class="s" style="margin-top:10px">${esc(c.desc)}</p>` : "") + (h.length ? `<p class="s" style="margin-top:10px">Ultimele prețuri puse: ${h.map(x => fmt(x.p) + " lei (" + String(x.d).split("-").reverse().join(".") + (x.o ? ", " + esc(x.o) : "") + ")").join(" · ")}</p>` : "") + (c ? `<div class="minis"><button class="r" data-a="edel">${ic("trash-2", 16, 2.2)}Șterge prețul</button></div>` : "") + '<button class="pri" data-a="esave" data-ok="1">Gata</button>'); }
 ACT.pnew = () => priceSheet(null);
+ACT.pprd = el => { const e = prdRows()[+el.dataset.k]; if (!e) return; prdPrice(e);
+  nomSheet({ prd: 1, den: e.den, um: OF.umFamily(e.um), fam: e.fam, sz: e.sz, vars: [], c: e.c, p: e.p, k: e.k, why: e.why, lv: e.lv, tier: 0, n: e.n, nl: e.nl, mat: prdMat(e) }); };
+/* adaugă produse: fișierul pregătit (.json) sau liste de cantități (Excel, PDF, Word) – rămân doar în contul tău */
+ACT.prdadd = () => { $("#fProd").value = ""; $("#fProd").click(); };
+$("#fProd").addEventListener("change", async ev => {
+  const fs = [...ev.target.files]; ev.target.value = ""; if (!fs.length) return; sheet(h3("Citesc…") + `<p class="s">${plural(fs.length, "un fișier", "fișiere")}</p>`);
+  const D = PRD() ? JSON.parse(JSON.stringify(PRD())) : { v: 1, src: [], items: [] }, M = new Map(); D.items.forEach((x, i) => M.set(OF.keyOf(x[0]) + "|" + OF.umFamily(x[1]), i));
+  const before = D.items.length; let nf = 0, nrow = 0; const bad = [];
+  const put = (den, um, file, x) => { den = String(den || "").replace(/\s+/g, " ").trim().slice(0, 160); if (den.length < 4 || !/[a-zăâîșț]{3}/i.test(den)) return; const k = OF.keyOf(den) + "|" + OF.umFamily(um); let i = M.get(k);
+    if (i == null) { let fam = null, sz = null; try { const c = OF.classify(den, um); fam = c.fam || null; const kd = fam ? OF.KINDOF(fam) : ""; sz = kd === "dn" ? (c.dn.length ? Math.max(...c.dn) : null) : kd === "rad" ? (c.rad && c.rad.l) || null : kd === "thick" ? c.thick : kd === "mm" ? c.mm : null; } catch (er) { }
+      D.items.push(x ? x.slice() : [den, um || "buc", 0, 0, fam, sz, null, 0]); i = D.items.length - 1; M.set(k, i); if (x) return; }
+    else if (x) { const y = D.items[i]; y[2] += +x[2] || 0; y[3] = Math.max(+y[3] || 0, +x[3] || 0); if (!y[6] && x[6]) y[6] = x[6]; if (x[7]) y[7] = 1; return; }
+    const y = D.items[i]; y[2]++; if (file && !(y._f || (y._f = new Set())).has(file)) { y._f.add(file); y[3]++; } nrow++; };
+  for (const f of fs) { try {
+      if (/\.json$/i.test(f.name)) { const j = JSON.parse(await f.text()); if (!j || !Array.isArray(j.items)) { bad.push(f.name); continue; }
+        const map = (j.src || []).map(sx => { let i = D.src.indexOf(sx); if (i < 0) { D.src.push(sx); i = D.src.length - 1; } return i; });
+        j.items.forEach(x => { if (!Array.isArray(x)) return; const y = x.slice(); if (Array.isArray(y[6])) { y[6] = y[6].slice(); y[6][1] = map[y[6][1]] != null ? map[y[6][1]] : y[6][1]; } put(y[0], y[1], "", y); nrow++; }); nf++; continue; }
+      const res = await IMP.readFile({ name: f.name, data: await f.arrayBuffer() }); let n = 0; res.tables.forEach(t => { if (!t.ok || t.skip) return; t.items.forEach(it => { put(it.den, it.um, f.name); n++; }); }); if (n) nf++; else bad.push(f.name);
+    } catch (er) { bad.push(f.name); } }
+  D.items.forEach(y => { delete y._f; }); D.items.sort((a, b) => (b[3] - a[3]) || (b[2] - a[2]));
+  const nw = D.items.length - before; DOCS.produse = D; PDX = null; store.put("produse", () => DOCS.produse); closeOvl(); VIEW.f = "d"; VIEW.q = ""; render();
+  toast(nw ? "Am adăugat " + plural(nw, "un produs nou", "produse noi") + " (acum ai " + fmt0(D.items.length) + ")." + (bad.length ? " Nu am putut citi: " + bad.slice(0, 3).join(", ") + "." : "") : "Nu am găsit produse noi." + (bad.length ? " Nu am putut citi: " + bad.slice(0, 3).join(", ") + "." : ""));
+});
+
 /* o lucrare din catalog: îi pui prețul tău (sau îl accepți pe cel propus) */
 let NE = null;
 ACT.pnom = el => nomSheet(nomRows()[+el.dataset.k]);
 ACT.pprod = el => nomSheet(prodRows()[+el.dataset.k]);
 function nomSheet(e) { if (!e) return; NE = e; const c = e.c, h = (c && c.h) || [];
-  sheet(h3(e.den.length > 90 ? e.den.slice(0, 90) + "…" : e.den) + `<p class="s">${e.prod ? "Apare " + (e.n === 1 ? "o dată" : "de " + e.n + " ori") + " în ofertele tale. Aplicația nu o recunoaște încă; după ce îi pui prețul, îl pun singură de câte ori apare denumirea asta într-o listă." : e.k === "m" ? "Aici ai pus tu prețul." : e.k === "z" ? "Nu ai încă niciun preț pentru lucrarea asta și nici unul din care să-l pot socoti." : e.k === "t" ? "Prețul vine din prețurile tale: " + esc(e.why) + "." : "Preț propus, de verificat: " + esc(e.why) + "."}${e.tier === 3 ? " Apare des în listele de cantități." : ""}</p>` +
+  sheet(h3(e.den.length > 90 ? e.den.slice(0, 90) + "…" : e.den) + `<p class="s">${e.prd ? (e.nl > 1 ? "Apare în " + e.nl + " liste (de " + e.n + " ori)." : e.n > 1 ? "Apare de " + e.n + " ori." : "Apare o dată.") + " " + (e.k === "m" ? "Aici ai pus tu prețul de manoperă." : e.k === "z" ? "Nu am niciun preț de manoperă din care să-l socotesc." : e.k === "t" ? "Prețul de manoperă vine din prețurile tale: " + esc(e.why) + "." : "Preț de manoperă propus, de verificat: " + esc(e.why) + ".") + (e.mat ? "</p><p class=\"s\" style=\"margin-top:6px\"><b>Material: " + esc(e.mat) + "</b>" : "") : e.prod ? "Apare " + (e.n === 1 ? "o dată" : "de " + e.n + " ori") + " în ofertele tale. Aplicația nu o recunoaște încă; după ce îi pui prețul, îl pun singură de câte ori apare denumirea asta într-o listă." : e.k === "m" ? "Aici ai pus tu prețul." : e.k === "z" ? "Nu ai încă niciun preț pentru lucrarea asta și nici unul din care să-l pot socoti." : e.k === "t" ? "Prețul vine din prețurile tale: " + esc(e.why) + "." : "Preț propus, de verificat: " + esc(e.why) + "."}${e.tier === 3 ? " Apare des în listele de cantități." : ""}</p>` +
     fld("nP", "Prețul tău (lei / " + esc(umShow(e.um)) + ")", c ? edn(c.pret) : "", { n: 1, af: 1, ph: !c && e.p > 0 ? "propus: " + fmt(e.p) : "" }) +
     (h.length ? `<p class="s" style="margin-top:10px">Ultimele prețuri puse: ${h.map(x => fmt(x.p) + " lei (" + String(x.d).split("-").reverse().join(".") + ")").join(" · ")}</p>` : "") +
-    (!c && e.p > 0 ? `<button class="sec" data-a="nomacc" style="margin-top:12px">E bun prețul propus: ${fmt(e.p)} lei</button>` : "") +
+    (!c && e.p > 0 && e.k !== "z" ? `<button class="sec" data-a="nomacc" style="margin-top:12px">E bun prețul propus: ${fmt(e.p)} lei</button>` : "") +
     (c ? `<div class="minis"><button class="r" data-a="nomdel">${ic("trash-2", 16, 2.2)}Șterge prețul meu</button></div>` : "") + '<button class="pri" data-a="nomsave" data-ok="1">Gata</button>'); }
 function nomPut(p) { const e = NE; if (!e) return; if (!(p > 0)) { toast("Scrie prețul."); return; }
   const old = JSON.stringify(catalog), c = e.c && catalog.find(x => x.id === e.c.id);
@@ -922,6 +965,7 @@ function onRemote(path, data) {
     if (CUR && IDX.del && IDX.del[CUR]) { CUR = ""; st = null; closeOvl(); go("#/"); toast("Oferta a fost ștearsă de pe celălalt aparat."); return; } }
   else if (path === "firma") FIRMA = data || {};
   else if (path === "hist") OF.HIST = data || {};
+  else if (path === "produse") { DOCS.produse = data; PDX = null; }
   else if (path === "ref" || path === "ref2") { DOCS[path] = data; REF = ((DOCS.ref && DOCS.ref.items) || []).concat(ref2Items()); TAR = null; PX = null; }
   else if (path === "catalog" && data && data.items) { catalog = data.items; nextCatId = Math.max(1, ...catalog.map(c => c.id || 0)) + 1; rebuildCat(); }
   else if (path.indexOf("p/") === 0) { if (IDX.del && IDX.del[path.slice(2)]) { delete DOCS[path]; store.remove(path).catch(() => { }); return; } DOCS[path] = normSt(data); if (path === "p/" + CUR) st = DOCS[path]; const nn = dedupeNr(); if (nn) toast("Oferta a primit numărul " + nn + ": celălalt aparat luase același număr în aceeași clipă."); }
@@ -930,7 +974,7 @@ function onRemote(path, data) {
 }
 
 /* ---------- pornire ---------- */
-window.__of = { check: () => checkOffer(), prod: () => prodRows(), prodOpen: i => ACT.pprod({ dataset: { k: i } }), nom: () => nomRows(), nomOpen: i => ACT.pnom({ dataset: { k: i } }), tarif, autoMatch, offered, effPrices, get st() { return st; }, get docs() { return DOCS; }, get idx() { return IDX; }, get cat() { return catalog; }, get firma() { return FIRMA; }, totals, rowInfo, searchPrices, scaleTo, checks, num, fmt, ref2n: () => ref2Pts().length };
+window.__of = { prd: () => prdRows().map(e => (prdPrice(e), e)), check: () => checkOffer(), prod: () => prodRows(), prodOpen: i => ACT.pprod({ dataset: { k: i } }), nom: () => nomRows(), nomOpen: i => ACT.pnom({ dataset: { k: i } }), tarif, autoMatch, offered, effPrices, get st() { return st; }, get docs() { return DOCS; }, get idx() { return IDX; }, get cat() { return catalog; }, get firma() { return FIRMA; }, totals, rowInfo, searchPrices, scaleTo, checks, num, fmt, ref2n: () => ref2Pts().length };
 (async function () {
   const fail = m => { $("#app").innerHTML = '<main><div class="emp">' + m + '<br><br><button class="sec" onclick="location.reload()">Încearcă din nou</button></div></main>'; };
   try {
