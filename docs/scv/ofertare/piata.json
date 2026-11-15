@@ -1,5 +1,5 @@
 {
- "data": "noiembrie 2026",
+ "data": "noiembrie 2026 (completat 15.11.2026)",
  "aparate": {
   "calorifere": {
    "min": 250,
@@ -74,6 +74,10 @@
      "titlu": "Instalatii Bucuresti - Preturi manopera (fara TVA, lista datata 01.01.2024)",
      "url": "https://instalatii-bucuresti.ro/preturi-manopera-instalatii-sanitare-termice-electrice-bucuresti/"
     }
+   ],
+   "fam": "radiator",
+   "vars": [
+    "de radiator"
    ]
   },
   {
@@ -192,7 +196,8 @@
      "titlu": "Firma Instalatii - Preturi manopera instalatii 2025",
      "url": "https://firma-instalatii.ro/preturi-manopera-instalatii/"
     }
-   ]
+   ],
+   "fam": "boiler"
   },
   {
    "cat": "termice",
@@ -255,6 +260,10 @@
      "titlu": "Galati Instal - Lista preturi manopera (taxe incluse)",
      "url": "https://galati-instal.ro/lista-preturi/"
     }
+   ],
+   "fam": "solar",
+   "vars": [
+    "solar"
    ]
   },
   {
@@ -344,7 +353,8 @@
      "titlu": "CasaBricolaj - Preturi manopera PPR (lista de referinta 2024)",
      "url": "https://casabricolaj.com/preturi-manopera-ppr-cat-te-costa-real-instalatorul/"
     }
-   ]
+   ],
+   "fam": "proba"
   },
   {
    "cat": "termice",
@@ -511,6 +521,10 @@
      "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
      "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
     }
+   ],
+   "fam": "cada",
+   "vars": [
+    "dus"
    ]
   },
   {
@@ -540,7 +554,8 @@
      "titlu": "Galati Instal - Lista preturi manopera (taxe incluse)",
      "url": "https://galati-instal.ro/lista-preturi/"
     }
-   ]
+   ],
+   "fam": "bideu"
   },
   {
    "cat": "sanitare",
@@ -1467,7 +1482,7 @@
      "url": "https://bizzlink.ro/blog/preturi-manopera-instalatii-2026"
     }
    ],
-   "eng": 40.0
+   "eng": 40
   },
   {
    "cat": "climatizare",
@@ -1487,7 +1502,7 @@
      "url": "https://www.instalareac.eu/montaj-sisteme-vrv-vrf-aer-conditionat/"
     }
    ],
-   "eng": 40.0
+   "eng": 40
   },
   {
    "cat": "climatizare",
@@ -2166,7 +2181,7 @@
   },
   {
    "cat": "termice",
-   "fam": "boiler",
+   "fam": "dedurizator",
    "lucrare": "Stație de dedurizare – montaj",
    "um": "lei/buc",
    "dim": "casnică",
@@ -2715,7 +2730,8 @@
      "titlu": "devizrapid.ro – model deviz instalație termică 2026",
      "url": "https://devizrapid.ro/blog/model-deviz-instalatie-termica-2026"
     }
-   ]
+   ],
+   "fam": "proba"
   },
   {
    "cat": "termice",
@@ -2741,7 +2757,8 @@
      "titlu": "Central Service Instal – tarife (EUR)",
      "url": "https://www.centralserviceinstal.ro/preturi/"
     }
-   ]
+   ],
+   "fam": "spalare"
   },
   {
    "cat": "termice",
@@ -3013,6 +3030,10 @@
      "titlu": "Comuna Giroc – deviz F3 cu valori, anexă HCL (emol.ro)",
      "url": "https://emol.ro/pluginfile.php/1/local_emol/documenthcl/86531/771.%20CRESA%20GIROC%20DEVIZ.PDF"
     }
+   ],
+   "fam": "teava:zn",
+   "vars": [
+    "hidrant"
    ]
   },
   {
@@ -3110,6 +3131,1334 @@
      "url": "https://www.adiconstructltd.com/lista-de-preturi/"
     }
    ]
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Montaj cadru WC încastrat (rezervor îngropat)",
+   "um": "lei/buc",
+   "min": 250,
+   "max": 850,
+   "tipic": 475,
+   "sigur": "sigur",
+   "tva": "neprecizat",
+   "nota": "GhidAmenajari 250–600, mediană 475 (3 surse); Total Design 550–850; WC suspendat + rezervor 500–900 (IBN).",
+   "surse": [
+    {
+     "titlu": "GhidAmenajari – prețuri manoperă 2026 (agregat din 14 liste, oct. 2026)",
+     "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"
+    },
+    {
+     "titlu": "Total Design – prețuri instalații sanitare București 2026",
+     "url": "https://www.total-design.ro/preturi-instalatii-sanitare/"
+    },
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 3,
+   "data": "2026-11",
+   "fam": "rezervor_wc",
+   "vars": [
+    "wc"
+   ]
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Duș la nivelul pardoselii (rigolă / sifon liniar)",
+   "um": "lei/buc",
+   "min": 900,
+   "max": 1800,
+   "tipic": 1300,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "Lista detaliată a unui instalator din București, sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "rigola",
+   "vars": [
+    "dus"
+   ]
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Montaj bideu / duș igienic",
+   "um": "lei/buc",
+   "min": 150,
+   "max": 300,
+   "tipic": 220,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN 150–300; lista veche: bideu 150–350.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "bideu",
+   "vars": [
+    "dus"
+   ]
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Robinet de colț – montaj",
+   "um": "lei/buc",
+   "min": 75,
+   "max": 120,
+   "tipic": 95,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "rob_coltar"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Înlocuire robinet de coloană",
+   "um": "lei/buc",
+   "min": 250,
+   "max": 450,
+   "tipic": 350,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Racordare mașină de spălat rufe / vase",
+   "um": "lei/buc",
+   "min": 150,
+   "max": 250,
+   "tipic": 200,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Montaj mobilier de baie",
+   "um": "lei/buc",
+   "min": 200,
+   "max": 450,
+   "tipic": 300,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "accesorii"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Traseu pentru vas WC standard (apă + scurgere)",
+   "um": "lei/punct",
+   "min": 300,
+   "max": 500,
+   "tipic": 400,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "Total Design, București 2026.",
+   "surse": [
+    {
+     "titlu": "Total Design – prețuri instalații sanitare București 2026",
+     "url": "https://www.total-design.ro/preturi-instalatii-sanitare/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Spargere și refacere șanț în zidărie (fără finisaj)",
+   "um": "lei/ml",
+   "min": 60,
+   "max": 120,
+   "tipic": 90,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026; nu include tencuiala finală.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "slit"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Inspecție video canalizare",
+   "um": "lei/buc",
+   "min": 300,
+   "max": 600,
+   "tipic": 450,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "Pe intervenție.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Înlocuire coloană de canalizare (fontă → PP fonoabsorbant), pe nivel",
+   "um": "lei/nivel",
+   "min": 600,
+   "max": 1200,
+   "tipic": 900,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "Pe nivel de bloc.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Sifon de pardoseală – curățare / înlocuire",
+   "um": "lei/buc",
+   "min": 300,
+   "max": 700,
+   "tipic": 450,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Înlocuire coloană de apă, pe nivel",
+   "um": "lei/nivel",
+   "min": 500,
+   "max": 1000,
+   "tipic": 750,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "Pe nivel de bloc.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Pompă submersibilă – montaj",
+   "um": "lei/buc",
+   "min": 300,
+   "max": 700,
+   "tipic": 450,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "pompa"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Pompă de presurizare – montaj",
+   "um": "lei/buc",
+   "min": 350,
+   "max": 650,
+   "tipic": 500,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "pompa"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Pompă pentru apă uzată (demisol) – montaj",
+   "um": "lei/buc",
+   "min": 400,
+   "max": 900,
+   "tipic": 600,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "pompa"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Filtru mecanic – montaj",
+   "um": "lei/buc",
+   "min": 150,
+   "max": 280,
+   "tipic": 200,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "filtru_y"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Dedurizator cu by-pass – montaj",
+   "um": "lei/buc",
+   "min": 300,
+   "max": 600,
+   "tipic": 450,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026; lista veche: stație de dedurizare 300–850.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "dedurizator"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Osmoză inversă – montaj",
+   "um": "lei/buc",
+   "min": 250,
+   "max": 500,
+   "tipic": 350,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "dedurizator"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Kit de evacuare / coș de fum centrală",
+   "um": "lei/buc",
+   "min": 250,
+   "max": 600,
+   "tipic": 400,
+   "sigur": "sigur",
+   "tva": "neprecizat",
+   "nota": "IBN 250–600; MesterLaTine 300–600.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "MesterLaTine – montaj centrală termică 2026",
+     "url": "https://mesterlatine.ro/blog/montaj-centrala-termica-pret-si-ghid-complet-2026"
+    }
+   ],
+   "n": 2,
+   "data": "2026-11"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Demontare centrală termică veche",
+   "um": "lei/buc",
+   "min": 150,
+   "max": 300,
+   "tipic": 220,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "MesterLaTine 2026.",
+   "surse": [
+    {
+     "titlu": "MesterLaTine – montaj centrală termică 2026",
+     "url": "https://mesterlatine.ro/blog/montaj-centrala-termica-pret-si-ghid-complet-2026"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Documentație și recepție ANRE (gaze)",
+   "um": "lei/lucrare",
+   "min": 780,
+   "max": 1560,
+   "tipic": 1100,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "DevizRapid 600–1.200 în oraș mediu, ×1,30 pentru București.",
+   "surse": [
+    {
+     "titlu": "DevizRapid – calculator manoperă 2026 (oraș mediu; București ×1,30)",
+     "url": "https://devizrapid.ro/calculator-manopera"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Centrală în condensație – montaj (cu racord de condens)",
+   "um": "lei/buc",
+   "min": 800,
+   "max": 1500,
+   "tipic": 1000,
+   "sigur": "sigur",
+   "tva": "neprecizat",
+   "nota": "IBN 800–1.500; GhidAmenajari mediană 870.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "GhidAmenajari – prețuri manoperă 2026 (agregat din 14 liste, oct. 2026)",
+     "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"
+    }
+   ],
+   "n": 2,
+   "data": "2026-11",
+   "fam": "cazan"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Centrală electrică – montaj",
+   "um": "lei/buc",
+   "min": 600,
+   "max": 1000,
+   "tipic": 800,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "cazan"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Centrală pe combustibil solid – montaj",
+   "um": "lei/buc",
+   "min": 1100,
+   "max": 1800,
+   "tipic": 1400,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "Necesit 2026.",
+   "surse": [
+    {
+     "titlu": "Necesit – prețuri instalații termice",
+     "url": "https://www.necesit.ro/preturi/instalator/preturi-instalatii-termice"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "cazan"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Radiator portprosop – montaj",
+   "um": "lei/buc",
+   "min": 250,
+   "max": 450,
+   "tipic": 330,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN 250–450; DevizRapid 150–280 în oraș mediu.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "DevizRapid – calculator manoperă 2026 (oraș mediu; București ×1,30)",
+     "url": "https://devizrapid.ro/calculator-manopera"
+    }
+   ],
+   "n": 2,
+   "data": "2026-11",
+   "fam": "rad_baie",
+   "vars": [
+    "de radiator"
+   ]
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Robinet tur sau retur calorifer – montaj",
+   "um": "lei/buc",
+   "min": 75,
+   "max": 100,
+   "tipic": 85,
+   "sigur": "sigur",
+   "tva": "neprecizat",
+   "nota": "DevizRapid 75–100; servicii-instalatii de la 75.",
+   "surse": [
+    {
+     "titlu": "DevizRapid – calculator manoperă 2026 (oraș mediu; București ×1,30)",
+     "url": "https://devizrapid.ro/calculator-manopera"
+    },
+    {
+     "titlu": "Servicii-instalatii.ro – prețuri manoperă București",
+     "url": "https://servicii-instalatii.ro/preturi-manopera-instalatii-sanitare-termice-electrice-instalator-electrician-bucuresti/"
+    }
+   ],
+   "n": 2,
+   "data": "2026-11",
+   "fam": "rob_retur"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Robinet termostatat – montaj",
+   "um": "lei/buc",
+   "min": 100,
+   "max": 180,
+   "tipic": 140,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "rob_termo"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Filtru magnetic – montaj",
+   "um": "lei/buc",
+   "min": 200,
+   "max": 350,
+   "tipic": 260,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026; se cere la centrală nouă pe instalație veche.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "filtru_y"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Termostat de ambient – montaj",
+   "um": "lei/buc",
+   "min": 150,
+   "max": 350,
+   "tipic": 220,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "senzor"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Grup de amestec pentru încălzirea în pardoseală – montaj",
+   "um": "lei/buc",
+   "min": 400,
+   "max": 800,
+   "tipic": 550,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Spălare calorifere în circuit (apartament)",
+   "um": "lei/apartament",
+   "min": 400,
+   "max": 800,
+   "tipic": 600,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "spalare",
+   "vars": [
+    "de radiator"
+   ]
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Aerisire calorifere (apartament)",
+   "um": "lei/apartament",
+   "min": 80,
+   "max": 150,
+   "tipic": 110,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Grup de siguranță boiler – montaj",
+   "um": "lei/buc",
+   "min": 120,
+   "max": 200,
+   "tipic": 160,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "supapa_sig"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Recirculare apă caldă cu pompă, pe circuit",
+   "um": "lei/circuit",
+   "min": 500,
+   "max": 1200,
+   "tipic": 800,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Pompă de căldură pentru apă caldă – montaj",
+   "um": "lei/buc",
+   "min": 700,
+   "max": 1400,
+   "tipic": 1000,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "pompa_caldura"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Probă de presiune înainte de șapă (pardoseală)",
+   "um": "lei/instalatie",
+   "min": 150,
+   "max": 300,
+   "tipic": 220,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "proba"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Punere în funcțiune și uscare controlată a șapei",
+   "um": "lei/instalatie",
+   "min": 250,
+   "max": 500,
+   "tipic": 350,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "pif"
+  },
+  {
+   "cat": "gaze",
+   "lucrare": "Racordarea unui aparat pe gaz",
+   "um": "lei/buc",
+   "min": 150,
+   "max": 350,
+   "tipic": 250,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "IBN sept. 2026.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "gaz"
+  },
+  {
+   "cat": "general",
+   "lucrare": "Evacuare moloz (manoperă)",
+   "um": "lei/mc",
+   "min": 66,
+   "max": 200,
+   "tipic": 125,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "GhidAmenajari, mediană 125 (2 surse).",
+   "surse": [
+    {
+     "titlu": "GhidAmenajari – prețuri manoperă 2026 (agregat din 14 liste, oct. 2026)",
+     "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "terasament"
+  },
+  {
+   "cat": "general",
+   "lucrare": "Deplasare București / Ilfov (intervenție)",
+   "um": "lei/buc",
+   "min": 50,
+   "max": 100,
+   "tipic": 50,
+   "sigur": "sigur",
+   "tva": "neprecizat",
+   "nota": "50 lei București, 100 lei Ilfov; noapte/sărbători +50% la manoperă.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026 (sept. 2026)",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Servicii-instalatii.ro – prețuri manoperă București",
+     "url": "https://servicii-instalatii.ro/preturi-manopera-instalatii-sanitare-termice-electrice-instalator-electrician-bucuresti/"
+    }
+   ],
+   "n": 2,
+   "data": "2026-11",
+   "fam": "transport"
+  },
+  {
+   "cat": "hidranti",
+   "lucrare": "Hidrant interior – doar manoperă de montaj (estimat din sistem cu 3 hidranți)",
+   "um": "lei/buc",
+   "min": 830,
+   "max": 1670,
+   "tipic": 1200,
+   "sigur": "incert",
+   "tva": "neprecizat",
+   "nota": "Manoperă 2.500–5.000 lei pentru un sistem cu 3 hidranți (birouri 500 mp). Site de ghid, fără autor.",
+   "surse": [
+    {
+     "titlu": "Brig.ro – cât costă instalațiile de hidranți (2026)",
+     "url": "https://brig.ro/cat-costa/instalatii-hidranti"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11",
+   "fam": "hidrant_int",
+   "vars": [
+    "hidrant"
+   ]
+  },
+  {
+   "cat": "hidranti",
+   "lucrare": "Verificare semestrială hidrant",
+   "um": "lei/buc",
+   "min": 150,
+   "max": 350,
+   "tipic": 230,
+   "sigur": "incert",
+   "tva": "neprecizat",
+   "nota": "Service; site de ghid.",
+   "surse": [
+    {
+     "titlu": "Brig.ro – cât costă instalațiile de hidranți (2026)",
+     "url": "https://brig.ro/cat-costa/instalatii-hidranti"
+    }
+   ],
+   "n": 1,
+   "data": "2026-11"
+  }
+ ],
+ "msurse": [
+  {
+   "titlu": "Dedeman – țevi PPR",
+   "url": "https://www.dedeman.ro/ro/teava-ppr-20-firat-4-m-x-20-mm-x-3-4-mm-pn-25/p/2002901"
+  },
+  {
+   "titlu": "Dedeman – țevi multistrat",
+   "url": "https://www.dedeman.ro/ro/tevi-multistrat/c/3918"
+  },
+  {
+   "titlu": "Melinda Instal – țevi multistrat",
+   "url": "https://www.melindainstal.ro/tevi-si-fitinguri-wig0000126/tevi-multistrat-wig0000402"
+  },
+  {
+   "titlu": "eMAG – țevi multistrat",
+   "url": "https://www.emag.ro/search/teava+multistrat"
+  },
+  {
+   "titlu": "Leroy Merlin – țevi cupru",
+   "url": "https://www.leroymerlin.ro/produse/ac-incalzire-instalatii/teava/tevi-cupru/"
+  },
+  {
+   "titlu": "Vasion – țeavă cupru",
+   "url": "https://vasion.ro/teava-cupru-28-x-08-mm-40414.html"
+  },
+  {
+   "titlu": "Euro-Instal – țeavă cupru Thermogreen",
+   "url": "https://euro-instal.ro/teava-cupru-15-mm-x-1-mm"
+  },
+  {
+   "titlu": "Tuburi-corugate.ro – țeavă PVC 110",
+   "url": "https://tuburi-corugate.ro/teava-pvc-canalizare-110/"
+  }
+ ],
+ "material": [
+  {
+   "den": "Țeavă PPR Firat PN25 Ø20",
+   "um": "m",
+   "pret": 3.3,
+   "marca": "Firat",
+   "s": 0,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă PPR UBP PN20 Ø20",
+   "um": "m",
+   "pret": 3.13,
+   "marca": "UBP",
+   "s": 0,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă PPR Firat cu fibră PN25 Ø20",
+   "um": "m",
+   "pret": 4.57,
+   "marca": "Firat",
+   "s": 0,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă PPR PN20 Ø25 (verde)",
+   "um": "m",
+   "pret": 3.32,
+   "marca": "",
+   "s": 0,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă PPR cu aluminiu Firat PN20 Ø25",
+   "um": "m",
+   "pret": 4.5,
+   "marca": "Firat",
+   "s": 0,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă PPR UBP PN20 Ø25",
+   "um": "m",
+   "pret": 4.8,
+   "marca": "UBP",
+   "s": 0,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă PPR Firat PN25 Ø25",
+   "um": "m",
+   "pret": 5.69,
+   "marca": "Firat",
+   "s": 0,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă PPR Firat cu fibră PN25 Ø25",
+   "um": "m",
+   "pret": 6.39,
+   "marca": "Firat",
+   "s": 0,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă PPR UBP PN20 Ø32",
+   "um": "m",
+   "pret": 8.35,
+   "marca": "UBP",
+   "s": 0,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă PPR Firat PN25 Ø32",
+   "um": "m",
+   "pret": 9.76,
+   "marca": "Firat",
+   "s": 0,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă PPR cu aluminiu UBP PN25 Ø32",
+   "um": "m",
+   "pret": 10.65,
+   "marca": "UBP",
+   "s": 0,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă PPR Firat cu fibră PN25 Ø32",
+   "um": "m",
+   "pret": 10.79,
+   "marca": "Firat",
+   "s": 0,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă PPR Firat cu fibră PN25 Ø40",
+   "um": "m",
+   "pret": 16.03,
+   "marca": "Firat",
+   "s": 0,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă multistrat PEX-AL APE 16x2",
+   "um": "m",
+   "pret": 4.61,
+   "marca": "APE",
+   "s": 1,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă multistrat APE 16x2",
+   "um": "m",
+   "pret": 4.49,
+   "marca": "APE",
+   "s": 2,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă multistrat pexal Firat izolată 16x2",
+   "um": "m",
+   "pret": 5.75,
+   "marca": "Firat",
+   "s": 1,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă multistrat PEX-AL Henco 16x2",
+   "um": "m",
+   "pret": 12.26,
+   "marca": "Henco",
+   "s": 1,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă multistrat Frankische în tub de protecție 16x2",
+   "um": "m",
+   "pret": 11.55,
+   "marca": "Frankische",
+   "s": 3,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă multistrat PEX-AL APE 20x2",
+   "um": "m",
+   "pret": 7.64,
+   "marca": "APE",
+   "s": 1,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă multistrat APE 20x2",
+   "um": "m",
+   "pret": 6.99,
+   "marca": "APE",
+   "s": 2,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă multistrat pexal Firat izolată 20x2",
+   "um": "m",
+   "pret": 7.94,
+   "marca": "Firat",
+   "s": 1,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă multistrat PEX-AL APE protejată 20x2",
+   "um": "m",
+   "pret": 10.9,
+   "marca": "APE",
+   "s": 1,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă multistrat PEX-AL Henco 20x2",
+   "um": "m",
+   "pret": 19.18,
+   "marca": "Henco",
+   "s": 1,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă multistrat PEX-AL APE 26x3",
+   "um": "m",
+   "pret": 12.9,
+   "marca": "APE",
+   "s": 1,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă multistrat PEX-AL Henco 26x3",
+   "um": "m",
+   "pret": 31.59,
+   "marca": "Henco",
+   "s": 1,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă cupru moale Ø15",
+   "um": "m",
+   "pret": 38.96,
+   "marca": "",
+   "s": 4,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă cupru moale Ø18",
+   "um": "m",
+   "pret": 43.47,
+   "marca": "",
+   "s": 4,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă cupru moale Ø22",
+   "um": "m",
+   "pret": 55.47,
+   "marca": "",
+   "s": 4,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă cupru bară 3 m Ø15",
+   "um": "m",
+   "pret": 21.24,
+   "marca": "",
+   "s": 4,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă cupru bară 3 m Ø18",
+   "um": "m",
+   "pret": 26.37,
+   "marca": "",
+   "s": 4,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă cupru bară 3 m Ø22",
+   "um": "m",
+   "pret": 31.95,
+   "marca": "",
+   "s": 4,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă cupru bară 3 m Ø28",
+   "um": "m",
+   "pret": 71.49,
+   "marca": "",
+   "s": 4,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă cupru 15x0,7",
+   "um": "m",
+   "pret": 26.5,
+   "marca": "",
+   "s": 5,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă cupru 18x0,7",
+   "um": "m",
+   "pret": 31,
+   "marca": "",
+   "s": 5,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă cupru 18x1",
+   "um": "m",
+   "pret": 54.5,
+   "marca": "",
+   "s": 5,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă cupru 28x0,8",
+   "um": "m",
+   "pret": 48.3,
+   "marca": "",
+   "s": 5,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă cupru dură Thermogreen 15x1",
+   "um": "m",
+   "pret": 31,
+   "marca": "Thermogreen",
+   "s": 6,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă cupru dură Thermogreen 18x1",
+   "um": "m",
+   "pret": 38,
+   "marca": "Thermogreen",
+   "s": 6,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă cupru dură Thermogreen 22x1",
+   "um": "m",
+   "pret": 48,
+   "marca": "Thermogreen",
+   "s": 6,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă cupru dură Thermogreen 28x1",
+   "um": "m",
+   "pret": 72,
+   "marca": "Thermogreen",
+   "s": 6,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă cupru dură Thermogreen 35x1",
+   "um": "m",
+   "pret": 98,
+   "marca": "Thermogreen",
+   "s": 6,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă cupru dură Thermogreen 42x1",
+   "um": "m",
+   "pret": 126,
+   "marca": "Thermogreen",
+   "s": 6,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă cupru dură Thermogreen 54x1",
+   "um": "m",
+   "pret": 167,
+   "marca": "Thermogreen",
+   "s": 6,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă PVC canalizare 110 SN2",
+   "um": "m",
+   "pret": 9.69,
+   "marca": "",
+   "s": 7,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă PVC canalizare 110 SN4",
+   "um": "m",
+   "pret": 12.01,
+   "marca": "",
+   "s": 7,
+   "data": "2026-11"
+  },
+  {
+   "den": "Țeavă PVC canalizare 110 SN8",
+   "um": "m",
+   "pret": 12.54,
+   "marca": "",
+   "s": 7,
+   "data": "2026-11"
+  },
+  {
+   "den": "Teu PPR Ø20",
+   "um": "buc",
+   "pret": 0.76,
+   "marca": "",
+   "s": 0,
+   "data": "2026-11"
+  },
+  {
+   "den": "Cot PPR Ø20",
+   "um": "buc",
+   "pret": 0.51,
+   "marca": "",
+   "s": 0,
+   "data": "2026-11"
+  },
+  {
+   "den": "Teu PPR Ø25",
+   "um": "buc",
+   "pret": 0.98,
+   "marca": "",
+   "s": 0,
+   "data": "2026-11"
+  },
+  {
+   "den": "Teu redus PPR 25x20x20",
+   "um": "buc",
+   "pret": 1.05,
+   "marca": "",
+   "s": 0,
+   "data": "2026-11"
   }
  ]
 }

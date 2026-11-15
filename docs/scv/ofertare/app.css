@@ -226,3 +226,23 @@ button.am2{min-height:42px}
 .chk .s{margin-top:4px}
 .chk .minis{margin-top:10px}
 .chk .minis button{background:#fff;border:1px solid var(--line, #E2E8F0)}
+/* semafor pe poziții + piață (v2) */
+.pos.s-ok,.pos.s-sig{box-shadow:var(--sh1),inset 4px 0 0 var(--pos)}
+.pos.s-est{box-shadow:var(--sh1),inset 4px 0 0 var(--warn-dot)}
+.pos.s-no{box-shadow:var(--sh1),inset 4px 0 0 var(--neg-dot)}
+button.tag{border:0;cursor:pointer;font-family:inherit}
+.pos .mk{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;width:100%;margin-top:8px;padding:6px 0 0;border-top:1px solid var(--line);background:none;font-size:12.5px;color:var(--mut);text-align:left;min-height:32px}
+.pos .mk b{font-weight:700;padding:1px 8px;border-radius:7px}
+.mk b.in,.mt.in b{color:var(--pos);background:var(--pos-bg)}.mk b.sub,.mt.sub b{color:var(--link);background:#EEF4FC}.mk b.peste,.mt.peste b{color:var(--warn);background:var(--warn-bg)}
+.wb{margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--surface2,#F4F6F9)}
+.wb small{display:block;font-size:12px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.02em}
+.wb b{font-size:17px}.wb p{margin:6px 0 0;font-size:13.5px;line-height:1.4}.wb p.m{color:var(--mut);font-size:12.5px}
+.wb .mt b{font-size:13.5px;padding:1px 8px;border-radius:7px}
+ul.wl{margin:8px 0 0;padding-left:18px;font-size:13px;line-height:1.5}ul.wl a{color:var(--link);overflow-wrap:anywhere}
+/* bara de jos cu totaluri (v2) */
+.bar.bt{align-items:center;padding-left:max(16px,calc(50vw - 364px));padding-right:max(16px,calc(50vw - 364px))}
+.bar.bt .btot{flex:1.4;display:flex;flex-direction:column;justify-content:center;min-height:56px;padding:6px 14px;border-radius:16px;background:var(--surface);box-shadow:var(--sh1);line-height:1.15}
+.bar.bt .btot b{font-size:18px;font-weight:800;white-space:nowrap}
+.bar.bt .btot small{font-size:11.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar.bt .pri{flex:.8}
+.am2.cnd{background:var(--warn-bg)}
