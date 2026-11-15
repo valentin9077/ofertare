@@ -1,7 +1,7 @@
 /* Lucru fără semnal: paginile vin întâi din rețea (mereu versiunea nouă), iar fără internet din ce s-a păstrat pe aparat.
    Bibliotecile mari și fonturile vin din păstrare. Cererile către baza de date nu trec pe aici.
    Toate adresele sunt relative la folderul aplicației. */
-const V = "scv-v11";
+const V = "scv-v12";
 const HERE = new URL("./", self.location).href;
 const SHELL = ["prezenta/", "ofertare/", "lib/scv.js", "lib/alarm.js", "lib/ui.css", "lib/icons.js", "lib/fonts.css", "lib/vendor/supabase.js", "ofertare/core.js", "ofertare/export.js", "ofertare/piata.json", "ofertare/nomen.json", "ofertare/app.js", "ofertare/app.css", "ofertare/icons2.js", "ofertare/imp.js", "ofertare/wb.js",
   "lib/vendor/jszip.min.js", "lib/vendor/exceljs.min.js", "lib/vendor/xlsx.full.min.js", "lib/vendor/pdf.min.js", "lib/vendor/pdf.worker.min.js",
