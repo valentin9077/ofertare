@@ -1,1 +1,3115 @@
-{"data": "noiembrie 2026", "aparate": {"calorifere": {"min": 250, "max": 750, "tipic": 450, "et": "calorifer cu traseu, lucrări mici"}, "obiecte": {"min": 150, "max": 600, "tipic": 300, "et": "punct de consum (trasee), fără montajul obiectului (100–400 lei)"}, "ventilo": {"min": 250, "max": 1186, "tipic": 600, "et": "montaj aparat, surse puține"}}, "lista": [{"cat": "termice", "lucrare": "Montaj calorifer oțel panou - racordat la țevi existente (fără trasee)", "um": "lei/buc", "min": 120, "max": 450, "tipic": 280, "sigur": "sigur", "tva": "neprecizat", "nota": "Devizeroo 120-300 fără TVA; Total Design 280-450; Instalator Bucuresti Non-Stop 250-450; Prestari Instalatii de la 250 fără TVA; DevizRapid 120-230 cu TVA in orase medii si 156-299 în Bucuresti/Cluj; agregatul GhidAmenajari (6 liste) 120-500, tipic 360. Valoar", "surse": [{"titlu": "Devizeroo - Preturi manopera constructii 2026 (fara TVA)", "url": "https://devizeroo.ro/preturi-manopera"}, {"titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)", "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"}, {"titlu": "Total Design - Preturi instalatii sanitare Bucuresti 2026 (actualizat 9 sept. 2026)", "url": "https://www.total-design.ro/preturi-instalatii-sanitare/"}, {"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}]}, {"cat": "termice", "lucrare": "Montaj calorifer aluminiu - racordat la țevi existente", "um": "lei/buc", "min": 200, "max": 350, "tipic": 275, "sigur": "probabil", "tva": "neprecizat", "nota": "MesterLaTine 200-350 (oțel 150-300); doua liste din Bucuresti dau acelasi pret pentru oțel, aluminiu si fonta (de la 250). Cele mai multe liste nu separa aluminiul de oțel. O sursa e din 2025 si una are lista datata 2024.", "surse": [{"titlu": "MesterLaTine - Preturi manopera 2026", "url": "https://mesterlatine.ro/blog/preturi-manopera-2026-pentru-toate-lucrarile-din-casa-ghid-complet-romania"}, {"titlu": "Instalator-Electrician - Preturi instalatii termice Bucuresti 2025 (neplatitor TVA)", "url": "https://instalator-electrician.ro/preturi-instalatii-termice/"}, {"titlu": "Instalatii Bucuresti - Preturi manopera (fara TVA, lista datata 01.01.2024)", "url": "https://instalatii-bucuresti.ro/preturi-manopera-instalatii-sanitare-termice-electrice-bucuresti/"}]}, {"cat": "termice", "lucrare": "Montaj calorifer cu țevi (traseu + calorifer, 'punct de caldura')", "um": "lei/buc", "min": 250, "max": 750, "tipic": 450, "sigur": "probabil", "tva": "neprecizat", "nota": "DevizRapid 'punct de caldura complet' 300-500 cu TVA (390-650 Bucuresti/Cluj); Galati Instal 350-500 dupa materialul tevii; Renovari.net 250-600; Bizzlink 250-500 inclusiv racord; Total Design 450-750 pentru repozitionare cu modificarea traseului. Preturi de l", "surse": [{"titlu": "DevizRapid - Cat costa o centrala termica in 2026 (manopera, cu TVA)", "url": "https://devizrapid.ro/blog/cat-costa-centrala-termica-2026"}, {"titlu": "Galati Instal - Lista preturi manopera (taxe incluse)", "url": "https://galati-instal.ro/lista-preturi/"}, {"titlu": "Renovari.net - Pret manopera constructii de la A la Z (iulie 2026)", "url": "https://renovari.net/pret-manopera-constructii-de-la-a-la-z/"}, {"titlu": "Total Design - Preturi instalatii sanitare Bucuresti 2026 (actualizat 9 sept. 2026)", "url": "https://www.total-design.ro/preturi-instalatii-sanitare/"}]}, {"cat": "termice", "lucrare": "Montaj centrală termică murală (cu racorduri)", "um": "lei/buc", "min": 400, "max": 1500, "tipic": 900, "sigur": "sigur", "tva": "neprecizat", "nota": "Devizeroo 400-1200 fără TVA; agregat GhidAmenajari (6 liste) 455-1200, tipic 925; DevizRapid 550-1100 cu TVA (715-1430 Bucuresti/Cluj), condensare 700-1400; Instalator Bucuresti Non-Stop 700-1300; Galati Instal 750-850; Automatic Flow 1220. Nu include kit evac", "surse": [{"titlu": "Devizeroo - Preturi manopera constructii 2026 (fara TVA)", "url": "https://devizeroo.ro/preturi-manopera"}, {"titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)", "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"}, {"titlu": "DevizRapid - Cat costa o centrala termica in 2026 (manopera, cu TVA)", "url": "https://devizrapid.ro/blog/cat-costa-centrala-termica-2026"}, {"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}]}, {"cat": "termice", "lucrare": "Montaj boiler electric 50-100 L", "um": "lei/buc", "min": 200, "max": 730, "tipic": 450, "sigur": "sigur", "tva": "neprecizat", "nota": "Total Design 400-650; Daibau 400-500; Instalator Bucuresti Non-Stop 300-500; DevizRapid 200-400 cu TVA; Galati Instal 500-730 (taxe incluse); Bizzlink 300-600; MesterLaTine 250-450. Interval larg: pretul mare include si tevile de racord.", "surse": [{"titlu": "Total Design - Preturi instalatii sanitare Bucuresti 2026 (actualizat 9 sept. 2026)", "url": "https://www.total-design.ro/preturi-instalatii-sanitare/"}, {"titlu": "DevizRapid - Cat costa instalatia sanitara in 2026 (manopera, cu TVA 21%)", "url": "https://devizrapid.ro/blog/cat-costa-instalatie-sanitara-2026"}, {"titlu": "Daibau - Instalator sanitar: pret manopera 2026 (actualizat 22.04.2026)", "url": "https://www.daibau.ro/preturi/instalator_sanitar"}, {"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}]}, {"cat": "termice", "lucrare": "Montaj boiler termoelectric / cu serpentină", "um": "lei/buc", "min": 500, "max": 1000, "tipic": 750, "sigur": "probabil", "tva": "neprecizat", "nota": "Instalator Bucuresti Non-Stop 500-900; Prestari Instalatii de la 700 fără TVA; Galati Instal 650-1000; Firma Instalatii de la 750 (2025); Instalatii Bucuresti 600 (lista 2024).", "surse": [{"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}, {"titlu": "Prestari Instalatii - Preturi manopera instalatii 2026 (fara TVA)", "url": "https://prestari-instalatii.ro/preturi-manopera-instalatii.html"}, {"titlu": "Galati Instal - Lista preturi manopera (taxe incluse)", "url": "https://galati-instal.ro/lista-preturi/"}, {"titlu": "Firma Instalatii - Preturi manopera instalatii 2025", "url": "https://firma-instalatii.ro/preturi-manopera-instalatii/"}]}, {"cat": "termice", "lucrare": "Montaj puffer", "um": "lei/buc", "min": null, "max": null, "tipic": null, "sigur": "incert", "tva": "neprecizat", "nota": "Nu am gasit nicio lista publica cu pret de manoperă separat pentru puffer. De regula e inclus in manoperă pentru camera tehnica / pompă de căldură.", "surse": []}, {"cat": "termice", "lucrare": "Montaj pompă de căldură aer-apa (unitate exterioară + interioară)", "um": "lei/sistem", "min": 1500, "max": 8000, "tipic": 5000, "sigur": "incert", "tva": "neprecizat", "nota": "Sursele difera mult, fiindca nu masoara acelasi lucru: DevizRapid 1500-3500 cu TVA (doar montajul); GreenLead si Sebra monobloc 3500-6000, split 4500-8000; Galati Instal 5500; Automatic Flow 6922 pentru camera tehnica simpla si 20336 pentru una complexa; Daiba", "surse": [{"titlu": "DevizRapid - Calculator manopera 2026 (actualizat 6 sept. 2026)", "url": "https://devizrapid.ro/calculator-manopera"}, {"titlu": "GreenLead - Cost montaj pompa de caldura 2026 (actualizat apr. 2026)", "url": "https://www.greenlead.ro/blog/cost-montaj-pompa-caldura-2026-preturi-manopera-detaliere"}, {"titlu": "Sebra - Cat costa montajul unei pompe de caldura in 2026", "url": "https://www.sebra.ro/cat-costa-montaj-pompa-de-caldura"}, {"titlu": "Galati Instal - Lista preturi manopera (taxe incluse)", "url": "https://galati-instal.ro/lista-preturi/"}]}, {"cat": "termice", "lucrare": "Montaj panou solar termic", "um": "lei/buc", "min": 660, "max": 1700, "tipic": 1300, "sigur": "probabil", "tva": "neprecizat", "nota": "DevizRapid 800-1600 cu TVA (660-1320 fără TVA); Galati Instal 1500 (tuburi), 1600 (plan), 1700 (cu boiler pe acoperis), taxe incluse. Doar doua surse.", "surse": [{"titlu": "DevizRapid - Calculator manopera 2026 (actualizat 6 sept. 2026)", "url": "https://devizrapid.ro/calculator-manopera"}, {"titlu": "Galati Instal - Lista preturi manopera (taxe incluse)", "url": "https://galati-instal.ro/lista-preturi/"}]}, {"cat": "termice", "lucrare": "Încălzire în pardoseală - manoperă completă (folie/placa + țeavă)", "um": "lei/m2", "min": 29, "max": 95, "tipic": 60, "sigur": "sigur", "tva": "neprecizat", "nota": "Devizeroo 35-70 fără TVA; agregat GhidAmenajari 29-70, tipic 52; DevizRapid 35-60 cu TVA (46-78 Bucuresti/Cluj); Instalator Bucuresti Non-Stop 60-95; Automatic Flow 68. Nu include sapa si nici distribuitorul. O lista (Galati Instal) da 550 lei/m2 - am lasat-o ", "surse": [{"titlu": "DevizRapid - Cat costa o centrala termica in 2026 (manopera, cu TVA)", "url": "https://devizrapid.ro/blog/cat-costa-centrala-termica-2026"}, {"titlu": "Devizeroo - Preturi manopera constructii 2026 (fara TVA)", "url": "https://devizeroo.ro/preturi-manopera"}, {"titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)", "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"}, {"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}]}, {"cat": "termice", "lucrare": "Montaj distribuitor incalzire in pardoseala (4-8 circuite)", "um": "lei/buc", "min": 330, "max": 900, "tipic": 600, "sigur": "probabil", "tva": "neprecizat", "nota": "DevizRapid 400-800 cu TVA (330-660 fără TVA; 520-1040 Bucuresti/Cluj); Instalator Bucuresti Non-Stop 400-900; Adi Construct 550; Galati Instal 700 (caseta + distribuitor). Nu am gasit pret pe circuit.", "surse": [{"titlu": "DevizRapid - Cat costa o centrala termica in 2026 (manopera, cu TVA)", "url": "https://devizrapid.ro/blog/cat-costa-centrala-termica-2026"}, {"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}, {"titlu": "Adi Construct - Lista de preturi (actualizata 29.10.2026)", "url": "https://www.adiconstructltd.com/lista-de-preturi/"}, {"titlu": "Galati Instal - Lista preturi manopera (taxe incluse)", "url": "https://galati-instal.ro/lista-preturi/"}]}, {"cat": "termice", "lucrare": "Probă de presiune instalatie", "um": "lei/instalatie", "min": 100, "max": 500, "tipic": 300, "sigur": "probabil", "tva": "neprecizat", "nota": "Devizeroo 150-400 fără TVA; Instalator Bucuresti Non-Stop 150-300; Adi Construct 350; CasaBricolaj 100-200 (2024); Galati Instal 500 pe apartament (revizie + proba). Piata o vinde pe instalatie/apartament; nu am gasit pret pe metru liniar.", "surse": [{"titlu": "Devizeroo - Preturi manopera constructii 2026 (fara TVA)", "url": "https://devizeroo.ro/preturi-manopera"}, {"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}, {"titlu": "Adi Construct - Lista de preturi (actualizata 29.10.2026)", "url": "https://www.adiconstructltd.com/lista-de-preturi/"}, {"titlu": "CasaBricolaj - Preturi manopera PPR (lista de referinta 2024)", "url": "https://casabricolaj.com/preturi-manopera-ppr-cat-te-costa-real-instalatorul/"}]}, {"cat": "termice", "lucrare": "Izolație conducte", "um": "lei/ml", "min": 12, "max": 25, "tipic": 18, "sigur": "incert", "tva": "neprecizat", "nota": "O singura sursa (Instalator Bucuresti Non-Stop, 12-25 lei/m). De folosit doar ca orientare.", "surse": [{"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}]}, {"cat": "sanitare", "lucrare": "Montaj lavoar", "um": "lei/buc", "min": 100, "max": 400, "tipic": 230, "sigur": "sigur", "tva": "neprecizat", "nota": "Daibau 130-310; agregat GhidAmenajari 99-350, tipic 200; DevizRapid 120-240 cu TVA (156-312 Bucuresti/Cluj); Instalator Bucuresti Non-Stop 250-400; Prestari Instalatii de la 250 fără TVA; Galati Instal 300; Renovari.net 150-350. Preturi de lista pentru clienti", "surse": [{"titlu": "DevizRapid - Cat costa instalatia sanitara in 2026 (manopera, cu TVA 21%)", "url": "https://devizrapid.ro/blog/cat-costa-instalatie-sanitara-2026"}, {"titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)", "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"}, {"titlu": "Daibau - Instalator sanitar: pret manopera 2026 (actualizat 22.04.2026)", "url": "https://www.daibau.ro/preturi/instalator_sanitar"}, {"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}]}, {"cat": "sanitare", "lucrare": "Montaj vas WC clasic (pe pardoseala)", "um": "lei/buc", "min": 150, "max": 380, "tipic": 250, "sigur": "sigur", "tva": "neprecizat", "nota": "Agregat GhidAmenajari 150-350, tipic 240; DevizRapid 180-380 cu TVA; Instalator Bucuresti Non-Stop 150-250; Bizzlink 250-350 cu rezervor; Galati Instal 200-300; Adi Construct 210. Preturi de lista pentru clienti persoane fizice (lucrări mici, renovari); la blo", "surse": [{"titlu": "DevizRapid - Cat costa instalatia sanitara in 2026 (manopera, cu TVA 21%)", "url": "https://devizrapid.ro/blog/cat-costa-instalatie-sanitara-2026"}, {"titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)", "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"}, {"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}, {"titlu": "Prestari Instalatii - Preturi manopera instalatii 2026 (fara TVA)", "url": "https://prestari-instalatii.ro/preturi-manopera-instalatii.html"}]}, {"cat": "sanitare", "lucrare": "Montaj WC suspendat cu rezervor îngropat (cadru + vas)", "um": "lei/buc", "min": 500, "max": 900, "tipic": 700, "sigur": "probabil", "tva": "neprecizat", "nota": "Instalator Bucuresti Non-Stop 500-900; Galati Instal 800; doar cadrul/rezervorul îngropat: Total Design 550-850, Daibau 350-600, Adi Construct 700, Renovari.net 350-600, DevizRapid 300-600 cu TVA (plus vasul 180-380). Doar cadrul, fără vas: 250-850.", "surse": [{"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}, {"titlu": "Galati Instal - Lista preturi manopera (taxe incluse)", "url": "https://galati-instal.ro/lista-preturi/"}, {"titlu": "Total Design - Preturi instalatii sanitare Bucuresti 2026 (actualizat 9 sept. 2026)", "url": "https://www.total-design.ro/preturi-instalatii-sanitare/"}, {"titlu": "Daibau - Instalator sanitar: pret manopera 2026 (actualizat 22.04.2026)", "url": "https://www.daibau.ro/preturi/instalator_sanitar"}]}, {"cat": "sanitare", "lucrare": "Montaj cadă", "um": "lei/buc", "min": 220, "max": 1200, "tipic": 550, "sigur": "probabil", "tva": "neprecizat", "nota": "Surse multe, dar raspandite: DevizRapid 220-450 cu TVA; agregat GhidAmenajari 180-700, tipic 275; Daibau 400-800; Bizzlink 600-750; Galati Instal 550; Instalator Bucuresti Non-Stop 700-1200. Pretul mare include suport si mascare.", "surse": [{"titlu": "DevizRapid - Cat costa instalatia sanitara in 2026 (manopera, cu TVA 21%)", "url": "https://devizrapid.ro/blog/cat-costa-instalatie-sanitara-2026"}, {"titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)", "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"}, {"titlu": "Daibau - Instalator sanitar: pret manopera 2026 (actualizat 22.04.2026)", "url": "https://www.daibau.ro/preturi/instalator_sanitar"}, {"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}]}, {"cat": "sanitare", "lucrare": "Montaj cabină / cădiță de duș", "um": "lei/buc", "min": 250, "max": 1400, "tipic": 600, "sigur": "probabil", "tva": "neprecizat", "nota": "Devizeroo 250-600 fără TVA; agregat GhidAmenajari 230-600, tipic 425; DevizRapid 280-550 cu TVA; Bizzlink 650-800; Galati Instal 750; Prestari Instalatii de la 700; Instalator Bucuresti Non-Stop 800-1400. Interval foarte larg.", "surse": [{"titlu": "DevizRapid - Cat costa instalatia sanitara in 2026 (manopera, cu TVA 21%)", "url": "https://devizrapid.ro/blog/cat-costa-instalatie-sanitara-2026"}, {"titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)", "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"}, {"titlu": "Devizeroo - Preturi manopera constructii 2026 (fara TVA)", "url": "https://devizeroo.ro/preturi-manopera"}, {"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}]}, {"cat": "sanitare", "lucrare": "Montaj bideu", "um": "lei/buc", "min": 150, "max": 350, "tipic": 250, "sigur": "sigur", "tva": "neprecizat", "nota": "Daibau 200-350; Instalator Bucuresti Non-Stop 150-300; Prestari Instalatii de la 150 fără TVA; Galati Instal 250 (350 cu baterie); Adi Construct 210; doua liste din Bucuresti 250-300 cu baterie.", "surse": [{"titlu": "Daibau - Instalator sanitar: pret manopera 2026 (actualizat 22.04.2026)", "url": "https://www.daibau.ro/preturi/instalator_sanitar"}, {"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}, {"titlu": "Prestari Instalatii - Preturi manopera instalatii 2026 (fara TVA)", "url": "https://prestari-instalatii.ro/preturi-manopera-instalatii.html"}, {"titlu": "Galati Instal - Lista preturi manopera (taxe incluse)", "url": "https://galati-instal.ro/lista-preturi/"}]}, {"cat": "sanitare", "lucrare": "Montaj pisoar", "um": "lei/buc", "min": 150, "max": 350, "tipic": 250, "sigur": "probabil", "tva": "neprecizat", "nota": "Prestari Instalatii de la 150 fără TVA; Instalatii Bucuresti 250 cu baterie (lista 2024); Firma Instalatii de la 300 cu baterie (2025); Galati Instal 350 cu baterie.", "surse": [{"titlu": "Prestari Instalatii - Preturi manopera instalatii 2026 (fara TVA)", "url": "https://prestari-instalatii.ro/preturi-manopera-instalatii.html"}, {"titlu": "Instalatii Bucuresti - Preturi manopera (fara TVA, lista datata 01.01.2024)", "url": "https://instalatii-bucuresti.ro/preturi-manopera-instalatii-sanitare-termice-electrice-bucuresti/"}, {"titlu": "Firma Instalatii - Preturi manopera instalatii 2025", "url": "https://firma-instalatii.ro/preturi-manopera-instalatii/"}, {"titlu": "Galati Instal - Lista preturi manopera (taxe incluse)", "url": "https://galati-instal.ro/lista-preturi/"}]}, {"cat": "sanitare", "lucrare": "Montaj spălător bucătărie", "um": "lei/buc", "min": 200, "max": 510, "tipic": 300, "sigur": "probabil", "tva": "neprecizat", "nota": "Daibau 280-510 (spălător + baterie); Instalator Bucuresti Non-Stop 200-350; Prestari Instalatii de la 200 fără TVA; Galati Instal 300.", "surse": [{"titlu": "Daibau - Instalator sanitar: pret manopera 2026 (actualizat 22.04.2026)", "url": "https://www.daibau.ro/preturi/instalator_sanitar"}, {"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}, {"titlu": "Prestari Instalatii - Preturi manopera instalatii 2026 (fara TVA)", "url": "https://prestari-instalatii.ro/preturi-manopera-instalatii.html"}, {"titlu": "Galati Instal - Lista preturi manopera (taxe incluse)", "url": "https://galati-instal.ro/lista-preturi/"}]}, {"cat": "sanitare", "lucrare": "Montaj baterie aparentă (lavoar, bucătărie, cadă, duș)", "um": "lei/buc", "min": 50, "max": 300, "tipic": 120, "sigur": "sigur", "tva": "neprecizat", "nota": "Devizeroo 60-150 fără TVA; agregat GhidAmenajari 50-150, tipic 92; DevizRapid 60-130 cu TVA; Daibau 120-150; Instalator Bucuresti Non-Stop 100-180 (lavoar) si 150-280 (cadă/duș); Prestari Instalatii de la 100; Adi Construct 150.", "surse": [{"titlu": "DevizRapid - Cat costa instalatia sanitara in 2026 (manopera, cu TVA 21%)", "url": "https://devizrapid.ro/blog/cat-costa-instalatie-sanitara-2026"}, {"titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)", "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"}, {"titlu": "Devizeroo - Preturi manopera constructii 2026 (fara TVA)", "url": "https://devizeroo.ro/preturi-manopera"}, {"titlu": "Daibau - Instalator sanitar: pret manopera 2026 (actualizat 22.04.2026)", "url": "https://www.daibau.ro/preturi/instalator_sanitar"}]}, {"cat": "sanitare", "lucrare": "Montaj baterie îngropată în perete", "um": "lei/buc", "min": 350, "max": 600, "tipic": 450, "sigur": "incert", "tva": "neprecizat", "nota": "O singura sursa (Instalator Bucuresti Non-Stop 350-600).", "surse": [{"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}]}, {"cat": "sanitare", "lucrare": "Instalație sanitară pe punct de consum (apă rece + caldă + canalizare)", "um": "lei/punct", "min": 150, "max": 600, "tipic": 300, "sigur": "sigur", "tva": "neprecizat", "nota": "Devizeroo 150-350 fără TVA; agregat GhidAmenajari (4 liste) 150-350, tipic 290; Bizzlink 150-300; DevizRapid 200-400; CasaBricolaj 250-450 (2024); Renovari.net 200-450; Adi Construct 450; Total Design 350-600 (Bucuresti, renovari). Preturi de lista pentru clie", "surse": [{"titlu": "Total Design - Preturi instalatii sanitare Bucuresti 2026 (actualizat 9 sept. 2026)", "url": "https://www.total-design.ro/preturi-instalatii-sanitare/"}, {"titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)", "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"}, {"titlu": "Devizeroo - Preturi manopera constructii 2026 (fara TVA)", "url": "https://devizeroo.ro/preturi-manopera"}, {"titlu": "Bizzlink - Preturi manopera instalatii 2026", "url": "https://bizzlink.ro/blog/preturi-manopera-instalatii-2026"}]}, {"cat": "sanitare", "lucrare": "Țeavă PPR montată (apă rece + caldă)", "um": "lei/ml", "min": 15, "max": 80, "tipic": 35, "sigur": "sigur", "tva": "neprecizat", "nota": "Devizeroo 15-35 fără TVA; agregat GhidAmenajari 15-80, tipic 32; DevizRapid 28-50 cu TVA (36-65 Bucuresti/Cluj); Instalator Bucuresti Non-Stop 35-60; Prolist 20-40; Adi Construct 50. Nicio lista publica nu da pret pe diametre. Total Design cere 130-220 lei/ml ", "surse": [{"titlu": "DevizRapid - Cat costa instalatia sanitara in 2026 (manopera, cu TVA 21%)", "url": "https://devizrapid.ro/blog/cat-costa-instalatie-sanitara-2026"}, {"titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)", "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"}, {"titlu": "Devizeroo - Preturi manopera constructii 2026 (fara TVA)", "url": "https://devizeroo.ro/preturi-manopera"}, {"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}]}, {"cat": "sanitare", "lucrare": "Țeavă PEX / multistrat (PEX-AL-PEX) montată", "um": "lei/ml", "min": 26, "max": 75, "tipic": 50, "sigur": "probabil", "tva": "neprecizat", "nota": "DevizRapid 32-55 cu TVA (26-45 fără TVA; 42-72 Bucuresti/Cluj); Instalator Bucuresti Non-Stop 45-75; Adi Construct 55. Fara pret pe diametre.", "surse": [{"titlu": "DevizRapid - Cat costa instalatia sanitara in 2026 (manopera, cu TVA 21%)", "url": "https://devizrapid.ro/blog/cat-costa-instalatie-sanitara-2026"}, {"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}, {"titlu": "Adi Construct - Lista de preturi (actualizata 29.10.2026)", "url": "https://www.adiconstructltd.com/lista-de-preturi/"}]}, {"cat": "sanitare", "lucrare": "Țeavă cupru montată", "um": "lei/ml", "min": 30, "max": 110, "tipic": 65, "sigur": "probabil", "tva": "neprecizat", "nota": "Instalator Bucuresti Non-Stop 60-110; Adi Construct 70; Prolist 30-60.", "surse": [{"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}, {"titlu": "Adi Construct - Lista de preturi (actualizata 29.10.2026)", "url": "https://www.adiconstructltd.com/lista-de-preturi/"}, {"titlu": "Prolist - Preturi servicii instalatii termice (modificat dec. 2025)", "url": "https://prolist.ro/preturi-practicate-pentru-servicii-instalatii-termice/"}]}, {"cat": "sanitare", "lucrare": "Canalizare interioară PP / PVC montată", "um": "lei/ml", "min": 21, "max": 80, "tipic": 45, "sigur": "probabil", "tva": "neprecizat", "nota": "DevizRapid 25-45 cu TVA (21-37 fără TVA; 33-59 Bucuresti/Cluj); Instalator Bucuresti Non-Stop 40-80; Adi Construct 50. Total Design cere 150-260 lei/ml in renovari - lasat pe dinafara.", "surse": [{"titlu": "DevizRapid - Cat costa instalatia sanitara in 2026 (manopera, cu TVA 21%)", "url": "https://devizrapid.ro/blog/cat-costa-instalatie-sanitara-2026"}, {"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}, {"titlu": "Adi Construct - Lista de preturi (actualizata 29.10.2026)", "url": "https://www.adiconstructltd.com/lista-de-preturi/"}]}, {"cat": "sanitare", "lucrare": "Canalizare exterioară PVC montată", "um": "lei/ml", "min": null, "max": null, "tipic": null, "sigur": "incert", "tva": "neprecizat", "nota": "Nu am gasit pret public doar pentru pozarea tevii. Singura cifra apropiata: Galati Instal 350 lei/ml pentru 'sapat canalizare exterioară, alimentare cu apa' (include sapatura, taxe incluse) - nu e comparabila cu montajul tevii in sant deschis, deci nu am pus-o", "surse": [{"titlu": "Galati Instal - Lista preturi manopera (taxe incluse)", "url": "https://galati-instal.ro/lista-preturi/"}]}, {"cat": "sanitare", "lucrare": "Instalație sanitară baie - trasee complete (manoperă)", "um": "lei/baie", "min": 800, "max": 4800, "tipic": 1800, "sigur": "probabil", "tva": "neprecizat", "nota": "Agregat GhidAmenajari 1500-2500, tipic 1750; Renovari.net 1500-2500; Adi Construct 1650; Instalator Bucuresti Non-Stop 1200-2500; Bizzlink 800-1200; Prestari Instalatii de la 800; Total Design 3000-4800 (Bucuresti, refacere completă). Interval larg.", "surse": [{"titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)", "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"}, {"titlu": "Renovari.net - Pret manopera constructii de la A la Z (iulie 2026)", "url": "https://renovari.net/pret-manopera-constructii-de-la-a-la-z/"}, {"titlu": "Total Design - Preturi instalatii sanitare Bucuresti 2026 (actualizat 9 sept. 2026)", "url": "https://www.total-design.ro/preturi-instalatii-sanitare/"}, {"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}]}, {"cat": "sanitare", "lucrare": "Montaj obiecte sanitare complet, pe baie", "um": "lei/baie", "min": 1000, "max": 2000, "tipic": 1500, "sigur": "probabil", "tva": "neprecizat", "nota": "GhidAmenajari si Renovari.net dau acelasi interval, 1000-2000 lei pe baie.", "surse": [{"titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)", "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"}, {"titlu": "Renovari.net - Pret manopera constructii de la A la Z (iulie 2026)", "url": "https://renovari.net/pret-manopera-constructii-de-la-a-la-z/"}]}, {"cat": "climatizare", "lucrare": "Montaj ventiloconvector", "um": "lei/buc", "min": 250, "max": 1186, "tipic": 600, "sigur": "incert", "tva": "neprecizat", "nota": "Sursele difera mult: Prestari Instalatii de la 250 fără TVA; Instalator-Electrician de la 300 (2025); Galati Instal 750; Automatic Flow 1186. Preturile mici sunt pentru inlocuire pe racorduri existente.", "surse": [{"titlu": "Prestari Instalatii - Preturi manopera instalatii 2026 (fara TVA)", "url": "https://prestari-instalatii.ro/preturi-manopera-instalatii.html"}, {"titlu": "Instalator-Electrician - Preturi instalatii termice Bucuresti 2025 (neplatitor TVA)", "url": "https://instalator-electrician.ro/preturi-instalatii-termice/"}, {"titlu": "Galati Instal - Lista preturi manopera (taxe incluse)", "url": "https://galati-instal.ro/lista-preturi/"}, {"titlu": "Automatic Flow - Servicii manopera instalatii HVAC", "url": "https://automaticflow.ro/categorie-produs/servicii-manopera-instalatii-hvac/"}]}, {"cat": "climatizare", "lucrare": "Montaj aer conditionat split 9-12.000 BTU (unitate interioară + exterioară, traseu până la 3 m)", "um": "lei/buc", "min": 400, "max": 1320, "tipic": 800, "sigur": "probabil", "tva": "neprecizat", "nota": "Bizzlink 600-800 (18.000 BTU: 800-1000; 24.000 BTU: 900-1200); Galati Instal 800 (1200 la 18-24.000 BTU); MesterLaTine 400-800; Automatic Flow 1118-1321 cu kit inclus.", "surse": [{"titlu": "Bizzlink - Preturi manopera instalatii 2026", "url": "https://bizzlink.ro/blog/preturi-manopera-instalatii-2026"}, {"titlu": "Galati Instal - Lista preturi manopera (taxe incluse)", "url": "https://galati-instal.ro/lista-preturi/"}, {"titlu": "MesterLaTine - Preturi manopera 2026", "url": "https://mesterlatine.ro/blog/preturi-manopera-2026-pentru-toate-lucrarile-din-casa-ghid-complet-romania"}, {"titlu": "Automatic Flow - Servicii manopera instalatii HVAC", "url": "https://automaticflow.ro/categorie-produs/servicii-manopera-instalatii-hvac/"}]}, {"cat": "climatizare", "lucrare": "Montaj unitate interioară VRF / multisplit (split, caseta)", "um": "lei/buc", "min": 450, "max": 900, "tipic": 650, "sigur": "probabil", "tva": "neprecizat", "nota": "InstalareAC 'de la 450-900 lei/unitate' (VRF); Automatic Flow 610 pentru unitate interioară split. Doar doua surse.", "surse": [{"titlu": "InstalareAC - Montaj sisteme VRF/VRV, pret estimativ manopera (feb. 2026)", "url": "https://www.instalareac.eu/montaj-sisteme-vrv-vrf-aer-conditionat/"}, {"titlu": "Automatic Flow - Servicii manopera instalatii HVAC", "url": "https://automaticflow.ro/categorie-produs/servicii-manopera-instalatii-hvac/"}]}, {"cat": "climatizare", "lucrare": "Montaj unitate exterioară VRF / multisplit", "um": "lei/buc", "min": 800, "max": 1500, "tipic": 1500, "sigur": "incert", "tva": "neprecizat", "nota": "InstalareAC 'de la 1500 lei/unitate' pentru VRF (pret minim, urca la unitati mari); Automatic Flow 800 pentru unitate exterioară multisplit. Punerea in functiune VRF: de la 1200 lei/sistem (InstalareAC).", "surse": [{"titlu": "InstalareAC - Montaj sisteme VRF/VRV, pret estimativ manopera (feb. 2026)", "url": "https://www.instalareac.eu/montaj-sisteme-vrv-vrf-aer-conditionat/"}, {"titlu": "Automatic Flow - Servicii manopera instalatii HVAC", "url": "https://automaticflow.ro/categorie-produs/servicii-manopera-instalatii-hvac/"}]}, {"cat": "climatizare", "lucrare": "Traseu frigorific cupru montat", "um": "lei/ml", "min": 60, "max": 200, "tipic": 100, "sigur": "probabil", "tva": "neprecizat", "nota": "InstalareAC 60-100; Bizzlink 80-120 (metru suplimentar); Galati Instal 80; Automatic Flow 152-203 (cu material).", "surse": [{"titlu": "InstalareAC - Montaj sisteme VRF/VRV, pret estimativ manopera (feb. 2026)", "url": "https://www.instalareac.eu/montaj-sisteme-vrv-vrf-aer-conditionat/"}, {"titlu": "Bizzlink - Preturi manopera instalatii 2026", "url": "https://bizzlink.ro/blog/preturi-manopera-instalatii-2026"}, {"titlu": "Galati Instal - Lista preturi manopera (taxe incluse)", "url": "https://galati-instal.ro/lista-preturi/"}, {"titlu": "Automatic Flow - Servicii manopera instalatii HVAC", "url": "https://automaticflow.ro/categorie-produs/servicii-manopera-instalatii-hvac/"}]}, {"cat": "climatizare", "lucrare": "Montaj aerotermă", "um": "lei/buc", "min": null, "max": null, "tipic": null, "sigur": "incert", "tva": "neprecizat", "nota": "Nu am gasit nicio lista publica cu pret de manoperă pentru aeroterme.", "surse": []}, {"cat": "ventilatie", "lucrare": "Tubulatură rectangulară de ventilație montată", "um": "lei/m2", "min": null, "max": null, "tipic": null, "sigur": "incert", "tva": "neprecizat", "nota": "Nu am gasit niciun pret public de manoperă (nici pe m2, nici pe kg). Firmele de ventilație afiseaza doar pretul materialului sau 'oferta pe baza de proiect'.", "surse": []}, {"cat": "ventilatie", "lucrare": "Tubulatură circulară de ventilație montată", "um": "lei/ml", "min": null, "max": null, "tipic": null, "sigur": "incert", "tva": "neprecizat", "nota": "Nu am gasit niciun pret public de manoperă.", "surse": []}, {"cat": "ventilatie", "lucrare": "Montaj grile / anemostate", "um": "lei/buc", "min": null, "max": null, "tipic": null, "sigur": "incert", "tva": "neprecizat", "nota": "Nu am gasit niciun pret public de manoperă.", "surse": []}, {"cat": "ventilatie", "lucrare": "Montaj ventilator mic (baie / casnic)", "um": "lei/buc", "min": 150, "max": 180, "tipic": 165, "sigur": "incert", "tva": "cu", "nota": "O singura sursa (Galati Instal: 150 inlocuire ventilator baie, 180 montaj ventilator; taxe incluse). Nu se aplica la ventilatoare de tubulatura sau de acoperis.", "surse": [{"titlu": "Galati Instal - Lista preturi manopera (taxe incluse)", "url": "https://galati-instal.ro/lista-preturi/"}]}, {"cat": "hidranti", "lucrare": "Montaj cutie hidrant interior complet echipată", "um": "lei/buc", "min": null, "max": null, "tipic": null, "sigur": "incert", "tva": "neprecizat", "nota": "Nu am gasit niciun pret public de manoperă. Firmele de instalații de stingere lucreaza doar cu 'oferta personalizata'. Repere indirecte: in devizele publice articolul are codul de norma SD27B1 (deviz Sanpetru, fără preturi); o oferta veche (2016) cerea 4000 le", "surse": [{"titlu": "Comuna Sanpetru (BV) - Devize estimative cresa, instalatii (doar coduri de norma, fara preturi)", "url": "https://vechip.primaria-sanpetru.ro/sites/default/files/atasamente/devize_estimative_cresa_-_instalatii_sanitare_termice_si_electrice_.pdf"}, {"titlu": "Ideal Proiect - Pret hidranti interiori (2016, cu materiale)", "url": "http://idealproiect.com/pret-hidranti-interiori/"}]}, {"cat": "hidranti", "lucrare": "Țeavă oțel neagră / zincată montată (pe diametre)", "um": "lei/ml", "min": null, "max": null, "tipic": null, "sigur": "incert", "tva": "neprecizat", "nota": "Nu am gasit niciun pret public de manoperă pe diametre. In devizele publice articolele sunt SA07A1 (zincată 2 toli) si SA07B1 (zincată 2 1/2 toli) - deviz Sanpetru, fără preturi.", "surse": [{"titlu": "Comuna Sanpetru (BV) - Devize estimative cresa, instalatii (doar coduri de norma, fara preturi)", "url": "https://vechip.primaria-sanpetru.ro/sites/default/files/atasamente/devize_estimative_cresa_-_instalatii_sanitare_termice_si_electrice_.pdf"}]}, {"cat": "hidranti", "lucrare": "Țeavă canelată (Victaulic) montată", "um": "lei/ml", "min": null, "max": null, "tipic": null, "sigur": "incert", "tva": "neprecizat", "nota": "Nu am gasit niciun pret public de manoperă.", "surse": []}, {"cat": "hidranti", "lucrare": "Montaj sprinkler", "um": "lei/buc", "min": null, "max": null, "tipic": null, "sigur": "incert", "tva": "neprecizat", "nota": "Nu am gasit niciun pret public de manoperă.", "surse": []}, {"cat": "general", "lucrare": "Tarif orar instalator facturat clientului (lucrări mici)", "um": "lei/ora", "min": 100, "max": 400, "tipic": 180, "sigur": "probabil", "tva": "neprecizat", "nota": "Capital.ro si Ziarul Profit (martie 2026): 150-200 lei/ora in orasele mari; Daibau 100-400; Galati Instal 225 (taxe incluse). Este tarif de interventie la client, nu cost de șantier.", "surse": [{"titlu": "Capital.ro - Cat ne costa munca pe ora in 2026 (11 martie 2026)", "url": "https://www.capital.ro/cat-ne-costa-munca-pe-ora-in-2026-de-la-meseriasi-si-livratori-pana-la-profesii-liberale-cum-s-au-schimbat-tarifele-in-romania.html"}, {"titlu": "Ziarul Profit - Cu cat se plateste ora de munca in 2026 (12 martie 2026)", "url": "https://www.ziarulprofit.ro/cu-cat-se-plateste-ora-de-munca-in-2026-cat-ia-un-zilier-pe-santier-un-electrician-sau-un-instalator-cum-au-evoluat-tarifele-in-ultimii-doi-ani/"}, {"titlu": "Daibau - Instalator sanitar: pret manopera 2026 (actualizat 22.04.2026)", "url": "https://www.daibau.ro/preturi/instalator_sanitar"}, {"titlu": "Galati Instal - Lista preturi manopera (taxe incluse)", "url": "https://galati-instal.ro/lista-preturi/"}]}, {"cat": "general", "lucrare": "Plata pe zi - muncitor necalificat / zilier pe șantier", "um": "lei/zi", "min": 250, "max": 300, "tipic": 275, "sigur": "probabil", "tva": "fara", "nota": "250-300 lei pentru 8 ore in 2026 (150-200 în 2024). Cele doua articole au aparut la o zi distanta si dau aceleasi cifre, deci practic o singura sursa. Suma platita omului, nu se aplica TVA.", "surse": [{"titlu": "Capital.ro - Cat ne costa munca pe ora in 2026 (11 martie 2026)", "url": "https://www.capital.ro/cat-ne-costa-munca-pe-ora-in-2026-de-la-meseriasi-si-livratori-pana-la-profesii-liberale-cum-s-au-schimbat-tarifele-in-romania.html"}, {"titlu": "Ziarul Profit - Cu cat se plateste ora de munca in 2026 (12 martie 2026)", "url": "https://www.ziarulprofit.ro/cu-cat-se-plateste-ora-de-munca-in-2026-cat-ia-un-zilier-pe-santier-un-electrician-sau-un-instalator-cum-au-evoluat-tarifele-in-ultimii-doi-ani/"}]}, {"cat": "general", "lucrare": "Plata pe zi - meseriaș calificat pe șantier (in mână)", "um": "lei/zi", "min": 400, "max": 500, "tipic": 420, "sigur": "incert", "tva": "fara", "nota": "O singura sursa (Cotidianul): 400-500 lei pe zi, firmele de top peste 400-420 lei net pe zi. Cifra e pentru meseriasi in general (zidari), nu anume pentru instalatori.", "surse": [{"titlu": "Cotidianul - Cat castiga un muncitor pe santier in 2026", "url": "https://www.cotidianul.ro/cat-castiga-un-muncitor-pe-santier-in-2026-meseriasii-pleaca-si-cu-400-500-de-lei-pe-zi-acasa-dar-firmele-tot-nu-gasesc-personal/"}]}, {"cat": "general", "lucrare": "Salariu mediu net - firme de lucrări speciale de construcții (CAEN 43, include instalații)", "um": "lei/luna", "min": 4840, "max": 5345, "tipic": 5165, "sigur": "probabil", "tva": "fara", "nota": "Date INS (Tempo, FOM106G) preluate de Folositor.ro: ianuarie-august 2026 intre 4840 si 5345 lei net, medie 5165. E media tuturor angajatilor din aceste firme, nu a instalatorilor. Calcul propriu: la 5165 net, brutul este cam 8830 lei si costul angajatorului ca", "surse": [{"titlu": "Folositor.ro - Salariu instalator 2026 (date INS Tempo FOM106G, actualizat 16 oct. 2026)", "url": "https://folositor.ro/ghid/cat-castiga-un-instalator-in-romania-2026"}]}, {"cat": "general", "lucrare": "Instalație sanitară completă apartament (manoperă)", "um": "lei/apartament", "min": 2500, "max": 8000, "tipic": 4000, "sigur": "incert", "tva": "neprecizat", "nota": "Instalator Bucuresti Non-Stop 2500-4500 pentru 2 camere; MesterLaTine 4000-8000 pentru 'apartament' fără marime. Sunt preturi de renovare. Nu am gasit pret public pe apartament la bloc nou si nici impartirea 'la rosu' / 'finisaj'.", "surse": [{"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}, {"titlu": "MesterLaTine - Preturi manopera 2026", "url": "https://mesterlatine.ro/blog/preturi-manopera-2026-pentru-toate-lucrarile-din-casa-ghid-complet-romania"}]}, {"cat": "general", "lucrare": "Instalație termică completă apartament 2 camere (manoperă)", "um": "lei/apartament", "min": 3000, "max": 6000, "tipic": 4500, "sigur": "probabil", "tva": "neprecizat", "nota": "Instalator Bucuresti Non-Stop 3000-5500; MesterLaTine 3000-6000 (3 camere: 4500-8000). Preturi de renovare; fără impartire 'la rosu' / 'finisaj'.", "surse": [{"titlu": "Instalator Bucuresti Non-Stop - Preturi 2026", "url": "https://instalator-bucuresti-non-stop.ro/preturi/"}, {"titlu": "MesterLaTine - Preturi manopera 2026", "url": "https://mesterlatine.ro/blog/preturi-manopera-2026-pentru-toate-lucrarile-din-casa-ghid-complet-romania"}]}, {"cat": "general", "lucrare": "Salariu minim brut in construcții", "um": "lei/luna", "min": 4582, "max": 4582, "tipic": 4582, "sigur": "sigur", "tva": "fara", "nota": "4582 lei brut pe luna, neschimbat de la 1 ianuarie 2026 (comunicat ITM, aprilie 2026 - sursa oficiala; cam 27,7 lei/ora). Net cam 2740-2756 lei. Facilitatile fiscale din construcții nu se mai aplica in 2026 (OUG 156/2024). Poate fi platit aceluiasi angajat cel", "surse": [{"titlu": "Inspectia Muncii (ITM) - Comunicat informare angajatori din constructii, aprilie 2026 (sursa oficiala)", "url": "https://www.inspectiamuncii.ro/documents/521316/523496/20260407_COMUNICAT+PRESA+INFORMARE+ANGAJATORI+DIN+DOMENIUL+CONSTRUCTIILOR+-APRILIE+2026.pdf/11a0c4b0-f07a-4515-b18f-920a305473ab"}, {"titlu": "CalculVenituri.ro - Salariul minim in constructii 2026: 4.582 lei", "url": "https://calculvenituri.ro/blog/salariul-minim-constructii-2026"}, {"titlu": "Folositor.ro - Salariu instalator 2026 (date INS Tempo FOM106G, actualizat 16 oct. 2026)", "url": "https://folositor.ro/ghid/cat-castiga-un-instalator-in-romania-2026"}, {"titlu": "Cotidianul - Cat castiga un muncitor pe santier in 2026", "url": "https://www.cotidianul.ro/cat-castiga-un-muncitor-pe-santier-in-2026-meseriasii-pleaca-si-cu-400-500-de-lei-pe-zi-acasa-dar-firmele-tot-nu-gasesc-personal/"}]}, {"cat": "general", "lucrare": "Cost total angajator la salariul minim in construcții", "um": "lei/luna", "min": 4685, "max": 4685, "tipic": 4685, "sigur": "probabil", "tva": "fara", "nota": "4582 lei + contributia asiguratorie pentru munca 2,25% = 4685 lei pe luna (CalculVenituri.ro; verificat prin calcul). Adica aproximativ 28 lei pe ora lucrata, fără concedii, echipament, transport sau regie.", "surse": [{"titlu": "CalculVenituri.ro - Salariul minim in constructii 2026: 4.582 lei", "url": "https://calculvenituri.ro/blog/salariul-minim-constructii-2026"}, {"titlu": "Inspectia Muncii (ITM) - Comunicat informare angajatori din constructii, aprilie 2026 (sursa oficiala)", "url": "https://www.inspectiamuncii.ro/documents/521316/523496/20260407_COMUNICAT+PRESA+INFORMARE+ANGAJATORI+DIN+DOMENIUL+CONSTRUCTIILOR+-APRILIE+2026.pdf/11a0c4b0-f07a-4515-b18f-920a305473ab"}]}, {"cat": "general", "lucrare": "Salariu minim brut pe economie (reper)", "um": "lei/luna", "min": 4050, "max": 4325, "tipic": 4325, "sigur": "sigur", "tva": "fara", "nota": "4050 lei până la 30 iunie 2026 si 4325 lei de la 1 iulie 2026 (HG 146/2026); cost total angajator 4134, respectiv 4418 lei. Minimul din construcții (4582) ramane peste.", "surse": [{"titlu": "StartupCafe - Salariul minim brut creste de la 1 iulie 2026 la 4.325 lei (HG 146/2026)", "url": "https://startupcafe.ro/salariul-minim-brut-creste-de-la-1-iulie-2026-la-4-325-lei-cat-va-fi-netul-si-ce-cost-total-vor-suporta-firmele-101690"}, {"titlu": "CalculVenituri.ro - Salariul minim in constructii 2026: 4.582 lei", "url": "https://calculvenituri.ro/blog/salariul-minim-constructii-2026"}]}]}
+{
+ "data": "noiembrie 2026",
+ "aparate": {
+  "calorifere": {
+   "min": 250,
+   "max": 750,
+   "tipic": 450,
+   "et": "calorifer cu traseu, lucrări mici"
+  },
+  "obiecte": {
+   "min": 150,
+   "max": 600,
+   "tipic": 300,
+   "et": "punct de consum (trasee), fără montajul obiectului (100–400 lei)"
+  },
+  "ventilo": {
+   "min": 250,
+   "max": 1186,
+   "tipic": 600,
+   "et": "montaj aparat, surse puține"
+  }
+ },
+ "lista": [
+  {
+   "cat": "termice",
+   "lucrare": "Montaj calorifer oțel panou - racordat la țevi existente (fără trasee)",
+   "um": "lei/buc",
+   "min": 120,
+   "max": 450,
+   "tipic": 280,
+   "sigur": "sigur",
+   "tva": "neprecizat",
+   "nota": "Devizeroo 120-300 fără TVA; Total Design 280-450; Instalator Bucuresti Non-Stop 250-450; Prestari Instalatii de la 250 fără TVA; DevizRapid 120-230 cu TVA in orase medii si 156-299 în Bucuresti/Cluj; agregatul GhidAmenajari (6 liste) 120-500, tipic 360. Valoar",
+   "surse": [
+    {
+     "titlu": "Devizeroo - Preturi manopera constructii 2026 (fara TVA)",
+     "url": "https://devizeroo.ro/preturi-manopera"
+    },
+    {
+     "titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)",
+     "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"
+    },
+    {
+     "titlu": "Total Design - Preturi instalatii sanitare Bucuresti 2026 (actualizat 9 sept. 2026)",
+     "url": "https://www.total-design.ro/preturi-instalatii-sanitare/"
+    },
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "fam": "radiator"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Montaj calorifer aluminiu - racordat la țevi existente",
+   "um": "lei/buc",
+   "min": 200,
+   "max": 350,
+   "tipic": 275,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "MesterLaTine 200-350 (oțel 150-300); doua liste din Bucuresti dau acelasi pret pentru oțel, aluminiu si fonta (de la 250). Cele mai multe liste nu separa aluminiul de oțel. O sursa e din 2025 si una are lista datata 2024.",
+   "surse": [
+    {
+     "titlu": "MesterLaTine - Preturi manopera 2026",
+     "url": "https://mesterlatine.ro/blog/preturi-manopera-2026-pentru-toate-lucrarile-din-casa-ghid-complet-romania"
+    },
+    {
+     "titlu": "Instalator-Electrician - Preturi instalatii termice Bucuresti 2025 (neplatitor TVA)",
+     "url": "https://instalator-electrician.ro/preturi-instalatii-termice/"
+    },
+    {
+     "titlu": "Instalatii Bucuresti - Preturi manopera (fara TVA, lista datata 01.01.2024)",
+     "url": "https://instalatii-bucuresti.ro/preturi-manopera-instalatii-sanitare-termice-electrice-bucuresti/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Montaj calorifer cu țevi (traseu + calorifer, 'punct de caldura')",
+   "um": "lei/buc",
+   "min": 250,
+   "max": 750,
+   "tipic": 450,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "DevizRapid 'punct de caldura complet' 300-500 cu TVA (390-650 Bucuresti/Cluj); Galati Instal 350-500 dupa materialul tevii; Renovari.net 250-600; Bizzlink 250-500 inclusiv racord; Total Design 450-750 pentru repozitionare cu modificarea traseului. Preturi de l",
+   "surse": [
+    {
+     "titlu": "DevizRapid - Cat costa o centrala termica in 2026 (manopera, cu TVA)",
+     "url": "https://devizrapid.ro/blog/cat-costa-centrala-termica-2026"
+    },
+    {
+     "titlu": "Galati Instal - Lista preturi manopera (taxe incluse)",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    },
+    {
+     "titlu": "Renovari.net - Pret manopera constructii de la A la Z (iulie 2026)",
+     "url": "https://renovari.net/pret-manopera-constructii-de-la-a-la-z/"
+    },
+    {
+     "titlu": "Total Design - Preturi instalatii sanitare Bucuresti 2026 (actualizat 9 sept. 2026)",
+     "url": "https://www.total-design.ro/preturi-instalatii-sanitare/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Montaj centrală termică murală (cu racorduri)",
+   "um": "lei/buc",
+   "min": 400,
+   "max": 1500,
+   "tipic": 900,
+   "sigur": "sigur",
+   "tva": "neprecizat",
+   "nota": "Devizeroo 400-1200 fără TVA; agregat GhidAmenajari (6 liste) 455-1200, tipic 925; DevizRapid 550-1100 cu TVA (715-1430 Bucuresti/Cluj), condensare 700-1400; Instalator Bucuresti Non-Stop 700-1300; Galati Instal 750-850; Automatic Flow 1220. Nu include kit evac",
+   "surse": [
+    {
+     "titlu": "Devizeroo - Preturi manopera constructii 2026 (fara TVA)",
+     "url": "https://devizeroo.ro/preturi-manopera"
+    },
+    {
+     "titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)",
+     "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"
+    },
+    {
+     "titlu": "DevizRapid - Cat costa o centrala termica in 2026 (manopera, cu TVA)",
+     "url": "https://devizrapid.ro/blog/cat-costa-centrala-termica-2026"
+    },
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "fam": "cazan"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Montaj boiler electric 50-100 L",
+   "um": "lei/buc",
+   "min": 200,
+   "max": 730,
+   "tipic": 450,
+   "sigur": "sigur",
+   "tva": "neprecizat",
+   "nota": "Total Design 400-650; Daibau 400-500; Instalator Bucuresti Non-Stop 300-500; DevizRapid 200-400 cu TVA; Galati Instal 500-730 (taxe incluse); Bizzlink 300-600; MesterLaTine 250-450. Interval larg: pretul mare include si tevile de racord.",
+   "surse": [
+    {
+     "titlu": "Total Design - Preturi instalatii sanitare Bucuresti 2026 (actualizat 9 sept. 2026)",
+     "url": "https://www.total-design.ro/preturi-instalatii-sanitare/"
+    },
+    {
+     "titlu": "DevizRapid - Cat costa instalatia sanitara in 2026 (manopera, cu TVA 21%)",
+     "url": "https://devizrapid.ro/blog/cat-costa-instalatie-sanitara-2026"
+    },
+    {
+     "titlu": "Daibau - Instalator sanitar: pret manopera 2026 (actualizat 22.04.2026)",
+     "url": "https://www.daibau.ro/preturi/instalator_sanitar"
+    },
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "fam": "boiler"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Montaj boiler termoelectric / cu serpentină",
+   "um": "lei/buc",
+   "min": 500,
+   "max": 1000,
+   "tipic": 750,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "Instalator Bucuresti Non-Stop 500-900; Prestari Instalatii de la 700 fără TVA; Galati Instal 650-1000; Firma Instalatii de la 750 (2025); Instalatii Bucuresti 600 (lista 2024).",
+   "surse": [
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Prestari Instalatii - Preturi manopera instalatii 2026 (fara TVA)",
+     "url": "https://prestari-instalatii.ro/preturi-manopera-instalatii.html"
+    },
+    {
+     "titlu": "Galati Instal - Lista preturi manopera (taxe incluse)",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    },
+    {
+     "titlu": "Firma Instalatii - Preturi manopera instalatii 2025",
+     "url": "https://firma-instalatii.ro/preturi-manopera-instalatii/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Montaj puffer",
+   "um": "lei/buc",
+   "min": null,
+   "max": null,
+   "tipic": null,
+   "sigur": "incert",
+   "tva": "neprecizat",
+   "nota": "Nu am gasit nicio lista publica cu pret de manoperă separat pentru puffer. De regula e inclus in manoperă pentru camera tehnica / pompă de căldură.",
+   "surse": []
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Montaj pompă de căldură aer-apa (unitate exterioară + interioară)",
+   "um": "lei/sistem",
+   "min": 1500,
+   "max": 8000,
+   "tipic": 5000,
+   "sigur": "incert",
+   "tva": "neprecizat",
+   "nota": "Sursele difera mult, fiindca nu masoara acelasi lucru: DevizRapid 1500-3500 cu TVA (doar montajul); GreenLead si Sebra monobloc 3500-6000, split 4500-8000; Galati Instal 5500; Automatic Flow 6922 pentru camera tehnica simpla si 20336 pentru una complexa; Daiba",
+   "surse": [
+    {
+     "titlu": "DevizRapid - Calculator manopera 2026 (actualizat 6 sept. 2026)",
+     "url": "https://devizrapid.ro/calculator-manopera"
+    },
+    {
+     "titlu": "GreenLead - Cost montaj pompa de caldura 2026 (actualizat apr. 2026)",
+     "url": "https://www.greenlead.ro/blog/cost-montaj-pompa-caldura-2026-preturi-manopera-detaliere"
+    },
+    {
+     "titlu": "Sebra - Cat costa montajul unei pompe de caldura in 2026",
+     "url": "https://www.sebra.ro/cat-costa-montaj-pompa-de-caldura"
+    },
+    {
+     "titlu": "Galati Instal - Lista preturi manopera (taxe incluse)",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    }
+   ],
+   "fam": "pompa_caldura"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Montaj panou solar termic",
+   "um": "lei/buc",
+   "min": 660,
+   "max": 1700,
+   "tipic": 1300,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "DevizRapid 800-1600 cu TVA (660-1320 fără TVA); Galati Instal 1500 (tuburi), 1600 (plan), 1700 (cu boiler pe acoperis), taxe incluse. Doar doua surse.",
+   "surse": [
+    {
+     "titlu": "DevizRapid - Calculator manopera 2026 (actualizat 6 sept. 2026)",
+     "url": "https://devizrapid.ro/calculator-manopera"
+    },
+    {
+     "titlu": "Galati Instal - Lista preturi manopera (taxe incluse)",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Încălzire în pardoseală - manoperă completă (folie/placa + țeavă)",
+   "um": "lei/m2",
+   "min": 29,
+   "max": 95,
+   "tipic": 60,
+   "sigur": "sigur",
+   "tva": "neprecizat",
+   "nota": "Devizeroo 35-70 fără TVA; agregat GhidAmenajari 29-70, tipic 52; DevizRapid 35-60 cu TVA (46-78 Bucuresti/Cluj); Instalator Bucuresti Non-Stop 60-95; Automatic Flow 68. Nu include sapa si nici distribuitorul. O lista (Galati Instal) da 550 lei/m2 - am lasat-o ",
+   "surse": [
+    {
+     "titlu": "DevizRapid - Cat costa o centrala termica in 2026 (manopera, cu TVA)",
+     "url": "https://devizrapid.ro/blog/cat-costa-centrala-termica-2026"
+    },
+    {
+     "titlu": "Devizeroo - Preturi manopera constructii 2026 (fara TVA)",
+     "url": "https://devizeroo.ro/preturi-manopera"
+    },
+    {
+     "titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)",
+     "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"
+    },
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "fam": "pardoseala"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Montaj distribuitor incalzire in pardoseala (4-8 circuite)",
+   "um": "lei/buc",
+   "min": 330,
+   "max": 900,
+   "tipic": 600,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "DevizRapid 400-800 cu TVA (330-660 fără TVA; 520-1040 Bucuresti/Cluj); Instalator Bucuresti Non-Stop 400-900; Adi Construct 550; Galati Instal 700 (caseta + distribuitor). Nu am gasit pret pe circuit.",
+   "surse": [
+    {
+     "titlu": "DevizRapid - Cat costa o centrala termica in 2026 (manopera, cu TVA)",
+     "url": "https://devizrapid.ro/blog/cat-costa-centrala-termica-2026"
+    },
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Adi Construct - Lista de preturi (actualizata 29.10.2026)",
+     "url": "https://www.adiconstructltd.com/lista-de-preturi/"
+    },
+    {
+     "titlu": "Galati Instal - Lista preturi manopera (taxe incluse)",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    }
+   ],
+   "fam": "distribuitor"
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Probă de presiune instalatie",
+   "um": "lei/instalatie",
+   "min": 100,
+   "max": 500,
+   "tipic": 300,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "Devizeroo 150-400 fără TVA; Instalator Bucuresti Non-Stop 150-300; Adi Construct 350; CasaBricolaj 100-200 (2024); Galati Instal 500 pe apartament (revizie + proba). Piata o vinde pe instalatie/apartament; nu am gasit pret pe metru liniar.",
+   "surse": [
+    {
+     "titlu": "Devizeroo - Preturi manopera constructii 2026 (fara TVA)",
+     "url": "https://devizeroo.ro/preturi-manopera"
+    },
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Adi Construct - Lista de preturi (actualizata 29.10.2026)",
+     "url": "https://www.adiconstructltd.com/lista-de-preturi/"
+    },
+    {
+     "titlu": "CasaBricolaj - Preturi manopera PPR (lista de referinta 2024)",
+     "url": "https://casabricolaj.com/preturi-manopera-ppr-cat-te-costa-real-instalatorul/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Izolație conducte",
+   "um": "lei/ml",
+   "min": 12,
+   "max": 25,
+   "tipic": 18,
+   "sigur": "incert",
+   "tva": "neprecizat",
+   "nota": "O singura sursa (Instalator Bucuresti Non-Stop, 12-25 lei/m). De folosit doar ca orientare.",
+   "surse": [
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "fam": "izolatie"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Montaj lavoar",
+   "um": "lei/buc",
+   "min": 100,
+   "max": 400,
+   "tipic": 230,
+   "sigur": "sigur",
+   "tva": "neprecizat",
+   "nota": "Daibau 130-310; agregat GhidAmenajari 99-350, tipic 200; DevizRapid 120-240 cu TVA (156-312 Bucuresti/Cluj); Instalator Bucuresti Non-Stop 250-400; Prestari Instalatii de la 250 fără TVA; Galati Instal 300; Renovari.net 150-350. Preturi de lista pentru clienti",
+   "surse": [
+    {
+     "titlu": "DevizRapid - Cat costa instalatia sanitara in 2026 (manopera, cu TVA 21%)",
+     "url": "https://devizrapid.ro/blog/cat-costa-instalatie-sanitara-2026"
+    },
+    {
+     "titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)",
+     "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"
+    },
+    {
+     "titlu": "Daibau - Instalator sanitar: pret manopera 2026 (actualizat 22.04.2026)",
+     "url": "https://www.daibau.ro/preturi/instalator_sanitar"
+    },
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "fam": "lavoar"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Montaj vas WC clasic (pe pardoseala)",
+   "um": "lei/buc",
+   "min": 150,
+   "max": 380,
+   "tipic": 250,
+   "sigur": "sigur",
+   "tva": "neprecizat",
+   "nota": "Agregat GhidAmenajari 150-350, tipic 240; DevizRapid 180-380 cu TVA; Instalator Bucuresti Non-Stop 150-250; Bizzlink 250-350 cu rezervor; Galati Instal 200-300; Adi Construct 210. Preturi de lista pentru clienti persoane fizice (lucrări mici, renovari); la blo",
+   "surse": [
+    {
+     "titlu": "DevizRapid - Cat costa instalatia sanitara in 2026 (manopera, cu TVA 21%)",
+     "url": "https://devizrapid.ro/blog/cat-costa-instalatie-sanitara-2026"
+    },
+    {
+     "titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)",
+     "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"
+    },
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Prestari Instalatii - Preturi manopera instalatii 2026 (fara TVA)",
+     "url": "https://prestari-instalatii.ro/preturi-manopera-instalatii.html"
+    }
+   ],
+   "fam": "vas_wc"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Montaj WC suspendat cu rezervor îngropat (cadru + vas)",
+   "um": "lei/buc",
+   "min": 500,
+   "max": 900,
+   "tipic": 700,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "Instalator Bucuresti Non-Stop 500-900; Galati Instal 800; doar cadrul/rezervorul îngropat: Total Design 550-850, Daibau 350-600, Adi Construct 700, Renovari.net 350-600, DevizRapid 300-600 cu TVA (plus vasul 180-380). Doar cadrul, fără vas: 250-850.",
+   "surse": [
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Galati Instal - Lista preturi manopera (taxe incluse)",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    },
+    {
+     "titlu": "Total Design - Preturi instalatii sanitare Bucuresti 2026 (actualizat 9 sept. 2026)",
+     "url": "https://www.total-design.ro/preturi-instalatii-sanitare/"
+    },
+    {
+     "titlu": "Daibau - Instalator sanitar: pret manopera 2026 (actualizat 22.04.2026)",
+     "url": "https://www.daibau.ro/preturi/instalator_sanitar"
+    }
+   ],
+   "fam": "rezervor_wc"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Montaj cadă",
+   "um": "lei/buc",
+   "min": 220,
+   "max": 1200,
+   "tipic": 550,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "Surse multe, dar raspandite: DevizRapid 220-450 cu TVA; agregat GhidAmenajari 180-700, tipic 275; Daibau 400-800; Bizzlink 600-750; Galati Instal 550; Instalator Bucuresti Non-Stop 700-1200. Pretul mare include suport si mascare.",
+   "surse": [
+    {
+     "titlu": "DevizRapid - Cat costa instalatia sanitara in 2026 (manopera, cu TVA 21%)",
+     "url": "https://devizrapid.ro/blog/cat-costa-instalatie-sanitara-2026"
+    },
+    {
+     "titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)",
+     "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"
+    },
+    {
+     "titlu": "Daibau - Instalator sanitar: pret manopera 2026 (actualizat 22.04.2026)",
+     "url": "https://www.daibau.ro/preturi/instalator_sanitar"
+    },
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "fam": "cada"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Montaj cabină / cădiță de duș",
+   "um": "lei/buc",
+   "min": 250,
+   "max": 1400,
+   "tipic": 600,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "Devizeroo 250-600 fără TVA; agregat GhidAmenajari 230-600, tipic 425; DevizRapid 280-550 cu TVA; Bizzlink 650-800; Galati Instal 750; Prestari Instalatii de la 700; Instalator Bucuresti Non-Stop 800-1400. Interval foarte larg.",
+   "surse": [
+    {
+     "titlu": "DevizRapid - Cat costa instalatia sanitara in 2026 (manopera, cu TVA 21%)",
+     "url": "https://devizrapid.ro/blog/cat-costa-instalatie-sanitara-2026"
+    },
+    {
+     "titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)",
+     "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"
+    },
+    {
+     "titlu": "Devizeroo - Preturi manopera constructii 2026 (fara TVA)",
+     "url": "https://devizeroo.ro/preturi-manopera"
+    },
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Montaj bideu",
+   "um": "lei/buc",
+   "min": 150,
+   "max": 350,
+   "tipic": 250,
+   "sigur": "sigur",
+   "tva": "neprecizat",
+   "nota": "Daibau 200-350; Instalator Bucuresti Non-Stop 150-300; Prestari Instalatii de la 150 fără TVA; Galati Instal 250 (350 cu baterie); Adi Construct 210; doua liste din Bucuresti 250-300 cu baterie.",
+   "surse": [
+    {
+     "titlu": "Daibau - Instalator sanitar: pret manopera 2026 (actualizat 22.04.2026)",
+     "url": "https://www.daibau.ro/preturi/instalator_sanitar"
+    },
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Prestari Instalatii - Preturi manopera instalatii 2026 (fara TVA)",
+     "url": "https://prestari-instalatii.ro/preturi-manopera-instalatii.html"
+    },
+    {
+     "titlu": "Galati Instal - Lista preturi manopera (taxe incluse)",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Montaj pisoar",
+   "um": "lei/buc",
+   "min": 150,
+   "max": 350,
+   "tipic": 250,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "Prestari Instalatii de la 150 fără TVA; Instalatii Bucuresti 250 cu baterie (lista 2024); Firma Instalatii de la 300 cu baterie (2025); Galati Instal 350 cu baterie.",
+   "surse": [
+    {
+     "titlu": "Prestari Instalatii - Preturi manopera instalatii 2026 (fara TVA)",
+     "url": "https://prestari-instalatii.ro/preturi-manopera-instalatii.html"
+    },
+    {
+     "titlu": "Instalatii Bucuresti - Preturi manopera (fara TVA, lista datata 01.01.2024)",
+     "url": "https://instalatii-bucuresti.ro/preturi-manopera-instalatii-sanitare-termice-electrice-bucuresti/"
+    },
+    {
+     "titlu": "Firma Instalatii - Preturi manopera instalatii 2025",
+     "url": "https://firma-instalatii.ro/preturi-manopera-instalatii/"
+    },
+    {
+     "titlu": "Galati Instal - Lista preturi manopera (taxe incluse)",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    }
+   ],
+   "fam": "pisoar"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Montaj spălător bucătărie",
+   "um": "lei/buc",
+   "min": 200,
+   "max": 510,
+   "tipic": 300,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "Daibau 280-510 (spălător + baterie); Instalator Bucuresti Non-Stop 200-350; Prestari Instalatii de la 200 fără TVA; Galati Instal 300.",
+   "surse": [
+    {
+     "titlu": "Daibau - Instalator sanitar: pret manopera 2026 (actualizat 22.04.2026)",
+     "url": "https://www.daibau.ro/preturi/instalator_sanitar"
+    },
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Prestari Instalatii - Preturi manopera instalatii 2026 (fara TVA)",
+     "url": "https://prestari-instalatii.ro/preturi-manopera-instalatii.html"
+    },
+    {
+     "titlu": "Galati Instal - Lista preturi manopera (taxe incluse)",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    }
+   ],
+   "fam": "spalator"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Montaj baterie aparentă (lavoar, bucătărie, cadă, duș)",
+   "um": "lei/buc",
+   "min": 50,
+   "max": 300,
+   "tipic": 120,
+   "sigur": "sigur",
+   "tva": "neprecizat",
+   "nota": "Devizeroo 60-150 fără TVA; agregat GhidAmenajari 50-150, tipic 92; DevizRapid 60-130 cu TVA; Daibau 120-150; Instalator Bucuresti Non-Stop 100-180 (lavoar) si 150-280 (cadă/duș); Prestari Instalatii de la 100; Adi Construct 150.",
+   "surse": [
+    {
+     "titlu": "DevizRapid - Cat costa instalatia sanitara in 2026 (manopera, cu TVA 21%)",
+     "url": "https://devizrapid.ro/blog/cat-costa-instalatie-sanitara-2026"
+    },
+    {
+     "titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)",
+     "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"
+    },
+    {
+     "titlu": "Devizeroo - Preturi manopera constructii 2026 (fara TVA)",
+     "url": "https://devizeroo.ro/preturi-manopera"
+    },
+    {
+     "titlu": "Daibau - Instalator sanitar: pret manopera 2026 (actualizat 22.04.2026)",
+     "url": "https://www.daibau.ro/preturi/instalator_sanitar"
+    }
+   ],
+   "fam": "baterie"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Montaj baterie îngropată în perete",
+   "um": "lei/buc",
+   "min": 350,
+   "max": 600,
+   "tipic": 450,
+   "sigur": "incert",
+   "tva": "neprecizat",
+   "nota": "O singura sursa (Instalator Bucuresti Non-Stop 350-600).",
+   "surse": [
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Instalație sanitară pe punct de consum (apă rece + caldă + canalizare)",
+   "um": "lei/punct",
+   "min": 150,
+   "max": 600,
+   "tipic": 300,
+   "sigur": "sigur",
+   "tva": "neprecizat",
+   "nota": "Devizeroo 150-350 fără TVA; agregat GhidAmenajari (4 liste) 150-350, tipic 290; Bizzlink 150-300; DevizRapid 200-400; CasaBricolaj 250-450 (2024); Renovari.net 200-450; Adi Construct 450; Total Design 350-600 (Bucuresti, renovari). Preturi de lista pentru clie",
+   "surse": [
+    {
+     "titlu": "Total Design - Preturi instalatii sanitare Bucuresti 2026 (actualizat 9 sept. 2026)",
+     "url": "https://www.total-design.ro/preturi-instalatii-sanitare/"
+    },
+    {
+     "titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)",
+     "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"
+    },
+    {
+     "titlu": "Devizeroo - Preturi manopera constructii 2026 (fara TVA)",
+     "url": "https://devizeroo.ro/preturi-manopera"
+    },
+    {
+     "titlu": "Bizzlink - Preturi manopera instalatii 2026",
+     "url": "https://bizzlink.ro/blog/preturi-manopera-instalatii-2026"
+    }
+   ]
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Țeavă PPR montată (apă rece + caldă)",
+   "um": "lei/ml",
+   "min": 15,
+   "max": 80,
+   "tipic": 35,
+   "sigur": "sigur",
+   "tva": "neprecizat",
+   "nota": "Devizeroo 15-35 fără TVA; agregat GhidAmenajari 15-80, tipic 32; DevizRapid 28-50 cu TVA (36-65 Bucuresti/Cluj); Instalator Bucuresti Non-Stop 35-60; Prolist 20-40; Adi Construct 50. Nicio lista publica nu da pret pe diametre. Total Design cere 130-220 lei/ml ",
+   "surse": [
+    {
+     "titlu": "DevizRapid - Cat costa instalatia sanitara in 2026 (manopera, cu TVA 21%)",
+     "url": "https://devizrapid.ro/blog/cat-costa-instalatie-sanitara-2026"
+    },
+    {
+     "titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)",
+     "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"
+    },
+    {
+     "titlu": "Devizeroo - Preturi manopera constructii 2026 (fara TVA)",
+     "url": "https://devizeroo.ro/preturi-manopera"
+    },
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "fam": "teava:ppr"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Țeavă PEX / multistrat (PEX-AL-PEX) montată",
+   "um": "lei/ml",
+   "min": 26,
+   "max": 75,
+   "tipic": 50,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "DevizRapid 32-55 cu TVA (26-45 fără TVA; 42-72 Bucuresti/Cluj); Instalator Bucuresti Non-Stop 45-75; Adi Construct 55. Fara pret pe diametre.",
+   "surse": [
+    {
+     "titlu": "DevizRapid - Cat costa instalatia sanitara in 2026 (manopera, cu TVA 21%)",
+     "url": "https://devizrapid.ro/blog/cat-costa-instalatie-sanitara-2026"
+    },
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Adi Construct - Lista de preturi (actualizata 29.10.2026)",
+     "url": "https://www.adiconstructltd.com/lista-de-preturi/"
+    }
+   ],
+   "fam": "teava:pex"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Țeavă cupru montată",
+   "um": "lei/ml",
+   "min": 30,
+   "max": 110,
+   "tipic": 65,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "Instalator Bucuresti Non-Stop 60-110; Adi Construct 70; Prolist 30-60.",
+   "surse": [
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Adi Construct - Lista de preturi (actualizata 29.10.2026)",
+     "url": "https://www.adiconstructltd.com/lista-de-preturi/"
+    },
+    {
+     "titlu": "Prolist - Preturi servicii instalatii termice (modificat dec. 2025)",
+     "url": "https://prolist.ro/preturi-practicate-pentru-servicii-instalatii-termice/"
+    }
+   ],
+   "fam": "teava:cu"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Canalizare interioară PP / PVC montată",
+   "um": "lei/ml",
+   "min": 21,
+   "max": 80,
+   "tipic": 45,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "DevizRapid 25-45 cu TVA (21-37 fără TVA; 33-59 Bucuresti/Cluj); Instalator Bucuresti Non-Stop 40-80; Adi Construct 50. Total Design cere 150-260 lei/ml in renovari - lasat pe dinafara.",
+   "surse": [
+    {
+     "titlu": "DevizRapid - Cat costa instalatia sanitara in 2026 (manopera, cu TVA 21%)",
+     "url": "https://devizrapid.ro/blog/cat-costa-instalatie-sanitara-2026"
+    },
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Adi Construct - Lista de preturi (actualizata 29.10.2026)",
+     "url": "https://www.adiconstructltd.com/lista-de-preturi/"
+    }
+   ],
+   "fam": "teava:pp"
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Canalizare exterioară PVC montată",
+   "um": "lei/ml",
+   "min": null,
+   "max": null,
+   "tipic": null,
+   "sigur": "incert",
+   "tva": "neprecizat",
+   "nota": "Nu am gasit pret public doar pentru pozarea tevii. Singura cifra apropiata: Galati Instal 350 lei/ml pentru 'sapat canalizare exterioară, alimentare cu apa' (include sapatura, taxe incluse) - nu e comparabila cu montajul tevii in sant deschis, deci nu am pus-o",
+   "surse": [
+    {
+     "titlu": "Galati Instal - Lista preturi manopera (taxe incluse)",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Instalație sanitară baie - trasee complete (manoperă)",
+   "um": "lei/baie",
+   "min": 800,
+   "max": 4800,
+   "tipic": 1800,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "Agregat GhidAmenajari 1500-2500, tipic 1750; Renovari.net 1500-2500; Adi Construct 1650; Instalator Bucuresti Non-Stop 1200-2500; Bizzlink 800-1200; Prestari Instalatii de la 800; Total Design 3000-4800 (Bucuresti, refacere completă). Interval larg.",
+   "surse": [
+    {
+     "titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)",
+     "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"
+    },
+    {
+     "titlu": "Renovari.net - Pret manopera constructii de la A la Z (iulie 2026)",
+     "url": "https://renovari.net/pret-manopera-constructii-de-la-a-la-z/"
+    },
+    {
+     "titlu": "Total Design - Preturi instalatii sanitare Bucuresti 2026 (actualizat 9 sept. 2026)",
+     "url": "https://www.total-design.ro/preturi-instalatii-sanitare/"
+    },
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "sanitare",
+   "lucrare": "Montaj obiecte sanitare complet, pe baie",
+   "um": "lei/baie",
+   "min": 1000,
+   "max": 2000,
+   "tipic": 1500,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "GhidAmenajari si Renovari.net dau acelasi interval, 1000-2000 lei pe baie.",
+   "surse": [
+    {
+     "titlu": "GhidAmenajari - Preturi manopera constructii 2026 (agregat din 14 liste, actualizat 10 oct. 2026)",
+     "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"
+    },
+    {
+     "titlu": "Renovari.net - Pret manopera constructii de la A la Z (iulie 2026)",
+     "url": "https://renovari.net/pret-manopera-constructii-de-la-a-la-z/"
+    }
+   ]
+  },
+  {
+   "cat": "climatizare",
+   "lucrare": "Montaj ventiloconvector",
+   "um": "lei/buc",
+   "min": 250,
+   "max": 1186,
+   "tipic": 600,
+   "sigur": "incert",
+   "tva": "neprecizat",
+   "nota": "Sursele difera mult: Prestari Instalatii de la 250 fără TVA; Instalator-Electrician de la 300 (2025); Galati Instal 750; Automatic Flow 1186. Preturile mici sunt pentru inlocuire pe racorduri existente.",
+   "surse": [
+    {
+     "titlu": "Prestari Instalatii - Preturi manopera instalatii 2026 (fara TVA)",
+     "url": "https://prestari-instalatii.ro/preturi-manopera-instalatii.html"
+    },
+    {
+     "titlu": "Instalator-Electrician - Preturi instalatii termice Bucuresti 2025 (neplatitor TVA)",
+     "url": "https://instalator-electrician.ro/preturi-instalatii-termice/"
+    },
+    {
+     "titlu": "Galati Instal - Lista preturi manopera (taxe incluse)",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    },
+    {
+     "titlu": "Automatic Flow - Servicii manopera instalatii HVAC",
+     "url": "https://automaticflow.ro/categorie-produs/servicii-manopera-instalatii-hvac/"
+    }
+   ],
+   "fam": "ventilo"
+  },
+  {
+   "cat": "climatizare",
+   "lucrare": "Montaj aer conditionat split 9-12.000 BTU (unitate interioară + exterioară, traseu până la 3 m)",
+   "um": "lei/buc",
+   "min": 400,
+   "max": 1320,
+   "tipic": 800,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "Bizzlink 600-800 (18.000 BTU: 800-1000; 24.000 BTU: 900-1200); Galati Instal 800 (1200 la 18-24.000 BTU); MesterLaTine 400-800; Automatic Flow 1118-1321 cu kit inclus.",
+   "surse": [
+    {
+     "titlu": "Bizzlink - Preturi manopera instalatii 2026",
+     "url": "https://bizzlink.ro/blog/preturi-manopera-instalatii-2026"
+    },
+    {
+     "titlu": "Galati Instal - Lista preturi manopera (taxe incluse)",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    },
+    {
+     "titlu": "MesterLaTine - Preturi manopera 2026",
+     "url": "https://mesterlatine.ro/blog/preturi-manopera-2026-pentru-toate-lucrarile-din-casa-ghid-complet-romania"
+    },
+    {
+     "titlu": "Automatic Flow - Servicii manopera instalatii HVAC",
+     "url": "https://automaticflow.ro/categorie-produs/servicii-manopera-instalatii-hvac/"
+    }
+   ]
+  },
+  {
+   "cat": "climatizare",
+   "lucrare": "Montaj unitate interioară VRF / multisplit (split, caseta)",
+   "um": "lei/buc",
+   "min": 450,
+   "max": 900,
+   "tipic": 650,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "InstalareAC 'de la 450-900 lei/unitate' (VRF); Automatic Flow 610 pentru unitate interioară split. Doar doua surse.",
+   "surse": [
+    {
+     "titlu": "InstalareAC - Montaj sisteme VRF/VRV, pret estimativ manopera (feb. 2026)",
+     "url": "https://www.instalareac.eu/montaj-sisteme-vrv-vrf-aer-conditionat/"
+    },
+    {
+     "titlu": "Automatic Flow - Servicii manopera instalatii HVAC",
+     "url": "https://automaticflow.ro/categorie-produs/servicii-manopera-instalatii-hvac/"
+    }
+   ]
+  },
+  {
+   "cat": "climatizare",
+   "lucrare": "Montaj unitate exterioară VRF / multisplit",
+   "um": "lei/buc",
+   "min": 800,
+   "max": 1500,
+   "tipic": 1500,
+   "sigur": "incert",
+   "tva": "neprecizat",
+   "nota": "InstalareAC 'de la 1500 lei/unitate' pentru VRF (pret minim, urca la unitati mari); Automatic Flow 800 pentru unitate exterioară multisplit. Punerea in functiune VRF: de la 1200 lei/sistem (InstalareAC).",
+   "surse": [
+    {
+     "titlu": "InstalareAC - Montaj sisteme VRF/VRV, pret estimativ manopera (feb. 2026)",
+     "url": "https://www.instalareac.eu/montaj-sisteme-vrv-vrf-aer-conditionat/"
+    },
+    {
+     "titlu": "Automatic Flow - Servicii manopera instalatii HVAC",
+     "url": "https://automaticflow.ro/categorie-produs/servicii-manopera-instalatii-hvac/"
+    }
+   ],
+   "fam": "clima",
+   "vars": [
+    "exterioara"
+   ]
+  },
+  {
+   "cat": "climatizare",
+   "lucrare": "Traseu frigorific cupru montat",
+   "um": "lei/ml",
+   "min": 60,
+   "max": 200,
+   "tipic": 100,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "InstalareAC 60-100; Bizzlink 80-120 (metru suplimentar); Galati Instal 80; Automatic Flow 152-203 (cu material).",
+   "surse": [
+    {
+     "titlu": "InstalareAC - Montaj sisteme VRF/VRV, pret estimativ manopera (feb. 2026)",
+     "url": "https://www.instalareac.eu/montaj-sisteme-vrv-vrf-aer-conditionat/"
+    },
+    {
+     "titlu": "Bizzlink - Preturi manopera instalatii 2026",
+     "url": "https://bizzlink.ro/blog/preturi-manopera-instalatii-2026"
+    },
+    {
+     "titlu": "Galati Instal - Lista preturi manopera (taxe incluse)",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    },
+    {
+     "titlu": "Automatic Flow - Servicii manopera instalatii HVAC",
+     "url": "https://automaticflow.ro/categorie-produs/servicii-manopera-instalatii-hvac/"
+    }
+   ]
+  },
+  {
+   "cat": "climatizare",
+   "lucrare": "Montaj aerotermă",
+   "um": "lei/buc",
+   "min": null,
+   "max": null,
+   "tipic": null,
+   "sigur": "incert",
+   "tva": "neprecizat",
+   "nota": "Nu am gasit nicio lista publica cu pret de manoperă pentru aeroterme.",
+   "surse": []
+  },
+  {
+   "cat": "ventilatie",
+   "lucrare": "Tubulatură rectangulară de ventilație montată",
+   "um": "lei/m2",
+   "min": null,
+   "max": null,
+   "tipic": null,
+   "sigur": "incert",
+   "tva": "neprecizat",
+   "nota": "Nu am gasit niciun pret public de manoperă (nici pe m2, nici pe kg). Firmele de ventilație afiseaza doar pretul materialului sau 'oferta pe baza de proiect'.",
+   "surse": []
+  },
+  {
+   "cat": "ventilatie",
+   "lucrare": "Tubulatură circulară de ventilație montată",
+   "um": "lei/ml",
+   "min": null,
+   "max": null,
+   "tipic": null,
+   "sigur": "incert",
+   "tva": "neprecizat",
+   "nota": "Nu am gasit niciun pret public de manoperă.",
+   "surse": []
+  },
+  {
+   "cat": "ventilatie",
+   "lucrare": "Montaj grile / anemostate",
+   "um": "lei/buc",
+   "min": null,
+   "max": null,
+   "tipic": null,
+   "sigur": "incert",
+   "tva": "neprecizat",
+   "nota": "Nu am gasit niciun pret public de manoperă.",
+   "surse": []
+  },
+  {
+   "cat": "ventilatie",
+   "lucrare": "Montaj ventilator mic (baie / casnic)",
+   "um": "lei/buc",
+   "min": 150,
+   "max": 180,
+   "tipic": 165,
+   "sigur": "incert",
+   "tva": "cu",
+   "nota": "O singura sursa (Galati Instal: 150 inlocuire ventilator baie, 180 montaj ventilator; taxe incluse). Nu se aplica la ventilatoare de tubulatura sau de acoperis.",
+   "surse": [
+    {
+     "titlu": "Galati Instal - Lista preturi manopera (taxe incluse)",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "hidranti",
+   "lucrare": "Montaj cutie hidrant interior complet echipată",
+   "um": "lei/buc",
+   "min": null,
+   "max": null,
+   "tipic": null,
+   "sigur": "incert",
+   "tva": "neprecizat",
+   "nota": "Nu am gasit niciun pret public de manoperă. Firmele de instalații de stingere lucreaza doar cu 'oferta personalizata'. Repere indirecte: in devizele publice articolul are codul de norma SD27B1 (deviz Sanpetru, fără preturi); o oferta veche (2016) cerea 4000 le",
+   "surse": [
+    {
+     "titlu": "Comuna Sanpetru (BV) - Devize estimative cresa, instalatii (doar coduri de norma, fara preturi)",
+     "url": "https://vechip.primaria-sanpetru.ro/sites/default/files/atasamente/devize_estimative_cresa_-_instalatii_sanitare_termice_si_electrice_.pdf"
+    },
+    {
+     "titlu": "Ideal Proiect - Pret hidranti interiori (2016, cu materiale)",
+     "url": "http://idealproiect.com/pret-hidranti-interiori/"
+    }
+   ]
+  },
+  {
+   "cat": "hidranti",
+   "lucrare": "Țeavă oțel neagră / zincată montată (pe diametre)",
+   "um": "lei/ml",
+   "min": null,
+   "max": null,
+   "tipic": null,
+   "sigur": "incert",
+   "tva": "neprecizat",
+   "nota": "Nu am gasit niciun pret public de manoperă pe diametre. In devizele publice articolele sunt SA07A1 (zincată 2 toli) si SA07B1 (zincată 2 1/2 toli) - deviz Sanpetru, fără preturi.",
+   "surse": [
+    {
+     "titlu": "Comuna Sanpetru (BV) - Devize estimative cresa, instalatii (doar coduri de norma, fara preturi)",
+     "url": "https://vechip.primaria-sanpetru.ro/sites/default/files/atasamente/devize_estimative_cresa_-_instalatii_sanitare_termice_si_electrice_.pdf"
+    }
+   ]
+  },
+  {
+   "cat": "hidranti",
+   "lucrare": "Țeavă canelată (Victaulic) montată",
+   "um": "lei/ml",
+   "min": null,
+   "max": null,
+   "tipic": null,
+   "sigur": "incert",
+   "tva": "neprecizat",
+   "nota": "Nu am gasit niciun pret public de manoperă.",
+   "surse": []
+  },
+  {
+   "cat": "hidranti",
+   "lucrare": "Montaj sprinkler",
+   "um": "lei/buc",
+   "min": null,
+   "max": null,
+   "tipic": null,
+   "sigur": "incert",
+   "tva": "neprecizat",
+   "nota": "Nu am gasit niciun pret public de manoperă.",
+   "surse": []
+  },
+  {
+   "cat": "general",
+   "lucrare": "Tarif orar instalator facturat clientului (lucrări mici)",
+   "um": "lei/ora",
+   "min": 100,
+   "max": 400,
+   "tipic": 180,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "Capital.ro si Ziarul Profit (martie 2026): 150-200 lei/ora in orasele mari; Daibau 100-400; Galati Instal 225 (taxe incluse). Este tarif de interventie la client, nu cost de șantier.",
+   "surse": [
+    {
+     "titlu": "Capital.ro - Cat ne costa munca pe ora in 2026 (11 martie 2026)",
+     "url": "https://www.capital.ro/cat-ne-costa-munca-pe-ora-in-2026-de-la-meseriasi-si-livratori-pana-la-profesii-liberale-cum-s-au-schimbat-tarifele-in-romania.html"
+    },
+    {
+     "titlu": "Ziarul Profit - Cu cat se plateste ora de munca in 2026 (12 martie 2026)",
+     "url": "https://www.ziarulprofit.ro/cu-cat-se-plateste-ora-de-munca-in-2026-cat-ia-un-zilier-pe-santier-un-electrician-sau-un-instalator-cum-au-evoluat-tarifele-in-ultimii-doi-ani/"
+    },
+    {
+     "titlu": "Daibau - Instalator sanitar: pret manopera 2026 (actualizat 22.04.2026)",
+     "url": "https://www.daibau.ro/preturi/instalator_sanitar"
+    },
+    {
+     "titlu": "Galati Instal - Lista preturi manopera (taxe incluse)",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "lucrare": "Plata pe zi - muncitor necalificat / zilier pe șantier",
+   "um": "lei/zi",
+   "min": 250,
+   "max": 300,
+   "tipic": 275,
+   "sigur": "probabil",
+   "tva": "fara",
+   "nota": "250-300 lei pentru 8 ore in 2026 (150-200 în 2024). Cele doua articole au aparut la o zi distanta si dau aceleasi cifre, deci practic o singura sursa. Suma platita omului, nu se aplica TVA.",
+   "surse": [
+    {
+     "titlu": "Capital.ro - Cat ne costa munca pe ora in 2026 (11 martie 2026)",
+     "url": "https://www.capital.ro/cat-ne-costa-munca-pe-ora-in-2026-de-la-meseriasi-si-livratori-pana-la-profesii-liberale-cum-s-au-schimbat-tarifele-in-romania.html"
+    },
+    {
+     "titlu": "Ziarul Profit - Cu cat se plateste ora de munca in 2026 (12 martie 2026)",
+     "url": "https://www.ziarulprofit.ro/cu-cat-se-plateste-ora-de-munca-in-2026-cat-ia-un-zilier-pe-santier-un-electrician-sau-un-instalator-cum-au-evoluat-tarifele-in-ultimii-doi-ani/"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "lucrare": "Plata pe zi - meseriaș calificat pe șantier (in mână)",
+   "um": "lei/zi",
+   "min": 400,
+   "max": 500,
+   "tipic": 420,
+   "sigur": "incert",
+   "tva": "fara",
+   "nota": "O singura sursa (Cotidianul): 400-500 lei pe zi, firmele de top peste 400-420 lei net pe zi. Cifra e pentru meseriasi in general (zidari), nu anume pentru instalatori.",
+   "surse": [
+    {
+     "titlu": "Cotidianul - Cat castiga un muncitor pe santier in 2026",
+     "url": "https://www.cotidianul.ro/cat-castiga-un-muncitor-pe-santier-in-2026-meseriasii-pleaca-si-cu-400-500-de-lei-pe-zi-acasa-dar-firmele-tot-nu-gasesc-personal/"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "lucrare": "Salariu mediu net - firme de lucrări speciale de construcții (CAEN 43, include instalații)",
+   "um": "lei/luna",
+   "min": 4840,
+   "max": 5345,
+   "tipic": 5165,
+   "sigur": "probabil",
+   "tva": "fara",
+   "nota": "Date INS (Tempo, FOM106G) preluate de Folositor.ro: ianuarie-august 2026 intre 4840 si 5345 lei net, medie 5165. E media tuturor angajatilor din aceste firme, nu a instalatorilor. Calcul propriu: la 5165 net, brutul este cam 8830 lei si costul angajatorului ca",
+   "surse": [
+    {
+     "titlu": "Folositor.ro - Salariu instalator 2026 (date INS Tempo FOM106G, actualizat 16 oct. 2026)",
+     "url": "https://folositor.ro/ghid/cat-castiga-un-instalator-in-romania-2026"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "lucrare": "Instalație sanitară completă apartament (manoperă)",
+   "um": "lei/apartament",
+   "min": 2500,
+   "max": 8000,
+   "tipic": 4000,
+   "sigur": "incert",
+   "tva": "neprecizat",
+   "nota": "Instalator Bucuresti Non-Stop 2500-4500 pentru 2 camere; MesterLaTine 4000-8000 pentru 'apartament' fără marime. Sunt preturi de renovare. Nu am gasit pret public pe apartament la bloc nou si nici impartirea 'la rosu' / 'finisaj'.",
+   "surse": [
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "MesterLaTine - Preturi manopera 2026",
+     "url": "https://mesterlatine.ro/blog/preturi-manopera-2026-pentru-toate-lucrarile-din-casa-ghid-complet-romania"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "lucrare": "Instalație termică completă apartament 2 camere (manoperă)",
+   "um": "lei/apartament",
+   "min": 3000,
+   "max": 6000,
+   "tipic": 4500,
+   "sigur": "probabil",
+   "tva": "neprecizat",
+   "nota": "Instalator Bucuresti Non-Stop 3000-5500; MesterLaTine 3000-6000 (3 camere: 4500-8000). Preturi de renovare; fără impartire 'la rosu' / 'finisaj'.",
+   "surse": [
+    {
+     "titlu": "Instalator Bucuresti Non-Stop - Preturi 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "MesterLaTine - Preturi manopera 2026",
+     "url": "https://mesterlatine.ro/blog/preturi-manopera-2026-pentru-toate-lucrarile-din-casa-ghid-complet-romania"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "lucrare": "Salariu minim brut in construcții",
+   "um": "lei/luna",
+   "min": 4582,
+   "max": 4582,
+   "tipic": 4582,
+   "sigur": "sigur",
+   "tva": "fara",
+   "nota": "4582 lei brut pe luna, neschimbat de la 1 ianuarie 2026 (comunicat ITM, aprilie 2026 - sursa oficiala; cam 27,7 lei/ora). Net cam 2740-2756 lei. Facilitatile fiscale din construcții nu se mai aplica in 2026 (OUG 156/2024). Poate fi platit aceluiasi angajat cel",
+   "surse": [
+    {
+     "titlu": "Inspectia Muncii (ITM) - Comunicat informare angajatori din constructii, aprilie 2026 (sursa oficiala)",
+     "url": "https://www.inspectiamuncii.ro/documents/521316/523496/20260407_COMUNICAT+PRESA+INFORMARE+ANGAJATORI+DIN+DOMENIUL+CONSTRUCTIILOR+-APRILIE+2026.pdf/11a0c4b0-f07a-4515-b18f-920a305473ab"
+    },
+    {
+     "titlu": "CalculVenituri.ro - Salariul minim in constructii 2026: 4.582 lei",
+     "url": "https://calculvenituri.ro/blog/salariul-minim-constructii-2026"
+    },
+    {
+     "titlu": "Folositor.ro - Salariu instalator 2026 (date INS Tempo FOM106G, actualizat 16 oct. 2026)",
+     "url": "https://folositor.ro/ghid/cat-castiga-un-instalator-in-romania-2026"
+    },
+    {
+     "titlu": "Cotidianul - Cat castiga un muncitor pe santier in 2026",
+     "url": "https://www.cotidianul.ro/cat-castiga-un-muncitor-pe-santier-in-2026-meseriasii-pleaca-si-cu-400-500-de-lei-pe-zi-acasa-dar-firmele-tot-nu-gasesc-personal/"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "lucrare": "Cost total angajator la salariul minim in construcții",
+   "um": "lei/luna",
+   "min": 4685,
+   "max": 4685,
+   "tipic": 4685,
+   "sigur": "probabil",
+   "tva": "fara",
+   "nota": "4582 lei + contributia asiguratorie pentru munca 2,25% = 4685 lei pe luna (CalculVenituri.ro; verificat prin calcul). Adica aproximativ 28 lei pe ora lucrata, fără concedii, echipament, transport sau regie.",
+   "surse": [
+    {
+     "titlu": "CalculVenituri.ro - Salariul minim in constructii 2026: 4.582 lei",
+     "url": "https://calculvenituri.ro/blog/salariul-minim-constructii-2026"
+    },
+    {
+     "titlu": "Inspectia Muncii (ITM) - Comunicat informare angajatori din constructii, aprilie 2026 (sursa oficiala)",
+     "url": "https://www.inspectiamuncii.ro/documents/521316/523496/20260407_COMUNICAT+PRESA+INFORMARE+ANGAJATORI+DIN+DOMENIUL+CONSTRUCTIILOR+-APRILIE+2026.pdf/11a0c4b0-f07a-4515-b18f-920a305473ab"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "lucrare": "Salariu minim brut pe economie (reper)",
+   "um": "lei/luna",
+   "min": 4050,
+   "max": 4325,
+   "tipic": 4325,
+   "sigur": "sigur",
+   "tva": "fara",
+   "nota": "4050 lei până la 30 iunie 2026 si 4325 lei de la 1 iulie 2026 (HG 146/2026); cost total angajator 4134, respectiv 4418 lei. Minimul din construcții (4582) ramane peste.",
+   "surse": [
+    {
+     "titlu": "StartupCafe - Salariul minim brut creste de la 1 iulie 2026 la 4.325 lei (HG 146/2026)",
+     "url": "https://startupcafe.ro/salariul-minim-brut-creste-de-la-1-iulie-2026-la-4-325-lei-cat-va-fi-netul-si-ce-cost-total-vor-suporta-firmele-101690"
+    },
+    {
+     "titlu": "CalculVenituri.ro - Salariul minim in constructii 2026: 4.582 lei",
+     "url": "https://calculvenituri.ro/blog/salariul-minim-constructii-2026"
+    }
+   ]
+  },
+  {
+   "cat": "ventilatie",
+   "fam": "vent_tub_c",
+   "lucrare": "Tubulatură de ventilație rigidă (circulară/spiro, canale mici) – montaj",
+   "um": "lei/ml",
+   "dim": "nediferențiat pe diametru (trasee mici, uzual Ø100–200)",
+   "min": 65,
+   "max": 180,
+   "tipic": 110,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "renoveaza.ro (Craiova, 2026): montaj canale de ventilație 65–135 lei/ml. vreauestimare.ro (2026): montaj tubulatură 80–180 lei/ml, doar manoperă (tubul, izolația și accesoriile separat). Tipic = mijlocul zonei comune 80–135. Ambele sunt agregatoare orientate pe locuințe și spații mici; pentru șantiere mari (birouri, hale) nu există preț public.",
+   "surse": [
+    {
+     "titlu": "renoveaza.ro – preț instalații HVAC Craiova 2026",
+     "url": "https://renoveaza.ro/instalatii/instalatii-hvac/craiova/"
+    },
+    {
+     "titlu": "vreauestimare.ro – preț montaj tubulatură ventilație",
+     "url": "https://vreauestimare.ro/preturi/ventilatie/pret-montaj-tubulatura-ventilatie/"
+    }
+   ]
+  },
+  {
+   "cat": "ventilatie",
+   "fam": "vent_flex",
+   "lucrare": "Tubulatură flexibilă (izolată/neizolată) – montaj",
+   "um": "lei/ml",
+   "dim": "",
+   "min": 80,
+   "max": 180,
+   "tipic": 130,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "O singură sursă: vreauestimare.ro (2026) dă 80–180 lei/ml, doar manoperă, pentru tubulatură rigidă sau flexibilă izolată, fără a le despărți. Tipic = mijlocul intervalului (nu este o valoare publicată). Nu există preț separat pentru flexibil neizolat.",
+   "surse": [
+    {
+     "titlu": "vreauestimare.ro – preț montaj tubulatură ventilație",
+     "url": "https://vreauestimare.ro/preturi/ventilatie/pret-montaj-tubulatura-ventilatie/"
+    }
+   ]
+  },
+  {
+   "cat": "ventilatie",
+   "fam": "vent_grila",
+   "lucrare": "Grilă / anemostat / difuzor / valvă de aer – montaj",
+   "um": "lei/buc",
+   "dim": "",
+   "min": 85,
+   "max": 350,
+   "tipic": 170,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "renoveaza.ro (Craiova, 2026): montaj grilă/difuzor 85–190 lei/buc. vreauestimare.ro (2026): punct de ventilație (grilă sau valvă de introducere/evacuare) 150–350 lei/punct, manoperă. Tipic = mijlocul zonei comune 150–190. Surse orientate pe locuințe; fără diferențiere pe tip sau mărime.",
+   "surse": [
+    {
+     "titlu": "renoveaza.ro – preț instalații HVAC Craiova 2026",
+     "url": "https://renoveaza.ro/instalatii/instalatii-hvac/craiova/"
+    },
+    {
+     "titlu": "vreauestimare.ro – preț montaj tubulatură ventilație",
+     "url": "https://vreauestimare.ro/preturi/ventilatie/pret-montaj-tubulatura-ventilatie/"
+    }
+   ]
+  },
+  {
+   "cat": "ventilatie",
+   "fam": "vent",
+   "lucrare": "Ventilator mic (baie / extractor local / in-line mic) – montaj",
+   "um": "lei/buc",
+   "dim": "mic (≤Ø160)",
+   "min": 100,
+   "max": 265,
+   "tipic": 180,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "servicii-instalatii.ro (București, 2026): ventilator de baie de la 100 lei, fără TVA. galati-instal.ro: montat ventilator 180 lei, taxe incluse. renoveaza.ro (Craiova, 2026): extractor local 105–265 lei. Valabil doar pentru ventilatoare casnice mici.",
+   "surse": [
+    {
+     "titlu": "servicii-instalatii.ro – preț manoperă instalator București 2026",
+     "url": "https://servicii-instalatii.ro/preturi-manopera-instalatii-sanitare-termice-electrice-instalator-electrician-bucuresti/"
+    },
+    {
+     "titlu": "Galați Instal – listă prețuri manoperă",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    },
+    {
+     "titlu": "renoveaza.ro – preț instalații HVAC Craiova 2026",
+     "url": "https://renoveaza.ro/instalatii/instalatii-hvac/craiova/"
+    }
+   ]
+  },
+  {
+   "cat": "ventilatie",
+   "fam": "vent",
+   "lucrare": "Recuperator de căldură descentralizat (prin perete) – montaj",
+   "um": "lei/buc",
+   "dim": "unitate de cameră",
+   "min": 550,
+   "max": 800,
+   "tipic": 675,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "O singură sursă: Altecovent, 550–800 lei pe unitate la perete de beton, incluzând carotarea, fixarea, cablarea până la 10 m și pornirea. An neprecizat (pagină modificată în 2026). Tipic = mijlocul intervalului.",
+   "surse": [
+    {
+     "titlu": "Altecovent – montare, carotare, instalare ventilație",
+     "url": "https://ventilatiecurecuperarecaldura.ro/montare-carotare-instalare-ventilatie/"
+    }
+   ]
+  },
+  {
+   "cat": "ventilatie",
+   "fam": "vent",
+   "lucrare": "Centrală de tratare a aerului / recuperator centralizat – montaj",
+   "um": "lei/buc",
+   "dim": "<2.000 mc/h (unitate VMC rezidențială)",
+   "min": 840,
+   "max": 2100,
+   "tipic": 1470,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "O singură sursă: renoveaza.ro (Craiova, 2026), montaj unitate de ventilație VMC 840–2.100 lei/buc. Este o unitate de locuință, nu o CTA comercială. Tipic = mijlocul intervalului.",
+   "surse": [
+    {
+     "titlu": "renoveaza.ro – preț instalații HVAC Craiova 2026",
+     "url": "https://renoveaza.ro/instalatii/instalatii-hvac/craiova/"
+    }
+   ]
+  },
+  {
+   "cat": "climatizare",
+   "fam": "clima_teava",
+   "lucrare": "Traseu frigorific din cupru izolat – montaj (manoperă, pe metru de traseu = pereche de țevi)",
+   "um": "lei/ml",
+   "dim": "mic: 6,35+9,52 / 6,35+12,7 mm (split ≤24.000 BTU)",
+   "min": 50,
+   "max": 120,
+   "tipic": 80,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "climatizare-bucuresti.ro (2026): 50 lei/m manoperă peste cei 3 m incluși, fără TVA. galati-instal.ro: înlocuit traseu frigorific 80 lei/ml, manoperă, taxe incluse. bizzlink.ro (2026): 80–120 lei/ml. Atenție: prețul este pe metru de traseu (ambele țevi), nu pe fiecare țeavă. Prețurile cu material inclus (110–200 lei/ml la ACME, Grand Clima, Clima General, vreauestimare) NU au fost folosite. Prețul e pe metru de traseu (pereche de țevi); la listele cu țevile trecute separat aplicația socotește jumătate pe fiecare țeavă.",
+   "surse": [
+    {
+     "titlu": "climatizare-bucuresti.ro – prețuri manoperă aparate aer condiționat",
+     "url": "https://climatizare-bucuresti.ro/preturi-manopera-aparate-aer-conditionat/"
+    },
+    {
+     "titlu": "Galați Instal – listă prețuri manoperă",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    },
+    {
+     "titlu": "Bizzlink – prețuri manoperă instalații 2026",
+     "url": "https://bizzlink.ro/blog/preturi-manopera-instalatii-2026"
+    }
+   ],
+   "eng": 40.0
+  },
+  {
+   "cat": "climatizare",
+   "fam": "clima_teava",
+   "lucrare": "Traseu frigorific din cupru – montaj în sisteme VRF/VRV (manoperă)",
+   "um": "lei/ml",
+   "dim": "nediferențiat pe diametru",
+   "min": 60,
+   "max": 100,
+   "tipic": 80,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "O singură sursă: instalareac.eu (februarie 2026), tabel de manoperă estimativă pentru VRF, 60–100 lei pe metru liniar de traseu de cupru. Nu desparte pe diametre. Tipic = mijlocul intervalului. Prețul e pe metru de traseu (pereche de țevi); la listele cu țevile trecute separat aplicația socotește jumătate pe fiecare țeavă.",
+   "surse": [
+    {
+     "titlu": "instalareac.eu – montaj sisteme VRV/VRF",
+     "url": "https://www.instalareac.eu/montaj-sisteme-vrv-vrf-aer-conditionat/"
+    }
+   ],
+   "eng": 40.0
+  },
+  {
+   "cat": "climatizare",
+   "fam": "clima",
+   "lucrare": "Unitate interioară VRF/VRV (mural / casetă / duct) – montaj",
+   "um": "lei/buc",
+   "dim": "nediferențiat pe tip",
+   "min": 450,
+   "max": 900,
+   "tipic": 675,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "O singură sursă: instalareac.eu (februarie 2026), manoperă estimativă 450–900 lei pe unitate interioară (split/casetă). Nu desparte casetă, duct și mural. Tipic = mijlocul intervalului.",
+   "surse": [
+    {
+     "titlu": "instalareac.eu – montaj sisteme VRV/VRF",
+     "url": "https://www.instalareac.eu/montaj-sisteme-vrv-vrf-aer-conditionat/"
+    }
+   ],
+   "vars": [
+    "interioara"
+   ]
+  },
+  {
+   "cat": "climatizare",
+   "fam": "clima",
+   "lucrare": "Aparat tip casetă sau duct (monosplit) – montaj complet, unitate interioară + exterioară",
+   "um": "lei/buc",
+   "dim": "7.000–24.000 BTU",
+   "min": 1700,
+   "max": 1700,
+   "tipic": 1700,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "O singură sursă folosită: Clima General Install, 1.700 lei pentru casetă sau duct 7.000–24.000 BTU (la duct fără tubulatură, grile și automatizare). Alte liste (Aero-Shop 1.390–1.790 lei, ArtBuilding 1.483–1.573 lei cu TVA) includ și materialele de bază, deci nu au intrat în interval.",
+   "surse": [
+    {
+     "titlu": "Clima General Install – montaj aer condiționat",
+     "url": "https://www.climageneralinstall.ro/montaj-aer-conditionat/"
+    }
+   ],
+   "vars": [
+    "interioara"
+   ]
+  },
+  {
+   "cat": "climatizare",
+   "fam": "clima",
+   "lucrare": "Aparat tip casetă sau duct (monosplit) – montaj complet, unitate interioară + exterioară",
+   "um": "lei/buc",
+   "dim": "30.000–60.000 BTU",
+   "min": 1900,
+   "max": 1900,
+   "tipic": 1900,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "O singură sursă folosită: Clima General Install, 1.900 lei pentru casetă sau duct 30.000–60.000 BTU. Alte liste (Aero-Shop 1.690–2.090 lei, ArtBuilding 1.773–1.873 lei cu TVA) includ materiale de bază și nu au intrat în interval.",
+   "surse": [
+    {
+     "titlu": "Clima General Install – montaj aer condiționat",
+     "url": "https://www.climageneralinstall.ro/montaj-aer-conditionat/"
+    }
+   ],
+   "vars": [
+    "interioara"
+   ]
+  },
+  {
+   "cat": "climatizare",
+   "fam": "clima",
+   "lucrare": "Split mural monosplit – montaj complet standard (traseu până la 3 m)",
+   "um": "lei/buc",
+   "dim": "7.000–12.000 BTU",
+   "min": 500,
+   "max": 1200,
+   "tipic": 750,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "ACME Instal 700 lei; climatizare-bucuresti.ro 500 lei fără TVA; Prompt Service 750–900 lei; Clima General 650–850 lei; Bizzlink (2026) 600–800 lei; Grand Clima 1.000–1.200 lei fără TVA (pachet premium). Liste din 2025–2026, majoritatea București. Unele firme adaugă TVA, altele nu precizează.",
+   "surse": [
+    {
+     "titlu": "ACME Instal – listă prețuri manoperă aer condiționat",
+     "url": "https://acmeinstal.ro/lista-preturi-manopera-sezon/"
+    },
+    {
+     "titlu": "climatizare-bucuresti.ro – prețuri manoperă aparate aer condiționat",
+     "url": "https://climatizare-bucuresti.ro/preturi-manopera-aparate-aer-conditionat/"
+    },
+    {
+     "titlu": "Prompt Service – servicii montaj aer condiționat",
+     "url": "https://prompt-service.ro/servicii/"
+    },
+    {
+     "titlu": "Clima General Install – montaj aer condiționat",
+     "url": "https://www.climageneralinstall.ro/montaj-aer-conditionat/"
+    },
+    {
+     "titlu": "Grand Clima – listă prețuri și servicii",
+     "url": "https://grandclima.ro/pricing-tables/"
+    },
+    {
+     "titlu": "Bizzlink – prețuri manoperă instalații 2026",
+     "url": "https://bizzlink.ro/blog/preturi-manopera-instalatii-2026"
+    }
+   ]
+  },
+  {
+   "cat": "climatizare",
+   "fam": "clima",
+   "lucrare": "Split mural monosplit – montaj complet standard (traseu până la 3 m)",
+   "um": "lei/buc",
+   "dim": "18.000–24.000 BTU",
+   "min": 700,
+   "max": 1600,
+   "tipic": 950,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "ACME Instal 800–900 lei; climatizare-bucuresti.ro 700–1.000 lei fără TVA; Prompt Service 1.075–1.175 lei; Clima General 850–1.050 lei; Bizzlink (2026) 800–1.200 lei; Grand Clima 1.600 lei fără TVA (pachet premium).",
+   "surse": [
+    {
+     "titlu": "ACME Instal – listă prețuri manoperă aer condiționat",
+     "url": "https://acmeinstal.ro/lista-preturi-manopera-sezon/"
+    },
+    {
+     "titlu": "climatizare-bucuresti.ro – prețuri manoperă aparate aer condiționat",
+     "url": "https://climatizare-bucuresti.ro/preturi-manopera-aparate-aer-conditionat/"
+    },
+    {
+     "titlu": "Prompt Service – servicii montaj aer condiționat",
+     "url": "https://prompt-service.ro/servicii/"
+    },
+    {
+     "titlu": "Clima General Install – montaj aer condiționat",
+     "url": "https://www.climageneralinstall.ro/montaj-aer-conditionat/"
+    },
+    {
+     "titlu": "Grand Clima – listă prețuri și servicii",
+     "url": "https://grandclima.ro/pricing-tables/"
+    },
+    {
+     "titlu": "Bizzlink – prețuri manoperă instalații 2026",
+     "url": "https://bizzlink.ro/blog/preturi-manopera-instalatii-2026"
+    }
+   ]
+  },
+  {
+   "cat": "climatizare",
+   "fam": "clima",
+   "lucrare": "Multisplit – montaj, per unitate interioară",
+   "um": "lei/buc",
+   "dim": "sisteme cu 2–5 unități interioare",
+   "min": 320,
+   "max": 1500,
+   "tipic": 550,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "Calculat prin împărțirea prețului pe sistem la numărul de unități interioare: ACME Instal 1.000–1.600 lei pe sistem (1+2 până la 1+5) = 320–500 lei/unitate; climatizare-bucuresti.ro 1.200–2.500 lei fără TVA = 500–600 lei/unitate. Grand Clima cere direct 1.100–1.500 lei pe unitate interioară, fără TVA (pachet premium). Unitatea exterioară este cuprinsă în aceste sume.",
+   "surse": [
+    {
+     "titlu": "ACME Instal – listă prețuri manoperă aer condiționat",
+     "url": "https://acmeinstal.ro/lista-preturi-manopera-sezon/"
+    },
+    {
+     "titlu": "climatizare-bucuresti.ro – prețuri manoperă aparate aer condiționat",
+     "url": "https://climatizare-bucuresti.ro/preturi-manopera-aparate-aer-conditionat/"
+    },
+    {
+     "titlu": "Grand Clima – listă prețuri și servicii",
+     "url": "https://grandclima.ro/pricing-tables/"
+    }
+   ],
+   "vars": [
+    "interioara"
+   ]
+  },
+  {
+   "cat": "climatizare",
+   "fam": "clima",
+   "lucrare": "Probă de presiune cu azot (cu vidare) – per sistem split",
+   "um": "lei/sistem",
+   "dim": "un aparat split; pentru VRF nu există preț public",
+   "min": 250,
+   "max": 350,
+   "tipic": 300,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "ACME Instal și climatizare-bucuresti.ro: 250–350 lei pe aparat, în funcție de lungimea traseului (cele două liste par făcute după același tipar, deci nu sunt pe deplin independente). vreauestimare.ro (2026): test cu azot 250 lei la o firmă. Vidarea este de regulă inclusă în montajul standard. Pentru un sistem VRF întreg nu am găsit preț.",
+   "surse": [
+    {
+     "titlu": "ACME Instal – listă prețuri manoperă aer condiționat",
+     "url": "https://acmeinstal.ro/lista-preturi-manopera-sezon/"
+    },
+    {
+     "titlu": "climatizare-bucuresti.ro – prețuri manoperă aparate aer condiționat",
+     "url": "https://climatizare-bucuresti.ro/preturi-manopera-aparate-aer-conditionat/"
+    },
+    {
+     "titlu": "vreauestimare.ro – prețuri aer condiționat",
+     "url": "https://vreauestimare.ro/preturi/aer-conditionat/"
+    }
+   ]
+  },
+  {
+   "cat": "climatizare",
+   "fam": "clima",
+   "lucrare": "Cablu de interconectare / comunicație între unități – pozare",
+   "um": "lei/ml",
+   "dim": "",
+   "min": 8,
+   "max": 18,
+   "tipic": 15,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "devizeroo.ro (2026): tras cablu de curenți slabi 8–18 lei/ml, valoare implicită 15, doar manoperă, fără TVA. Listele de aer condiționat (ACME Instal, Clima General) cer 15 lei/m pentru prelungirea cablului de comunicație, cel mai probabil cu tot cu cablu. Pozarea în tub/copex este mai scumpă: 10–25 lei/ml (devizeroo).",
+   "surse": [
+    {
+     "titlu": "devizeroo.ro – prețuri manoperă construcții 2026",
+     "url": "https://devizeroo.ro/preturi-manopera"
+    },
+    {
+     "titlu": "ACME Instal – listă prețuri manoperă aer condiționat",
+     "url": "https://acmeinstal.ro/lista-preturi-manopera-sezon/"
+    },
+    {
+     "titlu": "Clima General Install – montaj aer condiționat",
+     "url": "https://www.climageneralinstall.ro/montaj-aer-conditionat/"
+    }
+   ]
+  },
+  {
+   "cat": "climatizare",
+   "fam": "clima",
+   "lucrare": "Traseu de condens din PVC/PP – montaj",
+   "um": "lei/ml",
+   "dim": "Ø32 (asimilat scurgerii PVC interioare Ø32–50)",
+   "min": 21,
+   "max": 100,
+   "tipic": 40,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "Nu există preț separat pentru condens rigid; am folosit manopera de scurgere PVC interioară: ghidamenajari.ro (2026) 21–37 lei/ml; Instalator București Non-Stop (2026) 40–80 lei/ml; vreauestimare.ro (2026) 25–100 lei/m, doar manoperă. Tipic 40 este o apreciere spre partea de jos, fiind diametru mic. Furtunul flexibil de condens apare la 10–15 lei/m în listele de aer condiționat (probabil cu material).",
+   "surse": [
+    {
+     "titlu": "ghidamenajari.ro – prețuri manoperă construcții 2026",
+     "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"
+    },
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "vreauestimare.ro – prețuri instalator",
+     "url": "https://vreauestimare.ro/preturi/instalator/"
+    }
+   ]
+  },
+  {
+   "cat": "climatizare",
+   "fam": "clima",
+   "lucrare": "Pompă de condens – montaj",
+   "um": "lei/buc",
+   "dim": "",
+   "min": 150,
+   "max": 250,
+   "tipic": 200,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "ACME Instal: 150 lei. climatizare-bucuresti.ro: 250 lei fără TVA. Cele două liste seamănă ca structură, deci independența lor este parțială.",
+   "surse": [
+    {
+     "titlu": "ACME Instal – listă prețuri manoperă aer condiționat",
+     "url": "https://acmeinstal.ro/lista-preturi-manopera-sezon/"
+    },
+    {
+     "titlu": "climatizare-bucuresti.ro – prețuri manoperă aparate aer condiționat",
+     "url": "https://climatizare-bucuresti.ro/preturi-manopera-aparate-aer-conditionat/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "pompa",
+   "lucrare": "Pompă de circulație – montaj / înlocuire",
+   "um": "lei/buc",
+   "dim": "≤DN32 (racord filetat)",
+   "min": 150,
+   "max": 350,
+   "tipic": 220,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "prestari-instalatii.ro (2026) de la 150 lei; instalatori-bucuresti.ro (2026) de la 200 lei; Instalator București Non-Stop (2026) 150–350 lei; galati-instal.ro 250 lei cu taxe; Central Service Instal 43 EUR pentru pompă cu filet = 215 lei la 5 lei/EUR. Prețuri de instalator pentru pompe casnice.",
+   "surse": [
+    {
+     "titlu": "prestari-instalatii.ro – prețuri manoperă instalații 2026",
+     "url": "https://prestari-instalatii.ro/preturi-manopera-instalatii.html"
+    },
+    {
+     "titlu": "instalatori-bucuresti.ro – prețuri instalații termice 2026",
+     "url": "https://instalatori-bucuresti.ro/preturi-instalatii-termice.html"
+    },
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Galați Instal – listă prețuri manoperă",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    },
+    {
+     "titlu": "Central Service Instal – tarife (EUR)",
+     "url": "https://www.centralserviceinstal.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "pompa",
+   "lucrare": "Pompă de circulație – montaj / înlocuire",
+   "um": "lei/buc",
+   "dim": "DN40–65 (racord cu flanșă)",
+   "min": 545,
+   "max": 545,
+   "tipic": 545,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "O singură sursă: Central Service Instal, schimbare pompă de circulație cu flanșă 109 EUR = 545 lei la 5 lei/EUR. Sursa nu precizează DN-ul și nici anul tarifului; asimilat clasei DN40–65.",
+   "surse": [
+    {
+     "titlu": "Central Service Instal – tarife (EUR)",
+     "url": "https://www.centralserviceinstal.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "cazan",
+   "lucrare": "Cazan / centrală termică de pardoseală – montaj",
+   "um": "lei/buc",
+   "dim": "50–100 kW",
+   "min": 1200,
+   "max": 3110,
+   "tipic": 2000,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "C&S Service Instalații (2024): cazan de fontă 50 kW 1.590 lei. galati-instal.ro: centrală peste 45 kW 2.500 lei cu taxe. vreauestimare.ro (2026): centrală 28–70 kW 1.200–1.700 lei. Central Service Instal: dezinstalare + instalare cazan 0–100 kW 622 EUR = 3.110 lei la 5 lei/EUR (fără transport, consumabile și montaj arzător). Tipic = mediana valorilor.",
+   "surse": [
+    {
+     "titlu": "C&S Service Instalații – tarife",
+     "url": "https://instalator-autorizat-bucuresti.ro/tarife/"
+    },
+    {
+     "titlu": "Galați Instal – listă prețuri manoperă",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    },
+    {
+     "titlu": "vreauestimare.ro – prețuri montaj centrală termică",
+     "url": "https://vreauestimare.ro/preturi/centrala-termica/"
+    },
+    {
+     "titlu": "Central Service Instal – tarife (EUR)",
+     "url": "https://www.centralserviceinstal.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "cazan",
+   "lucrare": "Cazan – dezinstalare cazan vechi + instalare cazan nou",
+   "um": "lei/buc",
+   "dim": "100–200 kW",
+   "min": 3485,
+   "max": 3485,
+   "tipic": 3485,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "O singură sursă: Central Service Instal, cazan de peste 100 kW 697 EUR = 3.485 lei la 5 lei/EUR. Nu cuprinde transportul, consumabilele și montajul arzătorului. Anul tarifului nu este precizat.",
+   "surse": [
+    {
+     "titlu": "Central Service Instal – tarife (EUR)",
+     "url": "https://www.centralserviceinstal.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "cazan",
+   "lucrare": "Cazan – dezinstalare cazan vechi + instalare cazan nou",
+   "um": "lei/buc",
+   "dim": "200–400 kW",
+   "min": 4510,
+   "max": 5445,
+   "tipic": 4980,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "O singură sursă: Central Service Instal, 902 EUR (peste 200 kW) și 1.089 EUR (peste 300 kW) = 4.510–5.445 lei la 5 lei/EUR. Fără transport, consumabile și montaj arzător. Tipic = mijlocul intervalului.",
+   "surse": [
+    {
+     "titlu": "Central Service Instal – tarife (EUR)",
+     "url": "https://www.centralserviceinstal.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "cazan",
+   "lucrare": "Cazan – dezinstalare cazan vechi + instalare cazan nou",
+   "um": "lei/buc",
+   "dim": ">400 kW (până la peste 700 kW)",
+   "min": 5780,
+   "max": 8375,
+   "tipic": 7080,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "O singură sursă: Central Service Instal, de la 1.156 EUR (peste 400 kW) la 1.675 EUR (peste 700 kW) = 5.780–8.375 lei la 5 lei/EUR. Trepte intermediare: peste 500 kW 6.315 lei, peste 600 kW 7.625 lei. Tipic = mijlocul intervalului.",
+   "surse": [
+    {
+     "titlu": "Central Service Instal – tarife (EUR)",
+     "url": "https://www.centralserviceinstal.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "boiler",
+   "lucrare": "Boiler cu serpentină / termoelectric / puffer mic – montaj",
+   "um": "lei/buc",
+   "dim": "până la circa 300 l (volum neprecizat în surse)",
+   "min": 400,
+   "max": 1000,
+   "tipic": 700,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "Termo Plint (Arad, 2024): puffer 400 lei. Instalator București Non-Stop (2026): boiler cu serpentină 500–900 lei. prestari-instalatii.ro (2026): boiler termoelectric de la 700 lei. C&S Service Instalații (2024): boiler pentru centrală 840 lei. galati-instal.ro: boiler cu 1–2 serpentine 1.000 lei cu taxe. Tipic = mediana.",
+   "surse": [
+    {
+     "titlu": "Termo Plint Instal – tarife",
+     "url": "https://termoplint.ro/tarife/"
+    },
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "prestari-instalatii.ro – prețuri manoperă instalații 2026",
+     "url": "https://prestari-instalatii.ro/preturi-manopera-instalatii.html"
+    },
+    {
+     "titlu": "C&S Service Instalații – tarife",
+     "url": "https://instalator-autorizat-bucuresti.ro/tarife/"
+    },
+    {
+     "titlu": "Galați Instal – listă prețuri manoperă",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "boiler",
+   "lucrare": "Boiler ACM / puffer mare – demontare + montare",
+   "um": "lei/buc",
+   "dim": "300–1.000 l (acoperă clasele 300–500 l și 800–1.000 l)",
+   "min": 2070,
+   "max": 2725,
+   "tipic": 2400,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "O singură sursă: Central Service Instal, boiler 300–1.000 l: 414 EUR la înlocuire cu unul identic și 545 EUR cu adaptare = 2.070–2.725 lei la 5 lei/EUR. Prețul cuprinde și demontarea celui vechi. Pentru boiler sub 200 l aceeași sursă cere 217–281 EUR. Tipic = mijlocul intervalului.",
+   "surse": [
+    {
+     "titlu": "Central Service Instal – tarife (EUR)",
+     "url": "https://www.centralserviceinstal.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "vas_exp",
+   "lucrare": "Vas de expansiune – montaj / înlocuire",
+   "um": "lei/buc",
+   "dim": "≤50 l",
+   "min": 150,
+   "max": 390,
+   "tipic": 250,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "prestari-instalatii.ro (2026) de la 150–200 lei; instalatori-bucuresti.ro (2026) de la 200 lei; Instalator București Non-Stop (2026) 150–300 lei; galati-instal.ro 200–350 lei cu taxe; Central Service Instal 78 EUR pentru vas sub 100 l = 390 lei la 5 lei/EUR.",
+   "surse": [
+    {
+     "titlu": "prestari-instalatii.ro – prețuri manoperă instalații 2026",
+     "url": "https://prestari-instalatii.ro/preturi-manopera-instalatii.html"
+    },
+    {
+     "titlu": "instalatori-bucuresti.ro – prețuri instalații termice 2026",
+     "url": "https://instalatori-bucuresti.ro/preturi-instalatii-termice.html"
+    },
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Galați Instal – listă prețuri manoperă",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    },
+    {
+     "titlu": "Central Service Instal – tarife (EUR)",
+     "url": "https://www.centralserviceinstal.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "vas_exp",
+   "lucrare": "Vas de expansiune – montaj",
+   "um": "lei/buc",
+   "dim": "80–300 l",
+   "min": 1405,
+   "max": 1405,
+   "tipic": 1405,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "O singură sursă: Central Service Instal, vas de 100–300 l 281 EUR = 1.405 lei la 5 lei/EUR. Anul tarifului nu este precizat.",
+   "surse": [
+    {
+     "titlu": "Central Service Instal – tarife (EUR)",
+     "url": "https://www.centralserviceinstal.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "vas_exp",
+   "lucrare": "Vas de expansiune – montaj",
+   "um": "lei/buc",
+   "dim": ">500 l (500–1.000 l)",
+   "min": 2080,
+   "max": 2080,
+   "tipic": 2080,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "O singură sursă: Central Service Instal, vas de 500–1.000 l 416 EUR = 2.080 lei la 5 lei/EUR. Anul tarifului nu este precizat.",
+   "surse": [
+    {
+     "titlu": "Central Service Instal – tarife (EUR)",
+     "url": "https://www.centralserviceinstal.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "pompa_caldura",
+   "lucrare": "Pompă de căldură aer-apă monobloc – montaj (manoperă)",
+   "um": "lei/buc",
+   "dim": "rezidențial, circa 6–16 kW",
+   "min": 3500,
+   "max": 6000,
+   "tipic": 4500,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "sebra.ro (2026): 3.500–6.000 lei. greentherm.ro: de la 3.500 lei, București–Ilfov. energieacasa.ro (octombrie 2026): manoperă și pornire 4.000–8.000 lei, fără a despărți monobloc de split. sibotherm.com (decembrie 2021): 4.500 lei fără TVA. Niciuna nu împarte pe clase de putere; materialele și fitingurile sunt separate.",
+   "surse": [
+    {
+     "titlu": "sebra.ro – cât costă montajul unei pompe de căldură 2026",
+     "url": "https://www.sebra.ro/cat-costa-montaj-pompa-de-caldura"
+    },
+    {
+     "titlu": "greentherm.ro – preț montaj pompă de căldură aer-apă",
+     "url": "https://greentherm.ro/pret-montaj-pompa-de-caldura"
+    },
+    {
+     "titlu": "energieacasa.ro – prețuri pompe de căldură 2026",
+     "url": "https://energieacasa.ro/ghid/pret-pompe-caldura-2026"
+    },
+    {
+     "titlu": "Sibotherm – montaj pompă de căldură aer-apă",
+     "url": "https://www.sibotherm.com/montaj-pompa-de-caldura-aer-apa/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "pompa_caldura",
+   "lucrare": "Pompă de căldură aer-apă split – montaj (manoperă, cu traseu frigorific)",
+   "um": "lei/buc",
+   "dim": "rezidențial, circa 6–16 kW",
+   "min": 4500,
+   "max": 8000,
+   "tipic": 6000,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "sebra.ro (2026): 4.500–8.000 lei. greentherm.ro: de la 4.500 lei. energieacasa.ro (2026): 4.000–8.000 lei manoperă și pornire. sibotherm.com (2021): 6.500–7.500 lei fără TVA. Fără împărțire pe clase de putere.",
+   "surse": [
+    {
+     "titlu": "sebra.ro – cât costă montajul unei pompe de căldură 2026",
+     "url": "https://www.sebra.ro/cat-costa-montaj-pompa-de-caldura"
+    },
+    {
+     "titlu": "greentherm.ro – preț montaj pompă de căldură aer-apă",
+     "url": "https://greentherm.ro/pret-montaj-pompa-de-caldura"
+    },
+    {
+     "titlu": "energieacasa.ro – prețuri pompe de căldură 2026",
+     "url": "https://energieacasa.ro/ghid/pret-pompe-caldura-2026"
+    },
+    {
+     "titlu": "Sibotherm – montaj pompă de căldură aer-apă",
+     "url": "https://www.sibotherm.com/montaj-pompa-de-caldura-aer-apa/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "pompa_caldura",
+   "lucrare": "Pompă de căldură aer-apă cu cameră tehnică nouă (boiler, puffer, pompe, vas) – montaj",
+   "um": "lei/buc",
+   "dim": "rezidențial",
+   "min": 5500,
+   "max": 20000,
+   "tipic": 9000,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "sebra.ro (2026): cameră tehnică simplă 5.500–8.000 lei, complexă 12.000–20.000 lei. greenlead.ro (mai 2026): 8.000–15.000 lei. sibotherm.com (2021): 8.000–10.000 lei fără TVA, sisteme complexe de la 15.000 lei. Manoperă; echipamentele și materialele separat.",
+   "surse": [
+    {
+     "titlu": "sebra.ro – cât costă montajul unei pompe de căldură 2026",
+     "url": "https://www.sebra.ro/cat-costa-montaj-pompa-de-caldura"
+    },
+    {
+     "titlu": "greenlead.ro – cost montaj pompă de căldură 2026",
+     "url": "https://www.greenlead.ro/blog/cost-montaj-pompa-caldura-2026-preturi-manopera-detaliere"
+    },
+    {
+     "titlu": "Sibotherm – montaj pompă de căldură aer-apă",
+     "url": "https://www.sibotherm.com/montaj-pompa-de-caldura-aer-apa/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "grup_pompare",
+   "lucrare": "Hidrofor – montaj / înlocuire",
+   "um": "lei/buc",
+   "dim": "casnic",
+   "min": 350,
+   "max": 1050,
+   "tipic": 600,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "Termo Plint (2024) 350–450 lei; prestari-instalatii.ro (2026) de la 400 lei; Instalator București Non-Stop (2026) 400–800 lei; galati-instal.ro 600–1.050 lei cu taxe; AdiConstruct (2026) 700 lei; C&S Service Instalații (2024) 800 lei.",
+   "surse": [
+    {
+     "titlu": "Termo Plint Instal – tarife",
+     "url": "https://termoplint.ro/tarife/"
+    },
+    {
+     "titlu": "prestari-instalatii.ro – prețuri manoperă instalații 2026",
+     "url": "https://prestari-instalatii.ro/preturi-manopera-instalatii.html"
+    },
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Galați Instal – listă prețuri manoperă",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    },
+    {
+     "titlu": "AdiConstruct – listă de prețuri construcții",
+     "url": "https://www.adiconstructltd.com/lista-de-preturi/"
+    },
+    {
+     "titlu": "C&S Service Instalații – tarife",
+     "url": "https://instalator-autorizat-bucuresti.ro/tarife/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "boiler",
+   "lucrare": "Stație de dedurizare – montaj",
+   "um": "lei/buc",
+   "dim": "casnică",
+   "min": 300,
+   "max": 850,
+   "tipic": 500,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "prestari-instalatii.ro (2026) de la 300 lei; Instalator București Non-Stop (2026) 300–600 lei, cu by-pass; qwater.ro 490 lei (an neprecizat); galati-instal.ro 850 lei cu taxe. Pentru stații duplex sau industriale nu există preț public de montaj.",
+   "surse": [
+    {
+     "titlu": "prestari-instalatii.ro – prețuri manoperă instalații 2026",
+     "url": "https://prestari-instalatii.ro/preturi-manopera-instalatii.html"
+    },
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "qwater.ro – servicii dedurizatoare",
+     "url": "https://www.qwater.ro/servicii"
+    },
+    {
+     "titlu": "Galați Instal – listă prețuri manoperă",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "filtru_y",
+   "lucrare": "Filtru (impurități / magnetic / polifosfați) – montaj",
+   "um": "lei/buc",
+   "dim": "",
+   "min": 100,
+   "max": 350,
+   "tipic": 180,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "prestari-instalatii.ro (2026) 100–200 lei după tip; instalatori-bucuresti.ro (2026) de la 100 lei; Instalator București Non-Stop (2026) 150–280 lei filtru mecanic și 200–350 lei filtru magnetic; galati-instal.ro 250 lei cu taxe.",
+   "surse": [
+    {
+     "titlu": "prestari-instalatii.ro – prețuri manoperă instalații 2026",
+     "url": "https://prestari-instalatii.ro/preturi-manopera-instalatii.html"
+    },
+    {
+     "titlu": "instalatori-bucuresti.ro – prețuri instalații termice 2026",
+     "url": "https://instalatori-bucuresti.ro/preturi-instalatii-termice.html"
+    },
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Galați Instal – listă prețuri manoperă",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "sanitare",
+   "fam": "contor",
+   "lucrare": "Apometru (contor de apă) – montaj / demontare și montare",
+   "um": "lei/buc",
+   "dim": "DN15–20 (până la DN40)",
+   "min": 117,
+   "max": 350,
+   "tipic": 200,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "Tarife oficiale de operatori: Apavital Iași (2026) 116,67 lei fără TVA pentru Ø15–40; Apa Nova București 196 lei montare și 348 lei demontare + montare, fără TVA, DN15–20; ApaRegio Gorj (2026) 194 lei pentru D15–32. Instalator București Non-Stop (2026): 150–300 lei. Tarifele operatorilor sunt fără TVA. O listă din Galați cere 650 lei pentru un singur apometru (nefolosită, pare să cuprindă și alte operațiuni).",
+   "surse": [
+    {
+     "titlu": "Apavital – tarife alte servicii",
+     "url": "https://www.apavital.ro/tarife-alte-servicii"
+    },
+    {
+     "titlu": "Apa Nova București – tarife servicii conexe",
+     "url": "https://www.apanovabucuresti.ro/assets/pdf/Tarife-servicii-conexe.pdf"
+    },
+    {
+     "titlu": "ApaRegio Gorj – prețuri servicii",
+     "url": "https://aparegio.ro/preturi-servicii/"
+    },
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ],
+   "lo": 15,
+   "hi": 40
+  },
+  {
+   "cat": "sanitare",
+   "fam": "contor",
+   "lucrare": "Apometru (contor de apă) – demontare și montare",
+   "um": "lei/buc",
+   "dim": "DN50–100",
+   "min": 197,
+   "max": 610,
+   "tipic": 235,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "Apavital Iași (2026): 196,55 lei pentru Ø50–65 și 218,12 lei pentru Ø80–100, fără TVA. ApaRegio Gorj (2026): 234 lei pentru D40–63, iar remontarea DN63–100 610 lei. Apa Nova: demontare contor DN50–100 253 lei fără TVA. Sunt tarife de operator pentru contor pe instalație existentă, nu montaj nou cu flanșe.",
+   "surse": [
+    {
+     "titlu": "Apavital – tarife alte servicii",
+     "url": "https://www.apavital.ro/tarife-alte-servicii"
+    },
+    {
+     "titlu": "ApaRegio Gorj – prețuri servicii",
+     "url": "https://aparegio.ro/preturi-servicii/"
+    },
+    {
+     "titlu": "Apa Nova București – tarife servicii conexe",
+     "url": "https://www.apanovabucuresti.ro/assets/pdf/Tarife-servicii-conexe.pdf"
+    }
+   ],
+   "lo": 50,
+   "hi": 100
+  },
+  {
+   "cat": "general",
+   "fam": "terasament",
+   "lucrare": "Săpătură manuală în șanț / spații înguste",
+   "um": "lei/mc",
+   "dim": "",
+   "min": 60,
+   "max": 500,
+   "tipic": 230,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "Două grupe de prețuri. Tarife de volum: necesit.ro (2026) 60–80; Optima Construcții (2025) 80–120 fără TVA; depozit-online.ro (2026) 80–180 fără TVA. Liste de firme de renovări și ghiduri: DecCons (2025) 370; ghidamenajari.ro (2026) 300–400; AdiConstruct (2026) 400; renovari.net 300–500. Tariful oficial al Sectorului 5 București (HCL 2025) este 228,78 lei/mc fără TVA și a fost luat ca valoare tipică, fiind între cele două grupe.",
+   "surse": [
+    {
+     "titlu": "necesit.ro – săpături și excavații 2026",
+     "url": "https://www.necesit.ro/preturi/terasamente-demolari/sapaturi-excavatii"
+    },
+    {
+     "titlu": "Optima Construcții – prețuri manoperă 2025",
+     "url": "https://www.optimaconstructii.com/preturi-1"
+    },
+    {
+     "titlu": "depozit-online.ro – prețuri manoperă în construcții 2026",
+     "url": "https://www.depozit-online.ro/page/preuri-manoper-n-construcii-august-2026"
+    },
+    {
+     "titlu": "DecCons – manoperă construcții, listă de prețuri",
+     "url": "https://www.deccons.ro/DecCons/Manopera-Constructii-Lista-Preturi"
+    },
+    {
+     "titlu": "ghidamenajari.ro – prețuri manoperă construcții 2026",
+     "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"
+    },
+    {
+     "titlu": "AdiConstruct – listă de prețuri construcții",
+     "url": "https://www.adiconstructltd.com/lista-de-preturi/"
+    },
+    {
+     "titlu": "HCL Sector 5 nr. 69/2025 – listă tarife",
+     "url": "https://doc.pmb.ro/monitorul_oficial/2025/05/CLS_5/HCLS5_69.pdf"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "fam": "terasament",
+   "lucrare": "Săpătură mecanizată",
+   "um": "lei/mc",
+   "dim": "",
+   "min": 15,
+   "max": 80,
+   "tipic": 40,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "necesit.ro (2026) 15–60; Optima Construcții (2025) 25–40 fără TVA; depozit-online.ro (2026) 30–80 fără TVA; vreauestimare.ro (2026) 25–40 în sol normal și 50–60 în sol argilos sau pietros. Fără evacuarea pământului (10–73 lei/mc separat). Tariful Sectorului 5 (189,88 lei/mc) este mult peste piață și nu a fost folosit. Multe firme lucrează pe oră de utilaj: 150–440 lei/oră.",
+   "surse": [
+    {
+     "titlu": "necesit.ro – săpături și excavații 2026",
+     "url": "https://www.necesit.ro/preturi/terasamente-demolari/sapaturi-excavatii"
+    },
+    {
+     "titlu": "Optima Construcții – prețuri manoperă 2025",
+     "url": "https://www.optimaconstructii.com/preturi-1"
+    },
+    {
+     "titlu": "depozit-online.ro – prețuri manoperă în construcții 2026",
+     "url": "https://www.depozit-online.ro/page/preuri-manoper-n-construcii-august-2026"
+    },
+    {
+     "titlu": "vreauestimare.ro – prețuri excavator",
+     "url": "https://vreauestimare.ro/preturi/excavator/"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "fam": "terasament",
+   "lucrare": "Șanț săpat manual pentru instalații (spații înguste)",
+   "um": "lei/ml",
+   "dim": "adâncime uzuală 0,8–1,5 m",
+   "min": 120,
+   "max": 350,
+   "tipic": 200,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "bursautilajelor.ro (martie 2025): 120–200 lei/ml, valoare reluată și de vreauestimare.ro (2026). galati-instal.ro: 260 lei/ml șanț de instalație și 350 lei/ml pentru canalizare exterioară sau alimentare cu apă, taxe incluse. Linie adăugată în plus față de cerere, fiind unitatea folosită des la branșamente.",
+   "surse": [
+    {
+     "titlu": "bursautilajelor.ro – excavare pentru canalizare sau țevi de apă",
+     "url": "https://bursautilajelor.ro/blog/excavare-pentru-canalizare-sau-tevi-de-apa"
+    },
+    {
+     "titlu": "Galați Instal – listă prețuri manoperă",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "fam": "terasament",
+   "lucrare": "Șanț săpat mecanizat pentru utilități (fără evacuare pământ)",
+   "um": "lei/ml",
+   "dim": "adâncime 0,8–2 m",
+   "min": 15,
+   "max": 70,
+   "tipic": 50,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "bursautilajelor.ro (2025): 35–55 lei/ml pentru țeavă de apă sub 1,2 m și 45–70 lei/ml pentru canalizare. vreauestimare.ro (2026): 15–55 lei/ml la 0,8–1,2 m și 45–70 lei/ml la 1,2–2 m. Cele două surse se sprijină parțial una pe alta. Linie adăugată în plus față de cerere.",
+   "surse": [
+    {
+     "titlu": "bursautilajelor.ro – excavare pentru canalizare sau țevi de apă",
+     "url": "https://bursautilajelor.ro/blog/excavare-pentru-canalizare-sau-tevi-de-apa"
+    },
+    {
+     "titlu": "vreauestimare.ro – prețuri excavator",
+     "url": "https://vreauestimare.ro/preturi/excavator/"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "fam": "terasament",
+   "lucrare": "Umplutură compactată în straturi",
+   "um": "lei/mc",
+   "dim": "",
+   "min": 25,
+   "max": 75,
+   "tipic": 45,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "depozit-online.ro (2026): 25–60 lei/mc, manoperă fără TVA. constructii-tsc.ro (listă veche, 2017): 40 lei/mc. AdiConstruct (2026): umplut cu pietriș 75 lei/mc. Tariful Sectorului 5 (224 lei/mc) pare să cuprindă și materialul și nu a fost folosit.",
+   "surse": [
+    {
+     "titlu": "depozit-online.ro – prețuri manoperă în construcții 2026",
+     "url": "https://www.depozit-online.ro/page/preuri-manoper-n-construcii-august-2026"
+    },
+    {
+     "titlu": "TSC Construcții – listă prețuri",
+     "url": "https://www.constructii-tsc.ro/lista-preturi/"
+    },
+    {
+     "titlu": "AdiConstruct – listă de prețuri construcții",
+     "url": "https://www.adiconstructltd.com/lista-de-preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "fam": "terasament",
+   "lucrare": "Strat de nisip (pat de pozare) – așternere",
+   "um": "lei/mc",
+   "dim": "",
+   "min": 30,
+   "max": 75,
+   "tipic": 50,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "Nu există preț public de manoperă pentru nisip; am asimilat cu așternerea de pietriș: constructii-tsc.ro (listă veche, 2017) 30 lei/mc și AdiConstruct (2026) 75 lei/mc. Tipic = mijlocul intervalului. Tariful Sectorului 5 pentru așternere nisip (303 lei/mc) cuprinde cel mai probabil și nisipul, deci nu a fost folosit.",
+   "surse": [
+    {
+     "titlu": "TSC Construcții – listă prețuri",
+     "url": "https://www.constructii-tsc.ro/lista-preturi/"
+    },
+    {
+     "titlu": "AdiConstruct – listă de prețuri construcții",
+     "url": "https://www.adiconstructltd.com/lista-de-preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "demontare",
+   "lucrare": "Demontare calorifer",
+   "um": "lei/buc",
+   "dim": "",
+   "min": 50,
+   "max": 300,
+   "tipic": 150,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "Termo Plint (Arad, 2024): 50 lei, fontă 150 lei. AdiConstruct (2026): 150 lei. C&S Service Instalații (2024): debranșare 190 lei. galati-instal.ro: 250 lei, fontă 300 lei, taxe incluse. ghidamenajari.ro (2026): 250 lei împreună cu montajul robineților. Caloriferele de fontă sunt la capătul de sus.",
+   "surse": [
+    {
+     "titlu": "Termo Plint Instal – tarife",
+     "url": "https://termoplint.ro/tarife/"
+    },
+    {
+     "titlu": "AdiConstruct – listă de prețuri construcții",
+     "url": "https://www.adiconstructltd.com/lista-de-preturi/"
+    },
+    {
+     "titlu": "C&S Service Instalații – tarife",
+     "url": "https://instalator-autorizat-bucuresti.ro/tarife/"
+    },
+    {
+     "titlu": "Galați Instal – listă prețuri manoperă",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    },
+    {
+     "titlu": "ghidamenajari.ro – prețuri manoperă construcții 2026",
+     "url": "https://ghidamenajari.ro/costuri-renovare/preturi-manopera/preturi-manopera-constructii-2026-lista/"
+    }
+   ]
+  },
+  {
+   "cat": "sanitare",
+   "fam": "demontare",
+   "lucrare": "Demontare obiect sanitar (WC, lavoar, bideu)",
+   "um": "lei/buc",
+   "dim": "",
+   "min": 30,
+   "max": 150,
+   "tipic": 90,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "vreauestimare.ro (2026) 30–100 lei; necesit.ro (2026) 38–100 lei; C&S Service Instalații (2024) 90–120 lei; servicii-instalatii.ro (2026) WC de la 50 lei fără TVA; AdiConstruct (2026) 150 lei. Căzile și cabinele de duș sunt mai scumpe: 150–275 lei.",
+   "surse": [
+    {
+     "titlu": "vreauestimare.ro – prețuri instalator",
+     "url": "https://vreauestimare.ro/preturi/instalator/"
+    },
+    {
+     "titlu": "necesit.ro – prețuri instalatori 2026",
+     "url": "https://www.necesit.ro/preturi/instalator/preturi-instalatori"
+    },
+    {
+     "titlu": "C&S Service Instalații – tarife",
+     "url": "https://instalator-autorizat-bucuresti.ro/tarife/"
+    },
+    {
+     "titlu": "servicii-instalatii.ro – preț manoperă instalator București 2026",
+     "url": "https://servicii-instalatii.ro/preturi-manopera-instalatii-sanitare-termice-electrice-instalator-electrician-bucuresti/"
+    },
+    {
+     "titlu": "AdiConstruct – listă de prețuri construcții",
+     "url": "https://www.adiconstructltd.com/lista-de-preturi/"
+    },
+    {
+     "titlu": "ghidamenajari.ro – instalație sanitară baie, costuri 2026",
+     "url": "https://ghidamenajari.ro/instalatii-casa/instalatii-sanitare/instalatie-sanitara-baie-costuri-etape/"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "fam": "strapungere",
+   "lucrare": "Carotare / străpungere în beton",
+   "um": "lei/buc",
+   "dim": "≤Ø50",
+   "min": 40,
+   "max": 250,
+   "tipic": 150,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "romartigreenconcept.ro: 200–250 lei (Ø32–50, beton armat). lamesteri.eu: 180–220 lei pentru Ø50–70. vreauestimare.ro (2026): 40–100 lei pentru Ø20–50. meseriaslocal.ro (Timișoara, 2026): 80–150 lei gaură mică. Trecerile cu burghiul prin beton la montajul de aer condiționat: 100–150 lei. Perete de 20–30 cm; peste 30 cm se adaugă 5–10 lei/cm.",
+   "surse": [
+    {
+     "titlu": "Romarti Green Concept – carotare",
+     "url": "https://www.romartigreenconcept.ro/carotare.html"
+    },
+    {
+     "titlu": "lamesteri.eu – carotare găuri în beton",
+     "url": "https://www.lamesteri.eu/gauri-in-beton-carotare/"
+    },
+    {
+     "titlu": "vreauestimare.ro – prețuri carotare / tăiere beton",
+     "url": "https://vreauestimare.ro/preturi/carotare-beton/"
+    },
+    {
+     "titlu": "meseriaslocal.ro – preț carotare beton Timișoara 2026",
+     "url": "https://www.meseriaslocal.ro/blog/cat-costa-carotarea-betonului-timisoara-2026/"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "fam": "strapungere",
+   "lucrare": "Carotare / străpungere în beton",
+   "um": "lei/buc",
+   "dim": "Ø60–110",
+   "min": 100,
+   "max": 350,
+   "tipic": 240,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "romartigreenconcept.ro: 250 lei. lamesteri.eu: 200–240 lei pentru Ø80–100 și 220–280 lei pentru Ø110–130. ACME Instal și climatizare-bucuresti.ro: carotaj 250 lei. vreauestimare.ro (2026): 100–250 lei pentru Ø80–150. meseriaslocal.ro (2026): 120–350 lei. gauri-hota.ro: 200 lei fără TVA (listă veche, 2011).",
+   "surse": [
+    {
+     "titlu": "Romarti Green Concept – carotare",
+     "url": "https://www.romartigreenconcept.ro/carotare.html"
+    },
+    {
+     "titlu": "lamesteri.eu – carotare găuri în beton",
+     "url": "https://www.lamesteri.eu/gauri-in-beton-carotare/"
+    },
+    {
+     "titlu": "ACME Instal – listă prețuri manoperă aer condiționat",
+     "url": "https://acmeinstal.ro/lista-preturi-manopera-sezon/"
+    },
+    {
+     "titlu": "vreauestimare.ro – prețuri carotare / tăiere beton",
+     "url": "https://vreauestimare.ro/preturi/carotare-beton/"
+    },
+    {
+     "titlu": "meseriaslocal.ro – preț carotare beton Timișoara 2026",
+     "url": "https://www.meseriaslocal.ro/blog/cat-costa-carotarea-betonului-timisoara-2026/"
+    },
+    {
+     "titlu": "gauri-hota.ro – prețuri servicii carotare",
+     "url": "https://www.gauri-hota.ro/preturi-servicii.html"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "fam": "strapungere",
+   "lucrare": "Carotare / străpungere în beton",
+   "um": "lei/buc",
+   "dim": "Ø125–200",
+   "min": 250,
+   "max": 500,
+   "tipic": 350,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "romartigreenconcept.ro: 300–350 lei (Ø132–182). lamesteri.eu: 250–350 lei pentru Ø150–160 și 350–500 lei pentru Ø200. vreauestimare.ro (2026): 250–500 lei pentru Ø150–200 sau beton armat gros. gauri-hota.ro: 250–400 lei fără TVA (listă veche, 2011). Peste Ø250 se negociază pe cm.",
+   "surse": [
+    {
+     "titlu": "Romarti Green Concept – carotare",
+     "url": "https://www.romartigreenconcept.ro/carotare.html"
+    },
+    {
+     "titlu": "lamesteri.eu – carotare găuri în beton",
+     "url": "https://www.lamesteri.eu/gauri-in-beton-carotare/"
+    },
+    {
+     "titlu": "vreauestimare.ro – prețuri carotare / tăiere beton",
+     "url": "https://vreauestimare.ro/preturi/carotare-beton/"
+    },
+    {
+     "titlu": "gauri-hota.ro – prețuri servicii carotare",
+     "url": "https://www.gauri-hota.ro/preturi-servicii.html"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "fam": "strapungere",
+   "lucrare": "Carotare / străpungere în zidărie (cărămidă, BCA)",
+   "um": "lei/buc",
+   "dim": "≤Ø110",
+   "min": 50,
+   "max": 200,
+   "tipic": 150,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "romartigreenconcept.ro: 150 lei până la Ø60 și 200 lei pentru Ø80–110. ACME Instal și climatizare-bucuresti.ro: trecere prin zidărie 100 lei. Grand Clima și Clima General: 50 lei. galati-instal.ro: gaură de aer condiționat în cărămidă 150 lei cu taxe.",
+   "surse": [
+    {
+     "titlu": "Romarti Green Concept – carotare",
+     "url": "https://www.romartigreenconcept.ro/carotare.html"
+    },
+    {
+     "titlu": "ACME Instal – listă prețuri manoperă aer condiționat",
+     "url": "https://acmeinstal.ro/lista-preturi-manopera-sezon/"
+    },
+    {
+     "titlu": "Grand Clima – listă prețuri și servicii",
+     "url": "https://grandclima.ro/pricing-tables/"
+    },
+    {
+     "titlu": "Galați Instal – listă prețuri manoperă",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "fam": "strapungere",
+   "lucrare": "Carotare / străpungere în zidărie (cărămidă, BCA)",
+   "um": "lei/buc",
+   "dim": "Ø125–200",
+   "min": 200,
+   "max": 250,
+   "tipic": 225,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "O singură sursă cu preț separat pe zidărie la diametre mari: romartigreenconcept.ro, 200 lei la Ø132 și 250 lei la Ø162–182 (an neprecizat). Alte firme cer același preț ca la beton. Tipic = mijlocul intervalului.",
+   "surse": [
+    {
+     "titlu": "Romarti Green Concept – carotare",
+     "url": "https://www.romartigreenconcept.ro/carotare.html"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "lucrare": "Probă de presiune instalație",
+   "um": "lei/instalație",
+   "dim": "apartament / casă (o etapă)",
+   "min": 150,
+   "max": 600,
+   "tipic": 300,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "devizeroo.ro (2026): 150–400 lei, valoare implicită 275, fără TVA. Instalator București Non-Stop (2026): 150–300 lei. AdiConstruct (2026): 350 lei. vreauestimare.ro (2026): 200–400 lei pe apartament. devizrapid.ro (2026): 300–600 lei pe etapă, cu TVA. Valabil pentru instalații mici; pentru clădiri mari nu există preț public.",
+   "surse": [
+    {
+     "titlu": "devizeroo.ro – prețuri manoperă construcții 2026",
+     "url": "https://devizeroo.ro/preturi-manopera"
+    },
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "AdiConstruct – listă de prețuri construcții",
+     "url": "https://www.adiconstructltd.com/lista-de-preturi/"
+    },
+    {
+     "titlu": "vreauestimare.ro – prețuri instalator",
+     "url": "https://vreauestimare.ro/preturi/instalator/"
+    },
+    {
+     "titlu": "devizrapid.ro – model deviz instalație termică 2026",
+     "url": "https://devizrapid.ro/blog/model-deviz-instalatie-termica-2026"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "lucrare": "Spălare chimică instalație de încălzire",
+   "um": "lei/instalație",
+   "dim": "apartament / casă, până la circa 20 de calorifere",
+   "min": 700,
+   "max": 1550,
+   "tipic": 1100,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "Instalator București Non-Stop (2026): 700–1.400 lei pe apartament. galati-instal.ro: 1.550 lei pe apartament cu centrală proprie, taxe incluse. Central Service Instal: 207 EUR pentru 1–10 calorifere și 308 EUR pentru 10–20 = 1.035–1.540 lei la 5 lei/EUR. Linie adăugată în plus, fiind singura formă în care spălarea are preț public.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Galați Instal – listă prețuri manoperă",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    },
+    {
+     "titlu": "Central Service Instal – tarife (EUR)",
+     "url": "https://www.centralserviceinstal.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "pif",
+   "lucrare": "Punere în funcțiune centrală termică murală",
+   "um": "lei/buc",
+   "dim": "≤40 kW",
+   "min": 200,
+   "max": 450,
+   "tipic": 325,
+   "tva": "neprecizat",
+   "sigur": "bun",
+   "nota": "pifcentrale.ro (2026): 200–450 lei, mediană circa 325. Instalator București Non-Stop (2026): 200–400 lei. bizzlink.ro (2026): 350–450 lei cu autorizare ISCIR. Central Service Instal: 58 EUR = 290 lei la 5 lei/EUR. Unele firme taxează separat autorizarea ISCIR.",
+   "surse": [
+    {
+     "titlu": "pifcentrale.ro – punere în funcțiune centrală, ghid prețuri 2026",
+     "url": "https://pifcentrale.ro/ghid-preturi/punere-in-functiune-centrala-pif"
+    },
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Bizzlink – prețuri manoperă instalații 2026",
+     "url": "https://bizzlink.ro/blog/preturi-manopera-instalatii-2026"
+    },
+    {
+     "titlu": "Central Service Instal – tarife (EUR)",
+     "url": "https://www.centralserviceinstal.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "pif",
+   "lucrare": "Punere în funcțiune și autorizare cazan",
+   "um": "lei/buc",
+   "dim": "40–100 kW",
+   "min": 355,
+   "max": 650,
+   "tipic": 500,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "O singură sursă: Central Service Instal, autorizare la punerea în funcțiune 71 EUR (40–70 kW) și 130 EUR (70–100 kW) = 355–650 lei la 5 lei/EUR. Anul tarifului nu este precizat. Tipic = mijlocul intervalului.",
+   "surse": [
+    {
+     "titlu": "Central Service Instal – tarife (EUR)",
+     "url": "https://www.centralserviceinstal.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "pif",
+   "lucrare": "Punere în funcțiune și autorizare cazan",
+   "um": "lei/buc",
+   "dim": "100–400 kW",
+   "min": 970,
+   "max": 1290,
+   "tipic": 1130,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "O singură sursă: Central Service Instal, 194 EUR (100–200 kW) și 258 EUR (200–400 kW și peste) = 970–1.290 lei la 5 lei/EUR. Peste 400 kW se adaugă taxele CNCIR. Tipic = mijlocul intervalului.",
+   "surse": [
+    {
+     "titlu": "Central Service Instal – tarife (EUR)",
+     "url": "https://www.centralserviceinstal.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "termice",
+   "fam": "pompa_caldura",
+   "lucrare": "Punere în funcțiune pompă de căldură",
+   "um": "lei/buc",
+   "dim": "rezidențial",
+   "min": 500,
+   "max": 1500,
+   "tipic": 1000,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "O singură sursă cu preț separat: greenlead.ro (mai 2026), 500–1.500 lei pentru configurare, testare și reglaj. La cele mai multe firme pornirea este inclusă în prețul de montaj. Tipic = mijlocul intervalului.",
+   "surse": [
+    {
+     "titlu": "greenlead.ro – cost montaj pompă de căldură 2026",
+     "url": "https://www.greenlead.ro/blog/cost-montaj-pompa-caldura-2026-preturi-manopera-detaliere"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "fam": "grund",
+   "lucrare": "Vopsire / grunduire țeavă de oțel (asimilat vopsirii confecțiilor metalice)",
+   "um": "lei/mp",
+   "dim": "",
+   "min": 10,
+   "max": 25,
+   "tipic": 25,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "Nu există preț public anume pentru țevi. Repere pentru vopsit metal: AdiConstruct (2026) 25 lei/mp; constructii-tsc.ro (listă veche, 2017) 10 lei/mp pe strat. Tipic = valoarea din lista recentă. Pe metru liniar nu am găsit preț de manoperă; tariful Sectorului 5 pentru vopsit elemente metalice (36 lei/ml fără TVA) pare să cuprindă și vopseaua.",
+   "surse": [
+    {
+     "titlu": "AdiConstruct – listă de prețuri construcții",
+     "url": "https://www.adiconstructltd.com/lista-de-preturi/"
+    },
+    {
+     "titlu": "TSC Construcții – listă prețuri",
+     "url": "https://www.constructii-tsc.ro/lista-preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "fam": "gaz",
+   "lucrare": "Instalație de gaze – țeavă de oțel montată (manoperă, firmă autorizată ANRE)",
+   "um": "lei/ml",
+   "dim": "diametre mici de apartament / casă",
+   "min": 80,
+   "max": 182,
+   "tipic": 110,
+   "tva": "cu TVA",
+   "sigur": "orientativ",
+   "nota": "devizrapid.ro (2026): 80–140 lei/m cu TVA în orașe medii, iar în devizul-model 91 lei/m fără TVA. vreauestimare.ro (2026): 80–140 lei/m la Oradea, Craiova, Ploiești și 104–182 lei/m la București și Cluj, manoperă cu TVA (pare să preia aceeași sursă). grand-instalatiigaze.ro: de la 100 lei/ml cu TVA, fără a spune dacă include țeava.",
+   "surse": [
+    {
+     "titlu": "devizrapid.ro – model deviz instalație termică 2026",
+     "url": "https://devizrapid.ro/blog/model-deviz-instalatie-termica-2026"
+    },
+    {
+     "titlu": "vreauestimare.ro – prețuri instalator gaz",
+     "url": "https://vreauestimare.ro/preturi/instalator-gaz/"
+    },
+    {
+     "titlu": "Grand Instalații Gaze – prețuri",
+     "url": "https://grand-instalatiigaze.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "fam": "gaz",
+   "lucrare": "Detector de gaze cu electrovană – montaj",
+   "um": "lei/buc",
+   "dim": "",
+   "min": 200,
+   "max": 800,
+   "tipic": 450,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "galati-instal.ro: detector 200 lei, electrovalvă cu senzor 800 lei, taxe incluse. C&S Service Instalații (2024): electrovalvă cu senzor 480 lei. Instalator București Non-Stop (2026): 350–700 lei. Central Service Instal: detector cu legături electrice 78 EUR = 390 lei la 5 lei/EUR. La unele firme prețul mare poate cuprinde și aparatul.",
+   "surse": [
+    {
+     "titlu": "Galați Instal – listă prețuri manoperă",
+     "url": "https://galati-instal.ro/lista-preturi/"
+    },
+    {
+     "titlu": "C&S Service Instalații – tarife",
+     "url": "https://instalator-autorizat-bucuresti.ro/tarife/"
+    },
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Central Service Instal – tarife (EUR)",
+     "url": "https://www.centralserviceinstal.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "fam": "teava:ol",
+   "lucrare": "Țeavă de oțel neagră montată (filet / sudură)",
+   "um": "lei/ml",
+   "dim": "DN15–25",
+   "min": 80,
+   "max": 182,
+   "tipic": 110,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "Nu există preț public direct pentru țeavă neagră în instalații termice sau de hidranți. Repere apropiate: C&S Service Instalații (2024) montaj conducte de instalație termică interioară 110 lei/ml, fără a preciza materialul; țeava de oțel pentru gaze 80–182 lei/ml cu TVA (devizrapid.ro și vreauestimare.ro, 2026), lucrare autorizată ANRE, deci probabil mai scumpă decât o instalație obișnuită. De folosit doar ca ordin de mărime.",
+   "surse": [
+    {
+     "titlu": "C&S Service Instalații – tarife",
+     "url": "https://instalator-autorizat-bucuresti.ro/tarife/"
+    },
+    {
+     "titlu": "devizrapid.ro – model deviz instalație termică 2026",
+     "url": "https://devizrapid.ro/blog/model-deviz-instalatie-termica-2026"
+    },
+    {
+     "titlu": "vreauestimare.ro – prețuri instalator gaz",
+     "url": "https://vreauestimare.ro/preturi/instalator-gaz/"
+    }
+   ],
+   "lo": 15,
+   "hi": 25
+  },
+  {
+   "cat": "sanitare",
+   "fam": "teava:pvc",
+   "lucrare": "Canalizare PVC – pozare țeavă (fără săpătură)",
+   "um": "lei/ml",
+   "dim": "Ø110–160",
+   "min": 25,
+   "max": 100,
+   "tipic": 50,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "Instalator București Non-Stop (2026): țeavă de canalizare PVC/PP 40–80 lei/ml, cu pantă verificată. vreauestimare.ro (2026): traseu de scurgere PVC 25–100 lei/m, doar manoperă. Niciuna nu desparte interior de exterior și nici pe diametre. Lucrarea completă în curte (săpătură mecanizată, pozare, astupare) apare la 100–160 lei/ml (bursautilajelor.ro, 2025), fără a fi clar dacă țeava este inclusă – nefolosit ca preț.",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "vreauestimare.ro – prețuri instalator",
+     "url": "https://vreauestimare.ro/preturi/instalator/"
+    },
+    {
+     "titlu": "bursautilajelor.ro – excavare pentru canalizare sau țevi de apă",
+     "url": "https://bursautilajelor.ro/blog/excavare-pentru-canalizare-sau-tevi-de-apa"
+    }
+   ],
+   "lo": 100,
+   "hi": 150
+  },
+  {
+   "cat": "sanitare",
+   "fam": "camin",
+   "lucrare": "Cămin de vizitare – montaj",
+   "um": "lei/buc",
+   "dim": "",
+   "min": 300,
+   "max": 1800,
+   "tipic": 800,
+   "tva": "neprecizat",
+   "sigur": "slab",
+   "nota": "Două surse care nu se potrivesc: vreauestimare.ro (2026) cămin de canalizare montat, cu capac, 300–600 lei, fără a spune dacă include căminul; Instalator București Non-Stop (2026) montaj cămin de vizitare 800–1.800 lei. Tipic 800 este limita de jos a listei care declară manoperă. Tarifele Apa Nova (3.880–9.540 lei) și ale Sectorului 5 (1.452–2.781 lei) sunt cu material și nu au fost folosite.",
+   "surse": [
+    {
+     "titlu": "vreauestimare.ro – prețuri instalație de canalizare",
+     "url": "https://vreauestimare.ro/preturi/canalizare/"
+    },
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    }
+   ]
+  },
+  {
+   "cat": "hidranti",
+   "lucrare": "Țeavă de oțel zincată montată, cu fitinguri incluse (rețea de hidranți / apă)",
+   "um": "lei/ml",
+   "dim": "DN15–50 (1/2–2 țoli)",
+   "min": 38,
+   "max": 46,
+   "tipic": 42,
+   "tva": "fără TVA",
+   "sigur": "orientativ",
+   "nota": "Două documente publice. Municipiul Arad, tarife de manoperă din caietul de sarcini din 11.04.2023 (contract de întreținere atribuit către RECONS SA): înlocuire țeavă zincată 1/2–2 țoli cu fitinguri 46 lei/ml. Comuna Giroc, deviz de proiectant cu valori (nedatat, 35 lei/oră): țeavă 2 țoli 24,50 lei/m plus fitinguri 19,25–29,05 lei/buc; calculat pe cantitățile devizului (85 m și 54 de fitinguri pe rețeaua de hidranți) rezultă circa 38 lei/m. Tipic = mijlocul. Ambele sunt manoperă directă la 33–36 lei/oră, nu ofertă de subantrepriză; pe piață instalatorii cer 70–200 lei/oră, deci prețul real poate fi sensibil mai mare.",
+   "surse": [
+    {
+     "titlu": "Municipiul Arad – Anexa 5 la caietul de sarcini, tarife de manoperă (2023)",
+     "url": "https://www.primariaarad.ro/dm_arad/portal.nsf/AllByUNID/48F50EFF24F3888FC22589DA00396A7A/$FILE/Anexa%20Nr.%205%20la%20CS%20Tarife%20manoper%C4%83%20revizia%202.pdf"
+    },
+    {
+     "titlu": "Comuna Giroc – deviz F3 cu valori, anexă HCL (emol.ro)",
+     "url": "https://emol.ro/pluginfile.php/1/local_emol/documenthcl/86531/771.%20CRESA%20GIROC%20DEVIZ.PDF"
+    }
+   ]
+  },
+  {
+   "cat": "hidranti",
+   "lucrare": "Verificare și probă de funcționare hidrant interior / exterior (debit și presiune)",
+   "um": "lei/buc",
+   "dim": "",
+   "min": 35,
+   "max": 57,
+   "tipic": 50,
+   "tva": "fără TVA",
+   "sigur": "bun",
+   "nota": "Cel mai apropiat preț public de o punere în funcțiune: verificarea periodică făcută de firme autorizate. magazinstingatoare.ro 35 lei fără TVA, cu proba de presiune inclusă; firma-gaze.ro de la 50 lei/buc; e-stingatoare.ro 55 lei fără TVA; prevenirea.ro 67,88 lei cu TVA (circa 56 lei fără). Mult peste: Central Service Instal 25–35 EUR pe hidrant și ApaRegio Gorj 283 lei (2026). Nu este PIF de instalație nouă cu buletin pe toată rețeaua.",
+   "surse": [
+    {
+     "titlu": "magazinstingatoare.ro – verificare hidranți",
+     "url": "https://www.magazinstingatoare.ro/verificare-hidranti/"
+    },
+    {
+     "titlu": "firma-gaze.ro – verificare instalații hidranți și sprinklere",
+     "url": "https://firma-gaze.ro/verificare-instalatii-hidranti-si-splinkere/"
+    },
+    {
+     "titlu": "e-stingatoare.ro – servicii PSI",
+     "url": "https://e-stingatoare.ro/servicii-psi"
+    },
+    {
+     "titlu": "prevenirea.ro – mentenanță hidranți interiori și exteriori",
+     "url": "https://www.prevenirea.ro/mentenanta-hidranti-interiori-si-exteriori"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "lucrare": "Robinet / armătură filetată – montaj sau înlocuire",
+   "um": "lei/buc",
+   "dim": "până la DN50 (2 țoli)",
+   "min": 19.21,
+   "max": 50,
+   "tipic": 23.1,
+   "tva": "fără TVA",
+   "sigur": "orientativ",
+   "nota": "Comuna Giroc, deviz de proiectant (nedatat, 35 lei/oră): armături DN50 19,21 lei/buc, robinet de trecere 2 țoli 23,10 lei/buc. Municipiul Arad, tarife de manoperă 2023: înlocuire ventil sferic 1/2–2 țoli 50 lei/buc (cuprinde și demontarea celui vechi). Tipic = montajul nou din deviz. Manoperă directă la 33–36 lei/oră, nu preț de ofertă.",
+   "surse": [
+    {
+     "titlu": "Comuna Giroc – deviz F3 cu valori, anexă HCL (emol.ro)",
+     "url": "https://emol.ro/pluginfile.php/1/local_emol/documenthcl/86531/771.%20CRESA%20GIROC%20DEVIZ.PDF"
+    },
+    {
+     "titlu": "Municipiul Arad – Anexa 5 la caietul de sarcini, tarife de manoperă (2023)",
+     "url": "https://www.primariaarad.ro/dm_arad/portal.nsf/AllByUNID/48F50EFF24F3888FC22589DA00396A7A/$FILE/Anexa%20Nr.%205%20la%20CS%20Tarife%20manoper%C4%83%20revizia%202.pdf"
+    }
+   ]
+  },
+  {
+   "cat": "climatizare",
+   "lucrare": "Izolație cu tub elastomeric pentru țevi (frigorifice / termice) – montaj",
+   "um": "lei/ml",
+   "dim": "nediferențiat pe diametru",
+   "min": 12,
+   "max": 25,
+   "tipic": 18,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "Instalator București Non-Stop (2026): izolare conducte 12–25 lei/ml, preț de piață. Comuna Giroc, deviz de proiectant (nedatat, 35 lei/oră): izolația țevii de cupru frigorifice 24,50 lei/m. Tipic = mijlocul intervalului. Nicio sursă nu desparte pe diametre. În același deviz izolația cu vată bazaltică pentru țevi de 20–25 mm este 3,50 lei/m (alt material).",
+   "surse": [
+    {
+     "titlu": "Instalator București Non-Stop – prețuri 2026",
+     "url": "https://instalator-bucuresti-non-stop.ro/preturi/"
+    },
+    {
+     "titlu": "Comuna Giroc – deviz F3 cu valori, anexă HCL (emol.ro)",
+     "url": "https://emol.ro/pluginfile.php/1/local_emol/documenthcl/86531/771.%20CRESA%20GIROC%20DEVIZ.PDF"
+    }
+   ]
+  },
+  {
+   "cat": "general",
+   "lucrare": "Vopsire anticorozivă elemente metalice / țevi (curățare, grund, două straturi)",
+   "um": "lei/mp",
+   "dim": "",
+   "min": 20,
+   "max": 25,
+   "tipic": 20,
+   "tva": "neprecizat",
+   "sigur": "orientativ",
+   "nota": "Municipiul Arad, tarife de manoperă din caietul de sarcini din 11.04.2023: vopsire anticorozivă cu curățare, grunduire și două straturi 20 lei/mp fără TVA. AdiConstruct (2026): vopsit confecții metalice 25 lei/mp. Niciuna nu este anume pentru țevi; întărește linia slabă din runda 1.",
+   "surse": [
+    {
+     "titlu": "Municipiul Arad – Anexa 5 la caietul de sarcini, tarife de manoperă (2023)",
+     "url": "https://www.primariaarad.ro/dm_arad/portal.nsf/AllByUNID/48F50EFF24F3888FC22589DA00396A7A/$FILE/Anexa%20Nr.%205%20la%20CS%20Tarife%20manoper%C4%83%20revizia%202.pdf"
+    },
+    {
+     "titlu": "AdiConstruct – listă de prețuri construcții",
+     "url": "https://www.adiconstructltd.com/lista-de-preturi/"
+    }
+   ]
+  }
+ ]
+}

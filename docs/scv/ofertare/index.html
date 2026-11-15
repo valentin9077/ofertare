@@ -11,7 +11,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="stylesheet" href="../lib/fonts.css">
 <link rel="stylesheet" href="../lib/ui.css?v=1">
-<link rel="stylesheet" href="app.css?v=3">
+<link rel="stylesheet" href="app.css?v=4">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 </head><body>
 <div id="app"><main><div class="emp">Se încarcă…</div></main></div>
@@ -22,16 +22,17 @@
 </nav>
 <div id="ovl"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<input type="file" id="fImp" hidden accept=".xlsx,.xlsm,.xls,.ods,.csv,.txt,.pdf,.docx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/pdf,text/csv,text/plain">
+<input type="file" id="fImp" hidden accept=".xlsx,.xlsm,.xls,.ods,.csv,.txt,.pdf,.docx,.doc,.html,.htm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/pdf,text/csv,text/plain">
 <input type="file" id="fOrig" hidden accept=".xlsx,.xlsm,.xls,.ods,.csv,.pdf">
+<input type="file" id="fLearn" hidden multiple accept=".xlsx,.xlsm,.xls,.ods,.csv,.txt,.pdf,.docx,.doc,.html,.htm">
 <script src="../lib/icons.js?v=1"></script>
-<script src="icons2.js?v=1"></script>
+<script src="icons2.js?v=2"></script>
 <script src="../lib/vendor/supabase.js"></script>
-<script src="../lib/scv.js?v=6"></script>
-<script src="core.js?v=3"></script>
-<script src="export.js?v=3"></script>
-<script src="imp.js?v=3"></script>
-<script src="wb.js?v=3"></script>
+<script src="../lib/scv.js?v=7"></script>
+<script src="core.js?v=4"></script>
+<script src="export.js?v=4"></script>
+<script src="imp.js?v=4"></script>
+<script src="wb.js?v=4"></script>
 <script>(function(){document.querySelectorAll("#nav i[data-ic]").forEach(function(e){var n=e.dataset.ic,s=+e.dataset.s||20;e.outerHTML=(window.OFI&&OFI[n])?'<svg class="ic" width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+OFI[n]+'</svg>':SCVI.icon(n,s)})})();</script>
-<script src="app.js?v=3"></script>
+<script src="app.js?v=4"></script>
 </body></html>

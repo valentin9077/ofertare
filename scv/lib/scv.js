@@ -356,7 +356,7 @@
 
   /**
    * Depozit de documente pentru o aplicație ("prezenta" sau "oferta").
-   * opt: { onRemote(path,data), onStatus(text,warn), cache:true|false, delay:ms, poll:ms, warnUnload:bool, onAuthLost() }
+   * opt: { onRemote(path,data), onStatus(text,warn), cache:true|false|"pend", pullFirst:bool, delay:ms, poll:ms, warnUnload:bool, onAuthLost() }
    *
    * Cum lucrează:
    *  - fiecare modificare se păstrează întâi pe aparat, apoi se trimite în baza de date;
@@ -365,7 +365,7 @@
    */
   function store(app, opt) {
     opt = opt || {};
-    const uid = me.id, ckey = "scv-cache-" + app + "-" + uid, useCache = opt.cache !== false;
+    const uid = me.id, ckey = "scv-cache-" + app + "-" + uid, useCache = opt.cache !== false, pendOnly = opt.cache === "pend";   // "pend": pe aparat se țin doar schimbările încă netrimise (documente mari)
     const dirty = new Map();
     const srv = {};                       // ultima versiune cunoscută de pe server, pe document
     let cache = (useCache && LS.get(ckey)) || {};
@@ -383,6 +383,11 @@
       if (!useCache) return;
       cache.pend = [...dirty.keys()];
       Object.keys(cache.base).forEach(p => { if (!dirty.has(p)) delete cache.base[p]; });
+      if (pendOnly) {                      // doar ce nu a ajuns încă pe server: supraviețuiește unei reîncărcări fără semnal
+        const d = {}, b = {}; cache.pend.forEach(p => { if (p in cache.docs) d[p] = cache.docs[p]; if (p in cache.base) b[p] = cache.base[p]; });
+        if (!LS.set(ckey, { docs: d, ts: {}, pend: cache.pend, base: b }) && !LS.set(ckey, { docs: d, ts: {}, pend: cache.pend, base: {} })) LS.del(ckey);
+        return;
+      }
       if (!LS.set(ckey, cache)) LS.set(ckey, { docs: {}, ts: cache.ts, pend: [], base: {} });
     };
     /* Modificările rămase netrimise de data trecută (aplicația a fost închisă fără semnal). */
@@ -399,6 +404,7 @@
     /* Rânduri venite de pe server după pornire: ce nu e în lucru aici se înlocuiește; ce e în lucru se împacă. */
     function applyRows(rows) {
       let changed = false;
+      rows = rows.slice().sort((a, b) => (b.path === "index") - (a.path === "index"));   // lista (cu ce s-a șters sau s-a pus înapoi) înaintea documentelor
       rows.forEach(row => {
         bump(row.updated_at);
         const p = row.path;
@@ -425,7 +431,7 @@
     }
 
     async function load() {
-      const hasCache = useCache && Object.keys(cache.docs).length > 0;
+      const hasCache = useCache && !pendOnly && Object.keys(cache.docs).length > 0;
       /* fără date păstrate pe aparat nu avem cu ce porni: mai așteptăm puțin confirmarea contului (semnal slab) */
       if (me.offline && !hasCache && navigator.onLine !== false) await user(8000);
       const net = me.offline ? null : fetchAll();
@@ -500,17 +506,58 @@
       let fail = null;
       try {
         /* după o pauză fără semnal: întâi luăm și împăcăm ce s-a schimbat pe server, abia apoi trimitem */
-        if (!online || me.offline) fail = await pull();
+        if (!online || me.offline || opt.pullFirst) fail = await pull();      // pullFirst: înainte de a trimite, împac ce a venit între timp de pe celălalt aparat
         else if (pulling) { try { await pulling; } catch (e) { } }
+        let docErr = false, held = null;
         if (!fail) for (const [path, ent] of [...dirty]) {
-          const cur = dirty.get(path); if (!cur) continue;
-          let data;
-          try { data = clone(cur.get()); } catch (e) { dirty.delete(path); continue; }
-          const r = await sb.from("docs").upsert({ owner: uid, app, path, data }, { onConflict: "owner,app,path" }).select("updated_at").single();
-          if (r.error) { fail = r.error; break; }
-          cache.ts[path] = r.data.updated_at; bump(r.data.updated_at); srv[path] = data;
-          if (dirty.get(path) === cur) dirty.delete(path); else cache.base[path] = data;
+          let tries = 0;
+          for (;;) {
+            const cur = dirty.get(path); if (!cur) break;
+            let data;
+            try { data = clone(cur.get()); } catch (e) { dirty.delete(path); break; }
+            if (data === undefined || data === null) { dirty.delete(path); break; }      // documentul nu mai există pe aparat: nu e nimic de trimis
+            let r, stale = false;
+            if (opt.pullFirst) {
+              /* Scriu doar dacă pe server e tot versiunea pe care am văzut-o eu. Dacă între timp a scris celălalt aparat,
+                 nu-l calc: iau ce a scris, împac cu ce am eu și încerc din nou. Așa nu se pierde nimic când două aparate salvează deodată. */
+              const prev = cache.ts[path];
+              if (prev) {
+                r = await sb.from("docs").update({ data }).eq("app", app).eq("path", path).eq("updated_at", prev).select("updated_at");
+                if (!r.error) { if (r.data && r.data.length) r = { data: r.data[0] }; else stale = true; }
+              } else {
+                r = await sb.from("docs").insert({ owner: uid, app, path, data }).select("updated_at").single();
+                if (r.error && (r.error.code === "23505" || r.status === 409)) { stale = true; r = {}; }
+              }
+            } else r = await sb.from("docs").upsert({ owner: uid, app, path, data }, { onConflict: "owner,app,path" }).select("updated_at").single();
+            if (r.error) { fail = r.error; if (!isNet(r.error) && !isAuthErr(r.error)) docErr = true; break; }
+            if (stale) {
+              if (++tries > 5) { fail = new Error("conflict"); docErr = true; break; }
+              let rr;
+              try { rr = await fresh(sb.from("docs").select("path,data,updated_at").eq("app", app).eq("path", path)); } catch (e) { fail = e; break; }
+              if (rr.error) { fail = rr.error; break; }
+              if (rr.data && rr.data.length) {
+                const was = cache.ts[path], now = rr.data[0].updated_at;
+                if (was && now === was) {
+                  /* Pe server e chiar versiunea pe care o știam și tot n-a mers scrierea cu condiție: nu e alt aparat la mijloc.
+                     Ca să nu rămână niciodată ceva nesalvat, scriu ca înainte, fără condiție. */
+                  const u = await sb.from("docs").upsert({ owner: uid, app, path, data }, { onConflict: "owner,app,path" }).select("updated_at").single();
+                  if (u.error) { fail = u.error; break; }
+                  cache.ts[path] = u.data.updated_at; bump(u.data.updated_at); srv[path] = data;
+                  if (dirty.get(path) === cur) dirty.delete(path); else cache.base[path] = data;
+                  break;
+                }
+                applyRows(rr.data); if (cache.ts[path] === was) cache.ts[path] = now;
+              } else delete cache.ts[path];                                // pe server nu mai e: îl scriu ca document nou
+              continue;
+            }
+            cache.ts[path] = r.data.updated_at; bump(r.data.updated_at); srv[path] = data;
+            if (dirty.get(path) === cur) dirty.delete(path); else cache.base[path] = data;
+            break;
+          }
+          if (fail && docErr) { docErr = false; held = fail; fail = null; continue; }   // un document pe care serverul îl refuză nu le blochează pe celelalte; rămâne în coadă și se reîncearcă
+          if (fail) break;
         }
+        if (!fail && held) fail = held;
       } catch (e) { fail = e; }
       flushing = false;
       saveCache();

@@ -60,7 +60,7 @@
     if (!strong && !weak) return null;
     return { title: title, lvl: lvl, strong: strong, generic: /^(materiale?|echipamente?|manopera|montaj|utilaje|dotari|accesorii|diverse)\b/.test(strip(title)) && title.length < 70 };
   }
-  var TOTRE = /^(total|subtotal|sub total|sub-total|totaluri)\b/, TOT2 = /^(tva\b|taxa pe valoarea|valoare totala|cheltuieli (directe|indirecte)|recapitula|profit\b|contributi|cota |c\.a\.s|alte cheltuieli|din care)/;
+  var TOTRE = /^(total|subtotal|sub total|sub-total|totaluri)\b|^tva ?\d+([.,]\d+)? ?%/, TOT2 = /^(tva\b|taxa pe valoarea|valoare totala|cheltuieli (directe|indirecte)|recapitula|profit\b|contributi|cota |c\.a\.s|alte cheltuieli|din care)/;
   function isTotal(den, hasQty) { var s = strip(den); return TOTRE.test(s) || (!hasQty && TOT2.test(s)); }
   var GENT = /^(lista|liste|li\w{2,6}ta|formular|formularul|centralizator|anexa|tabel|deviz oferta|antemasuratoare)\b/, SKIPT = /^(nr\b|pag|data\b|proiectant|adresa|beneficiar|obiectiv|intocmit|faza|contract|cod cpv|\[ ?ron|ron\b)/;
   function findTitle(g, upto) {
@@ -94,7 +94,7 @@
     if (/^(cod|simbol|art deviz|articol de deviz|norma|indicator)( |$)/.test(h)) return "cod";
     if (/^(denumire|denumirea|descriere|descrierea)/.test(h)) return "den1";
     if (/^(capitol(ul)? (de )?lucrari|articol|articole|id articol|lucrare|lucrarea|lucrari|specificatie|produs|operatiune|operatie|operatiuni|activitate|liste? (de )?cantitati|material|materiale|echipament|serviciu|servicii)( |$)/.test(h)) return "den2";
-    if (/^(specif|caracteristic|dimensiun)/.test(h)) return "ext";
+    if (/^(specif|caracteristic|dimensiun)/.test(h) || /^(dn|diametru|diametrul|dim|marime|marimea)( |$)/.test(h)) return "ext";
     return "";
   }
   function rowKinds(row) {
@@ -149,6 +149,7 @@
     if (st) {
       if (st.zero) T.warn.push(st.zero === 1 ? "Un rând are cantitatea zero sau goală și a fost sărit." : st.zero + " rânduri au cantitatea zero sau goală și au fost sărite.");
       if (st.noUm && T.ok) T.warn.push("Lista nu are coloană de UM: am pus „ml” la țevi și izolații și „buc” la rest. Verifică.");
+      if (st.noName && T.ok) T.warn.push((st.noName === 1 ? "O poziție nu are" : NRO(st.noName, "poziții") + " nu au") + " denumire în fișier (în locul ei e rândul de total). " + (st.noName === 1 ? "Am adus-o cu codul ei." : "Le-am adus cu codul lor."));
       if (st.euro) T.warn.push("Prețurile din fișier sunt în euro: nu le-am luat.");
       if (st.unitPrice && T.items.some(function (i) { return i.pret > 0; })) T.warn.push("Am luat prețurile din coloana „Preț unitar”. Verifică dacă sunt prețuri de manoperă.");
     }
@@ -168,7 +169,141 @@
     for (var c = 0; c < row.length; c++) { var v = row[c]; if (skip && skip[c]) continue; if (typeof v === "string" && hasLetters(v, 3)) out.push({ c: c, t: clean(v) }); }
     return out;
   }
-  function analyze(g, merges, name) {
+  /* „2 buc”, „35 ml” scrise într-o singură celulă (liste din Word): despart cantitatea de unitate în două coloane */
+  function splitQtyUm(g) {
+    var w = 0, r, c; for (r = 0; r < g.length; r++) w = Math.max(w, (g[r] || []).length);
+    for (c = 0; c < w; c++) {
+      var hit = 0, tot = 0, first = -1;
+      for (r = 0; r < g.length; r++) { var v = (g[r] || [])[c]; if (typeof v !== "string" || !clean(v)) continue; var m = /^(\d[\d.,]*)\s*([a-zA-Zăâîșț²³.]{1,8})$/.exec(clean(v)); if (m && isUmTok(m[2]) && isNum(m[1])) { hit++; if (first < 0) first = r; } else if (first >= 0) tot++; }
+      if (hit < 3 || hit < (hit + tot) * 0.7) continue;
+      return g.map(function (row, ri) { row = (row || []).slice(); while (row.length <= c) row.push(""); var v = row[c], m = typeof v === "string" ? /^(\d[\d.,]*)\s*([a-zA-Zăâîșț²³.]{1,8})$/.exec(clean(v)) : null;
+        if (m && isUmTok(m[2]) && isNum(m[1])) row.splice(c, 1, m[2], num(m[1])); else if (ri < first && typeof v === "string" && clean(v)) row.splice(c, 1, "U.M.", "Cantitate"); else row.splice(c, 1, v, ""); return row; });
+    }
+    return g;
+  }
+  /* „80.500” poate fi 80500 (românește) sau 80,5 (cu punct zecimal). Mă uit la toată coloana: dacă are numere la care punctul nu poate fi
+     decât zecimală („0.500”, „12.5”, „3.25”) și niciunul cu virgulă, atunci și „80.500” e 80,5. Dacă nu se poate ști, rămâne 80500 și spun. */
+  function fixDots(g) {
+    var w = 0, r, c, amb = 0, fixed = 0, out = g; for (r = 0; r < g.length; r++) w = Math.max(w, (g[r] || []).length);
+    for (c = 0; c < w; c++) {
+      var A = [], dec = 0, com = 0;
+      for (r = 0; r < g.length; r++) { var v = (g[r] || [])[c]; if (typeof v !== "string") continue; var t = clean(v);
+        if (/^\d{1,3}(\.\d{3})+$/.test(t)) { if (/^0\./.test(t)) dec++; else A.push(r); } else if (/^\d+\.\d{1,2}$|^\d+\.\d{4,}$/.test(t)) dec++; else if (/^\d{1,3}(\.\d{3})*,\d+$|^\d+,\d+$/.test(t)) com++; }
+      if (!A.length) continue;
+      if (dec > 0 && com === 0) { if (out === g) out = g.map(function (row) { return (row || []).slice(); }); A.forEach(function (rr) { out[rr][c] = parseFloat(clean(g[rr][c])); }); fixed += A.length; }
+      else if (dec === 0 && com === 0) amb += A.length;
+    }
+    return { g: out, amb: amb, fixed: fixed };
+  }
+  /* Cum se citește punctul într-o coloană de cantități (textele așa cum sunt scrise):
+     "dec"  = sigur zecimală: în coloană sunt și numere ca „0.500”, „12.5”;
+     "dec3" = toate au punct și exact trei cifre după el, niciuna altfel (devize tipărite cu trei zecimale) – o listă în care fiecare cantitate e peste o mie nu există;
+     "amb"  = nu se poate ști: rămân mii și spun. */
+  function dotMode(raws) {
+    var A = 0, dec = 0, com = 0, thou = 0, other = 0, ex = "";
+    raws.forEach(function (v) {
+      var t = clean(String(v == null ? "" : v)).replace(/[,.]$/, ""); if (!t || !/\d/.test(t)) return;
+      if (/^[1-9]\d{0,2}\.\d{3}$/.test(t)) { A++; if (!ex) ex = t; }
+      else if (/^\d{1,3}(\.\d{3}){2,}$/.test(t)) thou++;
+      else if (/^0\.\d+$|^\d+\.\d{1,2}$|^\d+\.\d{4,}$|^\d{4,}\.\d+$/.test(t)) dec++;
+      else if (/,\d+$/.test(t)) com++;
+      else other++;
+    });
+    if (!A) return { m: "", ex: "" };
+    if (dec > 0 && com === 0 && thou === 0) return { m: "dec", ex: ex };
+    if (dec === 0 && com === 0 && thou === 0 && other === 0 && A >= 4) return { m: "dec3", ex: ex };
+    return { m: com > 0 && dec === 0 ? "" : "amb", ex: ex };
+  }
+  var DOT3 = function (ex) { return "Toate cantitățile sunt scrise cu punct și trei zecimale (de ex. „" + ex + "”). Le-am citit cu zecimale (" + String(parseFloat(ex)).replace(".", ",") + "), nu ca mii. Verifică două-trei cantități."; };
+  var DOTAMB = function (ex) { return "Unele cantități sunt scrise cu punct (de ex. „" + ex + "”). Le-am citit ca mii (" + ex.replace(/\./g, "") + "). Dacă punctul era zecimală, corectează cantitatea la acele poziții."; };
+  /* Rânduri care sunt doar o dimensiune („Ø2 1/2" - Dn65”, „Dn 65 mm - grosime 20mm”, „4 circuite 3/4"”) sub un rând cu denumirea lucrării:
+     singure nu spun ce sunt, așa că le pun în față denumirea rândului de deasupra. */
+  var NRO = function (n, many) { return n + (n % 100 >= 20 || n % 100 === 0 ? " de " : " ") + many; };   // „44 de rânduri”, „7 rânduri”
+  var SIZEW = /^(o|dn|de|d|mm|cm|m|toli|tol|grosime|gros|gr|x|circuite|circuit|cai|elementi|elemente|pn|bar|kw|w|l|litri|si|la|cu|pe)$/;
+  function sizeOnly(d) {   // doar o dimensiune: începe cu Ø / Dn / un număr și nu are alte cuvinte decât cele de măsură
+    if (d.length > 60 || !/^\s*(Ø|ø|DN|Dn|dn|D|d|De|DE|de)?\s*\d/.test(d)) return false;
+    var ws = strip(d).replace(/ø/g, " ").split(/[^a-z]+/).filter(Boolean); return ws.every(function (w) { return SIZEW.test(w); });
+  }
+  function childNames(T) {
+    if (!T || !T.ok || T.kind !== "lista" || !T.items) return T;
+    var parent = null, last = 0, n = 0, TRI = /^\s*\d+\s*[xX×]\s*\d+(\s*[xX×]\s*\d+)?\s*(mm|cm)?\s*$/;
+    /* dimensiunea trebuie să se potrivească cu lucrarea de deasupra: 22x600x1000 doar sub calorifere, Ø / Dn doar sub țevi, izolații, armături, „N circuite” doar sub distribuitoare */
+    var fits = function (pn, d) {
+      var p = strip(pn), c = strip(d);
+      if (TRI.test(d)) return /calorifer|radiator/.test(p);
+      if (/circuit/.test(c)) return /distribuitor|colector/.test(p);
+      return /teav|teva|conduct|tub|izola|robine|vana|vane|filtru|clapet|fiting|cot|teu|mufa|reducti|racord|colier|bratar|distribuitor|colector|compensator|supap|ventil/.test(p);
+    };
+    T.items.forEach(function (i) {
+      var d = clean(i.den);
+      /* copilul stă imediat sub părinte (sau sub alt copil al lui): între ei nu e altă poziție, cel mult câteva rânduri sărite (cu cantitate zero) */
+      if (sizeOnly(d) && parent && i.cap0 === parent.cap0 && i.row - last >= 1 && i.row - last <= 4 && (i.sheet || "") === (parent.sheet || "") && fits(parent.den, d)) {
+        var pn = clean(parent.den), base = TRI.test(d) ? pn.replace(/[\s,–-]*\d+\s*[xX×]\s*\d+(\s*[xX×]\s*\d+)?\s*(mm|cm)?\s*$/, "") : pn, own = base !== pn && hasLetters(base, 4);   // „Calorifer 22x600x1600” urmat de „11x600x800”: copilul ia doar „Calorifer”
+        if (!own) base = pn;
+        i.den = (base.length > 80 ? base.slice(0, 80).replace(/\s+\S*$/, "") + "…" : base) + (own ? " " : " – ") + d; n++; last = i.row;
+      }
+      else if (hasLetters(d, 4) && !sizeOnly(d)) { parent = i; last = i.row; }
+      else { parent = null; last = 0; }
+    });
+    if (n) T.warn.push((n === 1 ? "Un rând avea" : NRO(n, "rânduri") + " aveau") + " drept denumire doar o dimensiune (de ex. „Dn 65”): le-am pus în față denumirea rândului de deasupra. Verifică-le.");
+    return T;
+  }
+  var QCELL = /^(\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d+(?:[.,]\d+)?)\s*(buc|bucati|bucata|ml|m|mp|m2|mc|m3|kg|set|ans)\.?$/i;
+  function qtyCells(g, merges, name, T) {
+    if (!T || !T.ok || T.kind !== "lista" || !T.cols || !(T.cols.cant >= 0) || !(T.cols.den >= 0)) return T;
+    var ac = T.cols.cant, dc = T.cols.den, have = {}, fix = [], bad = [], r;
+    T.items.forEach(function (i) { have[i.row - 1] = 1; });
+    for (r = T.headerRow || 0; r < g.length; r++) {
+      if (have[r]) continue; var v = (g[r] || [])[ac], d = (g[r] || [])[dc];
+      if (typeof v !== "string" || !clean(v) || typeof d !== "string" || !hasLetters(d, 3) || isTotal(d, false)) continue;
+      var t = clean(v), m = QCELL.exec(t);
+      if (m) fix.push([r, num(m[1])]); else if (/^#/.test(t) || /\d/.test(t)) bad.push([clean(d), t]);
+    }
+    if (fix.length) {   // „2 buc” în căsuța de cantitate: cantitatea e 2
+      var g2 = g.map(function (row) { return (row || []).slice(); }); fix.forEach(function (f) { g2[f[0]][ac] = f[1]; });
+      var T2 = analyzeDots(g2, merges, name); if (T2 && T2.ok && T2.n > T.n) T = T2;
+    }
+    if (bad.length) T.warn.push((bad.length === 1 ? "La un rând nu am putut citi cantitatea" : "La " + NRO(bad.length, "rânduri") + " nu am putut citi cantitatea") + " (de ex. „" + bad[0][0].slice(0, 40) + "”: „" + bad[0][1].slice(0, 20) + "”). " + (bad.length === 1 ? "Nu l-am adus: pune-l de mână." : "Nu le-am adus: pune-le de mână."));
+    return T;
+  }
+  /* Două tabele pe aceeași foaie (unul lângă altul sau unul sub altul, cu coloanele în altă ordine) nu se pot citi corect dintr-o trecere: o spun și nu le aduc pe tăcute. */
+  function tablesCheck(g, T) {
+    if (!T || !T.ok || T.kind !== "lista" || !T.cols || !(T.headerRow > 0)) return T;
+    var kinds = function (row) { var o = { den: [], cant: [], n: 0 }; (row || []).forEach(function (v, c) { if (typeof v !== "string" || !clean(v) || clean(v).length > 40) return; var k = labKind(hnorm(v)); if (!k) return; o.n++; if (k === "den1" || k === "den2") o.den.push(c); if (k === "cant") o.cant.push(c); }); return o; };
+    var h = kinds(g[T.headerRow - 1]);
+    if (h.cant.length >= 2 && h.den.length >= 2 && h.den[h.den.length - 1] > h.cant[0]) {
+      T.skip = true; T.hint = "alaturate";
+      T.warn.push("Pe foaie sunt două tabele puse unul lângă altul. Așa nu le pot citi corect (denumirile ies lipite, iar cantitățile din dreapta se pierd). Mută al doilea tabel sub primul sau în altă foaie și adu lista din nou.");
+      return T;
+    }
+    var have = {}; T.items.forEach(function (i) { have[i.row - 1] = 1; });
+    for (var r = T.headerRow; r < g.length; r++) {
+      var k2 = kinds(g[r]);
+      if (k2.n >= 3 && k2.den.length && k2.cant.length && (k2.cant[0] !== T.cols.cant || k2.den[0] !== T.cols.den)) {
+        var lost = 0; for (var q = r + 1; q < g.length; q++) { if (kinds(g[q]).n >= 3) break; if (!have[q] && typeof (g[q] || [])[k2.den[0]] === "string" && hasLetters(g[q][k2.den[0]], 3) && isNum((g[q] || [])[k2.cant[0]]) && num(g[q][k2.cant[0]]) > 0) lost++; }
+        if (lost) { T.warn.push("De la rândul " + (r + 1) + " începe alt tabel, cu coloanele în altă ordine (" + (lost === 1 ? "un rând" : NRO(lost, "rânduri")) + "). Pe acela nu l-am adus: mută-l în altă foaie și adu-l separat."); break; }
+      }
+    }
+    return T;
+  }
+  function analyze(g, merges, name) { return tablesCheck(g, childNames(qtyCells(g, merges, name, analyzeDots(g, merges, name)))); }
+  function analyzeDots(g, merges, name) {
+    var d = fixDots(g), T = analyze0(d.g, merges, name);
+    if (T && T.ok && T.kind === "lista" && d.amb && T.cols && T.cols.cant >= 0) {
+      var ac = T.cols.cant, rows = [], raws = [];
+      T.items.forEach(function (i) { var v = (g[i.row - 1] || [])[ac]; if (typeof v === "string") { rows.push(i.row - 1); raws.push(v); } else raws.push(v == null ? "" : String(v)); });
+      var dm = dotMode(raws);
+      if (dm.m === "dec3") {
+        var g2 = d.g.map(function (row) { return (row || []).slice(); });
+        rows.forEach(function (r) { var t = clean(g[r][ac]); if (/^[1-9]\d{0,2}\.\d{3}$/.test(t)) g2[r][ac] = parseFloat(t); });
+        var T2 = analyze0(g2, merges, name);
+        if (T2 && T2.ok && T2.n === T.n) { T2.warn.push(DOT3(dm.ex)); return T2; }
+      }
+      if (dm.m === "amb" || dm.m === "dec3") T.warn.push(DOTAMB(dm.ex));
+    }
+    return T;
+  }
+  function analyze0(g, merges, name) {
     var T = newTable(name), st = { zero: 0 }, H = findHeader(g), r, c, row;
     if (!g.length) { T.why = "Foaia e goală."; return T; }
     if (!H) {
@@ -267,17 +402,19 @@
   }
   function pickCant(a, hrow) { for (var i = 0; i < a.length; i++) if (/total/.test(hnorm(hrow[a[i]]))) return a[i]; return a[0]; }
   function lastVal(row, cols, numeric) { for (var i = cols.length - 1; i >= 0; i--) { var v = row[cols[i]]; if (numeric ? (isNum(v) && num(v) > 0) : clean(v)) return v; } return numeric ? row[cols[0]] : ""; }
+  var DNCOLS = null;                                  // coloanele „DN” / „Diametru”: numărul gol devine „DN50” în denumire
   function joinDen(row, den, short, ext, extL) {
     var parts = [], seen = {}, add = function (v, strict) { if (typeof v === "number") { if (strict) return; v = String(v); } v = clean(v); if (!v || seen[v]) return; if (strict && !(hasLetters(v, 3) && v.indexOf(" ") > 0)) return; seen[v] = 1; parts.push(v); };
     (extL || []).forEach(function (c) { add(row[c], true); });
     den.forEach(function (c) { add(row[c]); });
-    (ext || []).forEach(function (c) { var v = row[c]; if (typeof v === "string" || (typeof v === "number" && parts.length)) add(v); });
+    (ext || []).forEach(function (c) { var v = row[c]; if (DNCOLS && DNCOLS[c] && v !== "" && v != null && /^\d{1,3}([.,]\d)?$/.test(clean(String(v)))) { if (!hasLetters(parts.join(" "), 3)) return; v = "DN" + clean(String(v)); } if (typeof v === "string" || (typeof v === "number" && parts.length)) add(v); });
     var long = parts.join(" "), sh = short && short.length ? clean(row[short[0]]) : "";
     if (sh && typeof row[short[0]] === "string" && hasLetters(sh, 2)) { if (!long) return sh; if (strip(long).indexOf(strip(sh)) !== 0) return sh + " – " + long; }
     return long;
   }
   function flat(g, T, st, C, name) {
     var caps = Caps(T.title, name), r, row, hrow = g[C.r] || [], hasNorm = false, strongSeen = false, pend = [];
+    DNCOLS = null; (C.ext || []).forEach(function (c) { if (/^(dn|diametru|diametrul)( |$)/.test(hnorm(hrow[c]))) (DNCOLS = DNCOLS || {})[c] = 1; });
     if (C.tip >= 0) for (r = C.r + 1; r < g.length; r++) if (/^norm/.test(strip((g[r] || [])[C.tip]))) { hasNorm = true; break; }
     var skip = {}; C.cant.forEach(function (c) { skip[c] = 1; }); if (C.um >= 0) skip[C.um] = 1; if (C.pret >= 0) skip[C.pret] = 1;
     st.noUm = C.um < 0 && !C.asSum;
@@ -345,6 +482,7 @@
       if (cur) {
         cur._k++;
         if (txt.length && LABR.test(txt[0]) && !hasPrice) { var ci = capInfo(txt[0], ""); close(); if (ci) caps.set(ci); else caps.set({ title: txt[0], lvl: 1, strong: true, generic: false }); continue; }
+        if (!cur.den && txt.length && cur._k <= 4 && isTotal(txt[0], false)) { cur.den = cur.cod ? "Poziția " + cur.cod + " (fără denumire în fișier)" : ""; st.noName = (st.noName || 0) + (cur.den ? 1 : 0); close(); continue; }   // în locul denumirii stă deja rândul de total: poziția nu are nume în fișier
         if (!cur.den && txt.length && cur._k <= 4) cur.den = txt[0];
         else if (cur.den && txt.length && !hasPrice && cur._x < 2 && !isTotal(txt[0], false) && cur.den.length < 300) { cur.den += " – " + txt[0]; cur._x++; }   // rândurile de descriere de sub denumire
         if (hasPrice && C.manLine > 0 && !cur.pret && (typeCol >= 0 ? num(row[typeCol]) === 2 : cur._k === 1)) cur.pret = r6(num(row[C.pc]));
@@ -361,19 +499,28 @@
   function gridOf(X, ws) {
     if (!ws || !ws["!ref"]) return null;
     var rg = X.utils.decode_range(ws["!ref"]); rg.s.r = 0; rg.s.c = 0; if (rg.e.r > 30000) rg.e.r = 30000; if (rg.e.c > 80) rg.e.c = 80;
+    for (var k in ws) if (k.charCodeAt(0) !== 33 && ws[k] && ws[k].t === "e") { ws[k].t = "s"; ws[k].v = ws[k].w || "#EROARE"; }   // eroare de formulă (#REF!, #DIV/0!): o țin ca text, ca să pot spune că e acolo
     return X.utils.sheet_to_json(ws, { header: 1, defval: "", raw: true, blankrows: true, range: rg });
   }
   var ECH = /^(echipamente|utilaje|dotari|f4)\b/, ECHT = /^(formular(ul)? f4|lista cu cantitatile de utilaje)/, CENT = /^(centraliz|recapitul|f1\b|f2\b|sumar|rezumat|grafic)/;
   function readBook(X, u8, name, kind) {
     var res = { name: name, kind: kind, tables: [], notes: [] }, wb;
-    try { wb = X.read(u8, { type: "array", cellDates: false, cellStyles: false, cellHTML: false, cellFormula: false }); }
+    try { wb = X.read(u8, { type: "array", cellDates: false, cellStyles: true, cellHTML: false, cellFormula: false }); }
     catch (e) { res.notes.push(/password|encrypt/i.test(String(e && e.message)) ? "Fișierul are parolă. Salvează-l fără parolă și încearcă din nou." : "Nu am putut citi fișierul (pare stricat sau nu e un tabel Excel)."); return res; }
-    wb.SheetNames.forEach(function (n) {
+    /* cellStyles e pornit doar ca să aflu ce rânduri sunt ascunse. Formatul celulei nu are voie să schimbe valorile citite (altfel numerele cu format de dată ies ca date). */
+    wb.SheetNames.forEach(function (n) { var ws = wb.Sheets[n]; if (ws) for (var k in ws) if (k.charCodeAt(0) !== 33 && ws[k] && ws[k].z !== undefined) delete ws[k].z; });
+    var meta = (wb.Workbook && wb.Workbook.Sheets) || [];
+    wb.SheetNames.forEach(function (n, si) {
       var g; try { g = gridOf(X, wb.Sheets[n]); } catch (e) { g = null; }
       if (!g) return;
       var T; try { T = analyze(g, wb.Sheets[n]["!merges"] || [], n); } catch (e) { T = newTable(n); T.why = "Nu am putut citi această foaie."; }
       if (ECH.test(strip(n)) || ECHT.test(strip(T.title))) { T.echip = true; T.skip = true; T.hint = "echipamente"; }
       else if (CENT.test(strip(n)) || /^(formular(ul)? f[12]\b|centralizator)/.test(strip(T.title))) { T.skip = true; T.hint = "centralizator"; }
+      /* Ce e ascuns în fișierul clientului nu se aduce pe tăcute: foaia ascunsă rămâne nebifată, rândurile ascunse vin cu notă */
+      if (meta[si] && meta[si].Hidden && T.ok && !T.skip) { T.skip = true; T.hint = "ascunsa"; }
+      var rws = wb.Sheets[n]["!rows"] || [], nh = 0;
+      if (T.ok) T.items.forEach(function (i) { var rw = rws[i.row - 1]; if (rw && rw.hidden) { nh++; i.hid = 1; } });
+      if (nh) T.warn.push(nh === 1 ? "Un rând din listă e ascuns în fișier. L-am adus și pe el: verifică dacă trebuie ofertat." : NRO(nh, "rânduri") + " din listă sunt ascunse în fișier. Le-am adus și pe ele: verifică dacă trebuie ofertate.");
       res.tables.push(T);
     });
     if (!res.tables.length) res.notes.push("Fișierul nu are nicio foaie cu date.");
@@ -405,7 +552,7 @@
       var sc = n / ne.length; if (sc >= 0.6 && sc > bs) { bs = sc; best = d; }
     });
     if (!best) return null;
-    return lines.map(function (l) { return splitCsv(l, best).map(function (c) { c = c.trim(); if (best === "|") c = c.replace(/^\|+|\|+$/g, ""); return isNum(c) && /\d/.test(c) && !/^0\d/.test(c) ? num(c) : c; }); });
+    return lines.map(function (l) { return splitCsv(l, best).map(function (c) { c = c.trim(); if (best === "|") c = c.replace(/^\|+|\|+$/g, ""); return isNum(c) && /\d/.test(c) && !/^0\d/.test(c) && c.indexOf(".") < 0 ? num(c) : c; }); });   // numerele scrise cu punct rămân text până se vede toată coloana (80.500 = mii sau zecimale?)
   }
   var UW = /^(buc|bucati|bucata|ml|m|metri|metru|mp|m2|m²|mc|m3|kg|set|seturi|punct|puncte|ore|ora|ans|zile|zi|pereche|perechi)$/;
   var DIMPRE = /^(dn|de|d|ø|φ|pn|ppr|pp-r|pex|pe-x|pexa|pe-xa|pehd|pvc|pp|tip|nr|nr\.|model|cod)$/, DIMSUF = /^(mm|cm|kw|w|btu|l|litri|bar|toli|tol|v|elementi|elemente|cai|grade|atm|gpm)$/;
@@ -444,10 +591,19 @@
     /* despărțitoarele contează doar lângă un număr */
     T.forEach(function (x, ix) { if (x.k === "S") { var pv = T[ix - 1], nx = T[ix + 1]; if (!((nx && nx.k === "N") || (pv && pv.k === "N" && /^(x|×|\*)$/i.test(x.w)))) { x.k = "W"; x.l = strip(x.w); } } });
     var per = T.some(function (x) { return x.per; }), tot = T.some(function (x) { return x.tot; });
-    var qi = -1, pi = -1, um = "buc", sepUsed = false, F;
+    var qi = -1, pi = -1, um = "buc", sepUsed = false, F, eqTot = false;
+    /* „3 buc x 250 = 750”: numărul de după „=” e totalul, nu ține nici de preț, nici de denumire (doar dacă înainte mai sunt două numere) */
+    (function () {
+      var last = T.length - 1; while (last > 0 && T[last].k === "M") last--;
+      if (last < 2 || T[last].k !== "N" || !(T[last - 1].w === "=" || (T[last - 1].w === ":" && /=\s*\d[\d.,]*\s*(lei|ron|euro|eur|€)?\.?\s*$/i.test(raw)))) return;
+      var free = 0; for (var z = 0; z < last - 1; z++) if (T[z].k === "N" && !T[z].dim) free++;
+      if (free >= 2) { T[last].used = 1; T[last - 1].used = 1; T[last].k = "X"; T[last - 1].k = "X"; }
+      else if (free === 1) eqTot = true;
+    })();
     for (i = 0; i < T.length - 1; i++) if (T[i].k === "N" && T[i + 1].k === "U") { qi = i; um = T[i + 1].u; T[i + 1].used = 1; break; }
     if (qi >= 0) {
-      for (i = qi + 2; i < T.length; i++) { if (T[i].k === "N" && !T[i].dim) { pi = i; break; } }
+      for (i = qi + 3; i < T.length; i++) { if (T[i].k === "N" && !T[i].dim && T[i - 1].k === "S") { pi = i; break; } }   // „2,5 ml țeavă 32 la 16”: prețul e numărul de după „la”
+      if (pi < 0) for (i = qi + 2; i < T.length; i++) { if (T[i].k === "N" && !T[i].dim) { pi = i; break; } }
       if (pi < 0) for (i = qi - 1; i >= 1; i--) if (T[i].k === "N" && !T[i].dim && T[i - 1].k === "S") { pi = i; break; }
       sepUsed = true;
     } else {
@@ -470,7 +626,9 @@
     var den = T.filter(function (x, ix) { return ix !== qi && ix !== pi && !x.used && x.k !== "M" && !(x.k === "S" && (ix === pi - 1 || ix === qi + 1 || ix === qi - 1 || ix === pi + 1)); }).map(function (x) { return x.w; }).join(" ");
     den = clean(den.replace(/^[\s\-–—:=,.;]+|[\s\-–—:=,;]+$/g, "").replace(/\s+(la|x|cu|per|pe)$/i, ""));
     if (!hasLetters(den, 2)) return null;
-    return { den: den, cant: r6(cant), um: um, pret: r6(pret), amb: !!(qi >= 0 && pi >= 0 && cant > 1 && !sepUsed && !per && !tot), raw: raw };
+    var o = { den: den, cant: r6(cant), um: um, pret: r6(pret), amb: !!(qi >= 0 && pi >= 0 && cant > 1 && (!sepUsed || eqTot) && !per && !tot), raw: raw };
+    if (pret > 0 && /(^| )(reducere|discount|scadere|rabat)( |$)/.test(strip(den))) o.neg = true;   // „reducere 500” scade din ofertă
+    return o;
   }
   /* într-un document (Word, fișier text) sunt și rânduri care nu țin de listă: antetul firmei, CUI, IBAN, e-mail, clauze de contract */
   var IDLINE = /^(ro)?\s?\d{6,10}$|^j\s?\d{1,2}\/|\biban\b|@|^(tel|telefon|mobil|fax|c\.?u\.?i|cif|cod fiscal|nr\.? ?reg|capital social|cont|banca)\b/;
@@ -522,7 +680,7 @@
     /* document: îl iau doar dacă seamănă a listă (cel puțin două rânduri cu preț sau cantitate și măcar o treime din rândurile cu numere) */
     if (opt && opt.doc && !((PL.length >= 2 && PL.length >= 0.34 * (PL.cand || 0)) || (PL.length === 1 && PL[0].pret > 0 && (PL.cand || 0) <= 2))) PL = [];
     if (PL.some(function (p) { return p.eur; })) T.warn.push("Unele prețuri din text sunt în euro. Le-am adus ca număr: schimbă-le în lei.");
-    PL.forEach(function (p) { T.items.push({ nr: "", cod: "", den: p.den, um: p.um, cant: p.cant, pret: p.pret, cap0: p.cap || "", sheet: "Text lipit", row: p.line, amb: p.amb, raw: p.raw }); });
+    PL.forEach(function (p) { T.items.push({ nr: "", cod: "", den: p.den, um: p.um, cant: p.cant, pret: p.pret, cap0: p.cap || "", sheet: "Text lipit", row: p.line, amb: p.amb, raw: p.raw, neg: p.neg || undefined }); });
     var na = T.items.filter(function (i) { return i.amb; }).length;
     if (na) T.warn.push(na === 1 ? "La un rând nu e clar dacă suma e pe bucată sau în total." : "La " + na + " rânduri nu e clar dacă suma e pe bucată sau în total.");
     finish(T, null); if (!T.ok) T.why = "Nu am găsit rânduri cu o lucrare și un număr.";
@@ -548,7 +706,7 @@
         });
         g.push(row);
       });
-      n++; var T; try { T = analyze(g, [], "Tabelul " + n); } catch (e) { T = newTable("Tabelul " + n); }
+      n++; var T; try { T = analyze(splitQtyUm(g), [], "Tabelul " + n); } catch (e) { T = newTable("Tabelul " + n); }
       if (T.ok || g.length > 2) res.tables.push(T);
     }
     if (!res.tables.some(function (t) { return t.ok; })) {
@@ -658,13 +816,13 @@
       add.forEach(function (s) { pg.segs.push(s); });
     });
     /* capul de tabel: unde apare „Cantitate” */
-    var hp = -1, labs = null;
-    var bandOf = function (segs) {
-      var cs = segs.filter(function (s) { return labKind(hnorm(s.t)) === "cant"; });
+    var hp = -1, labs = null, f4 = false;
+    var bandOf = function (segs, viaUm) {
+      var cs = segs.filter(function (s) { return labKind(hnorm(s.t)) === (viaUm ? "um" : "cant"); });   // viaUm = formularul F4: fără „Cantitate”, doar „U.M” (cu „2 buc” dedesubt)
       for (var a = 0; a < cs.length; a++) {
         var near = segs.filter(function (s) { return Math.abs(s.y - cs[a].y) <= 26 && labKind(hnorm(s.t)); });
         var kinds = {}; near.forEach(function (s) { kinds[labKind(hnorm(s.t))] = 1; });
-        if (kinds.den1 || kinds.den2) {
+        if ((kinds.den1 || kinds.den2) && (!viaUm || kinds.unit || kinds.sum || kinds.man)) {
           var lo = Math.min.apply(null, near.map(function (s) { return s.y; })), hh = cs[a].h || 6, bottom = lo - Math.max(9, 1.7 * hh);
           /* primul rând de date e uneori lipit de capul de tabel: dacă imediat sub titluri e un rând cu numere, e deja din listă */
           var first = segs.filter(function (s) { return s.y > bottom && s.y < lo - 0.7 * hh; }), fy = -1e9;
@@ -675,7 +833,9 @@
       }
       return null;
     };
-    for (p = 0; p < Math.min(pages.length, 4) && hp < 0; p++) { labs = bandOf(pages[p].segs); if (labs) hp = p; }
+    for (p = 0; p < Math.min(pages.length, 4) && hp < 0; p++) { labs = bandOf(pages[p].segs, false); if (labs) hp = p; }
+    /* F4 (cantitatea lipită de unitate) doar când nicăieri în document nu e un cap de tabel cu „Cantitate” */
+    if (hp < 0 && !pages.some(function (pg) { return !!bandOf(pg.segs, false); })) for (p = 0; p < Math.min(pages.length, 4) && hp < 0; p++) { labs = bandOf(pages[p].segs, true); if (labs) { hp = p; f4 = true; } }
     if (hp < 0) return pdfLines(pages, T, st);
     /* formularul F3 scos din programul de devize: rândul cu simbol, UM și cantitate, iar denumirea e scrisă dedesubt, pe toată lățimea */
     if (pages[hp].segs.some(function (s) { return /^a\)\s*material/i.test(s.t); }) && pages[hp].segs.some(function (s) { return /^b\)\s*manoper/i.test(s.t); })) {
@@ -684,7 +844,7 @@
     /* datele: tot ce e sub capul de tabel (pe fiecare pagină, sub capul repetat, dacă există) */
     var data = [], above = [];
     pages.forEach(function (pg, ix) {
-      var b = ix === hp ? labs : (ix > hp ? bandOf(pg.segs) : null), loY = 1e9, hiY = -1e9;
+      var b = ix === hp ? labs : (ix > hp ? bandOf(pg.segs, f4) : null), loY = 1e9, hiY = -1e9;
       pg.segs.forEach(function (s) { if (s.y < loY) loY = s.y; if (s.y > hiY) hiY = s.y; });
       pg.segs.forEach(function (s) {
         if (ix < hp) return;
@@ -752,18 +912,27 @@
         kindOf = {}; LB.forEach(function (l, ix) { if (l.k === "den1" || l.k === "den2") (kindOf.den = kindOf.den || []).push(ix); else if (kindOf[l.k] == null) kindOf[l.k] = ix; else if (l.k === "unit" && kindOf.sum == null) kindOf.sum = ix; });
       }
     }
+    /* formularul F4 nu are coloană „Cantitate”: cantitatea stă în coloana U.M, lipită de unitate („2 buc”) */
+    var QU = /^(\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d+(?:[.,]\d+)?)\s*(buc|bucati|bucata|ml|m|mp|m2|mc|m3|kg|set|ans|to|l)\.?$/i, qum = false;
+    if (kindOf.cant == null && kindOf.um != null && kindOf.den) {
+      var segU = data.filter(function (s) { return colAt(s) === kindOf.um; }), nqu = segU.filter(function (s) { return QU.test(clean(s.t)); }).length;
+      if (segU.length >= 3 && nqu >= 0.6 * segU.length) { kindOf.cant = kindOf.um; qum = true; }
+    }
     if (kindOf.cant == null || !kindOf.den) return pdfLines(pages, T, st);
     kindOf.den = kindOf.den.filter(function (c) { return c !== kindOf.cant && c !== kindOf.um; }).sort(function (a, b) { return a - b; });
     if (!kindOf.den.length) return pdfLines(pages, T, st);
     var byCol = colsX.map(function () { return []; }), spans = []; data.forEach(function (s) { var ci = colAt(s); s.c = ci; if (ci >= 0) byCol[ci].push(s); else spans.push(s); });
     /* capul de tabel zice „U.M | Cantitate”, dar dedesubt sunt puse invers: mă iau după ce conțin */
-    if (kindOf.um != null && kindOf.um !== kindOf.cant) {
+    if (!qum && kindOf.um != null && kindOf.um !== kindOf.cant) {
       var cu = byCol[kindOf.um], cq = byCol[kindOf.cant], nu = cu.filter(function (s) { return isNum(s.t); }).length, tq = cq.filter(function (s) { return isUmTok(s.t); }).length;
       if (cu.length >= 3 && cq.length >= 3 && nu >= 0.6 * cu.length && tq >= 0.6 * cq.length) { var sw = kindOf.um; kindOf.um = kindOf.cant; kindOf.cant = sw; T.warn.push("În fișier, coloanele „UM” și „Cantitate” sunt puse invers față de capul de tabel. Le-am citit după ce conțin."); }
     }
     /* fiecare număr din coloana de cantitate e un rând */
-    var qv = function (t) { var u = String(t).replace(/[,.]$/, ""); return isNum(u) ? num(u) : 0; };   // „1,” = 1 (zecimalele tăiate la tipărire)
-    var anchors = byCol[kindOf.cant].filter(function (s) { return qv(s.t) > 0; }).map(function (s) { return { p: s.p, y: s.y, h: s.h, q: qv(s.t), cells: {} }; });
+    var qraw = function (t) { if (!qum) return String(t); var mq = QU.exec(clean(String(t))); return mq ? mq[1] : ""; };
+    var qdm = dotMode(byCol[kindOf.cant].filter(function (s) { return isNum(qraw(s.t).replace(/[,.]$/, "")); }).map(function (s) { return qraw(s.t); })), qdec = qdm.m === "dec" || qdm.m === "dec3";
+    if (qdm.m === "dec3") T.warn.push(DOT3(qdm.ex)); else if (qdm.m === "amb") T.warn.push(DOTAMB(qdm.ex));
+    var qv = function (t) { var u = qraw(t).replace(/[,.]$/, ""); if (qdec && /^[1-9]\d{0,2}\.\d{3}$/.test(clean(u))) return parseFloat(clean(u)); return isNum(u) ? num(u) : 0; };   // „1,” = 1 (zecimalele tăiate la tipărire)
+    var anchors = byCol[kindOf.cant].filter(function (s) { return qv(s.t) > 0; }).map(function (s) { var mu = qum ? QU.exec(clean(String(s.t))) : null; return { p: s.p, y: s.y, h: s.h, q: qv(s.t), u: mu ? normUm(mu[2]) : "", cells: {} }; });
     /* rândul cu numerele coloanelor („0 1 2 3 4 5=3x4”) nu e o poziție */
     anchors = anchors.filter(function (a) {
       var ln = data.filter(function (s) { return s.p === a.p && Math.abs(s.y - a.y) < 2.5; });
@@ -819,6 +988,16 @@
         var A = w.A, pitch = w.pitch;
         w.blocks.forEach(function (b) {
           var inside = b.inside;
+          /* un rând „TOTAL” scris imediat sub ultima poziție nu ține de denumirea ei */
+          if (inside.length) {
+            var lnY = {}; b.segs.forEach(function (s) { var k = Math.round(s.y / 2.2); (lnY[k] = lnY[k] || []).push(s); });
+            Object.keys(lnY).forEach(function (k) {
+              var L = lnY[k].slice().sort(function (x, y) { return x.x0 - y.x0; });
+              if (inside.some(function (a) { return Math.abs(a.y - L[0].y) <= b.tol; })) return;
+              var lt = L.map(function (s) { return s.t; }).join(" ");
+              if (isTotal(lt, false) || /^(ofertant|executant|beneficiar|proiectant|antreprenor( general)?|intocmit|verificat|aprobat|semnatura|l\.? ?s\.?)[\s:.,]*$/.test(strip(lt))) { var cutY = L[0].y, lowA = Math.min.apply(null, inside.map(function (a) { return a.y; })); if (cutY < lowA) b.segs = b.segs.filter(function (s) { return s.y > cutY + 0.5; }); else b.segs = b.segs.filter(function (s) { return L.indexOf(s) < 0; }); }
+            });
+          }
           if (!inside.length) {
             /* descrierea scrisă sub rândul cu cantitatea (în coloana ei, goală pe rândul acela) ține de rândul de deasupra */
             var btxt = b.segs.map(function (s) { return s.t; }).join(" "), bci = capInfo(btxt, ""), up = null;
@@ -857,6 +1036,7 @@
     orphans.forEach(function (s) { var k = s.p + ":" + Math.round(s.y / 2); (oLines[k] = oLines[k] || { p: s.p, y: s.y, segs: [] }).segs.push(s); });
     Object.keys(oLines).forEach(function (k) { var o = oLines[k]; o.segs.sort(function (a, b) { return a.x0 - b.x0; }); var t = o.segs.map(function (s) { return s.t; }).join(" "), ci = capInfo(t, ""); if (ci && ci.strong && !isTotal(t, false)) marks.push({ p: o.p, y: o.y, ci: ci }); });
     marks.sort(function (a, b) { return a.p - b.p || b.y - a.y; });
+    var umTok = function (t) { var ws = clean(t).split(" ").filter(function (w) { return w && !/^\d+([.,]\d+)?$/.test(w); }); return ws[0] || ""; };   // „2 buc” pe primul rând din pagină: „2” e din rândul cu numerele coloanelor, unitatea e „buc”
     var caps = Caps(T.title, name), mi = 0, cellText = function (a, ci) { return (a.cells[ci] || []).sort(function (x, y) { return y.y - x.y || x.x0 - y.x0; }).map(function (s) { return s.t; }).join(" "); };
     var manCol = kindOf.man != null ? kindOf.man : (kindOf.unit != null && kindOf.val == null ? kindOf.unit : -1);
     var hband = pages[hp].segs.filter(function (s) { return s.y >= labs.bottom && s.y <= labs.top; }).map(function (s) { return strip(s.t); });
@@ -873,7 +1053,7 @@
       /* prețul e uneori afișat rotunjit (1,13 în loc de 1,125): dacă valoarea rândului arată altceva, iau prețul din valoare */
       if (pr > 0 && kindOf.sum != null && a.q > 0) { var vs = (a.cells[kindOf.sum] || []).filter(function (s) { return isNum(s.t); }), vv = vs.length === 1 ? num(vs[0].t) : 0, pe = vv / a.q; if (vv > 0 && Math.abs(a.q * pr - vv) > 0.006 && Math.abs(pe - pr) <= 0.00501 + 1e-9) pr = pe; }
       var nrT = ""; if (kindOf.nr != null) { var ns = (a.cells[kindOf.nr] || []).filter(function (s) { return NRH.test(s.t); }).sort(function (x, y) { return Math.abs(x.y - a.y) - Math.abs(y.y - a.y); }); nrT = ns.length ? ns[0].t : clean(cellText(a, kindOf.nr)).slice(0, 20); }
-      T.items.push({ nr: nrT, cod: cod, den: den, um: (kindOf.um != null && clean(cellText(a, kindOf.um))) ? normUm(clean(cellText(a, kindOf.um)).split(" ")[0]) : guessUm(den), cant: r6(a.q), pret: pr > 0 ? r6(pr) : 0, cap0: caps.get(), sheet: T.name, row: (a.p + 1) * 1000 + ix + 1 });
+      T.items.push({ nr: nrT, cod: cod, den: den, um: qum ? (a.u || guessUm(den)) : (kindOf.um != null && umTok(cellText(a, kindOf.um))) ? normUm(umTok(cellText(a, kindOf.um))) : guessUm(den), cant: r6(a.q), pret: pr > 0 ? r6(pr) : 0, cap0: caps.get(), sheet: T.name, row: (a.p + 1) * 1000 + ix + 1 });
     });
     /* numărul curent lipit de denumire („2 Brățări 40”): îl scot din denumire */
     var lead = T.items.map(function (i) { return /^(\d{1,4})[.)]?\s+(?=\S)/.exec(i.den); }), nl = lead.filter(Boolean).length, inc = 0;
@@ -898,9 +1078,10 @@
         if (!t || FOOT.test(t)) return;
         if (hasLetters(t, 3)) pt0++;
         var m = LRE1.exec(t), q, u, den, nr;
-        if (m) { nr = m[1] || ""; den = m[2]; u = m[3]; q = num(m[4]); }
-        else if ((m = LRE2.exec(t))) { nr = m[1] || ""; den = m[2]; q = num(m[3]); u = m[4]; }
-        if (m && q > 0 && hasLetters(den, 3) && !isTotal(den, true)) { T.items.push({ nr: nr, cod: "", den: clean(den), um: normUm(u), cant: r6(q), pret: 0, cap0: caps.get(), sheet: T.name, row: (pi + 1) * 1000 + n }); return; }
+        var qs = "";
+        if (m) { nr = m[1] || ""; den = m[2]; u = m[3]; qs = m[4]; q = num(qs); }
+        else if ((m = LRE2.exec(t))) { nr = m[1] || ""; den = m[2]; qs = m[3]; q = num(qs); u = m[4]; }
+        if (m && q > 0 && hasLetters(den, 3) && !isTotal(den, true)) { T.items.push({ nr: nr, cod: "", den: clean(den), um: normUm(u), cant: r6(q), pret: 0, cap0: caps.get(), sheet: T.name, row: (pi + 1) * 1000 + n, _q: qs }); return; }
         var lastS = ln.segs[ln.segs.length - 1];
         if (ln.segs.length >= 2 && /^\d{1,6}([.,]\d{1,2})?$/.test(clean(lastS.t))) {            // „Țeavă 50x500 ......... 15”: numărul stă singur, în dreapta
           var d2 = clean(ln.segs.slice(0, -1).map(function (s) { return s.t; }).join(" ")).replace(/^\d{1,3}[.)]\s+/, ""), q2 = num(lastS.t);
@@ -913,6 +1094,11 @@
     });
     /* rândurile „denumire … număr” se iau doar dacă sunt destule ca să fie o listă (nu o planșă cu cote) */
     if (loose.length >= 4 && loose.length >= T.items.length) { T.items = T.items.concat(loose).sort(function (a, b) { return a.row - b.row; }); T.free = true; T.warn.push("Lista nu are unități de măsură: am pus „ml” la țevi și izolații și „buc” la rest. Verifică."); }
+    /* cantitățile scrise cu punct: aceeași regulă ca la tabele */
+    var dq = dotMode(T.items.filter(function (i) { return i._q != null; }).map(function (i) { return i._q; }));
+    if (dq.m === "dec" || dq.m === "dec3") T.items.forEach(function (i) { var t = clean(String(i._q == null ? "" : i._q)); if (/^[1-9]\d{0,2}\.\d{3}$/.test(t)) i.cant = r6(parseFloat(t)); });
+    if (dq.m === "dec3") T.warn.push(DOT3(dq.ex)); else if (dq.m === "amb") T.warn.push(DOTAMB(dq.ex));
+    T.items.forEach(function (i) { delete i._q; });
     if (!T.items.length) T.why = "Nu am găsit în PDF un tabel cu denumire și cantitate.";
     return finish(T, st);
   }
@@ -958,6 +1144,52 @@
     if (file && file.arrayBuffer) return file.arrayBuffer().then(function (b) { return new Uint8Array(b); });
     return new Promise(function (ok, no) { var fr = new FileReader(); fr.onload = function () { ok(new Uint8Array(fr.result)); }; fr.onerror = function () { no(fr.error); }; fr.readAsArrayBuffer(file); });
   }
+  /* ---------- Word vechi (.doc, 97–2003): textul și tabelele, citite direct din fișier ---------- */
+  function docText(X, u8) {
+    var cfb = X.CFB.read(u8, { type: "array" }), get = function (n) { var f = X.CFB.find(cfb, n) || X.CFB.find(cfb, "/" + n); return f ? (f.content instanceof Uint8Array ? f.content : new Uint8Array(f.content)) : null; };
+    var wd = get("WordDocument"); if (!wd || wd.length < 0x1AA) return null;
+    var dv = new DataView(wd.buffer, wd.byteOffset, wd.byteLength), tb = get((dv.getUint16(0x0A, true) & 0x0200) ? "1Table" : "0Table"); if (!tb) return null;
+    var ccp = dv.getInt32(0x4C, true), fcClx = dv.getInt32(0x01A2, true), lcbClx = dv.getInt32(0x01A6, true), tv = new DataView(tb.buffer, tb.byteOffset, tb.byteLength), p = fcClx, end = fcClx + lcbClx;
+    while (p < end && tb[p] === 1) p += 3 + tv.getInt16(p + 1, true);
+    if (p >= end || tb[p] !== 2) return null;
+    var lcb = tv.getInt32(p + 1, true), base = p + 5, n = Math.floor((lcb - 4) / 12), out = "", i, dec = typeof TextDecoder !== "undefined" ? new TextDecoder("windows-1252") : null;
+    for (i = 0; i < n; i++) {
+      var cp0 = tv.getInt32(base + 4 * i, true), cp1 = tv.getInt32(base + 4 * (i + 1), true), fc = tv.getUint32(base + 4 * (n + 1) + 8 * i + 2, true), comp = (fc & 0x40000000) !== 0, len = Math.min(cp1, ccp) - cp0, k;
+      if (len <= 0) break; fc = fc & 0x3FFFFFFF;
+      if (comp) { var a = wd.subarray(fc / 2, fc / 2 + len); if (dec) out += dec.decode(a); else for (k = 0; k < a.length; k++) out += String.fromCharCode(a[k]); }
+      else for (k = 0; k < len && fc + 2 * k + 1 < wd.length; k++) out += String.fromCharCode(dv.getUint16(fc + 2 * k, true));
+    }
+    return out.replace(/\x13[^\x14\x15]*\x14/g, "").replace(/[\x13\x15\x01\x08]/g, "").replace(/\x0b/g, " ").replace(/\x0c/g, "\r").replace(/[\x1e\x1f]/g, "-").replace(/\u00a0/g, " ");
+  }
+  function readDoc(X, u8, name) {
+    var res = { name: name, kind: "docx", tables: [], notes: [] }, text = null;
+    try { text = docText(X, u8); } catch (e) { text = null; }
+    if (text == null) { res.notes.push("Nu am putut citi documentul Word vechi (.doc). Deschide-l și salvează-l ca PDF sau .docx, apoi încearcă din nou."); return res; }
+    /* în .doc celulele se termină cu semnul 07, iar rândul cu încă un 07; textul dintre tabele e în paragrafe obișnuite */
+    var toks = text.split("\x07"), runs = [], run = null, free = [], bound = true, i;
+    for (i = 0; i < toks.length; i++) {
+      var t = toks[i], last = i === toks.length - 1;
+      if (last) { free.push(t); break; }
+      if (bound && t.indexOf("\r") >= 0) { var cut = t.lastIndexOf("\r"); free.push(t.slice(0, cut)); t = t.slice(cut + 1); if (run && run.length) runs.push(run); run = []; }
+      if (!run) run = [];
+      run.push(clean(t.replace(/\r/g, " "))); bound = t === "";
+    }
+    if (run && run.length) runs.push(run);
+    runs.forEach(function (L, ri) {
+      var best = 0, bs = 0, N, k;
+      for (N = 2; N <= 14; N++) { var tot = 0, hit = 0; for (k = N; k < L.length; k += N + 1) { tot++; if (L[k] === "") hit++; } if (tot >= 2 && hit / tot > bs + 0.001 && Math.abs(L.length - tot * (N + 1)) <= N) { bs = hit / tot; best = N; } }
+      if (!best || bs < 0.85) return;
+      var g = []; for (k = 0; k + best <= L.length; k += best + 1) g.push(L.slice(k, k + best).map(function (v) { return isNum(v) && !/^0\d/.test(v) ? num(v) : v; }));
+      var T; try { T = analyze(splitQtyUm(g), [], "Tabelul " + (ri + 1)); } catch (e) { T = newTable("Tabelul " + (ri + 1)); }
+      if (T.ok || g.length > 2) res.tables.push(T);
+    });
+    if (!res.tables.some(function (t) { return t.ok; })) {
+      var R = readText(free.join("\r").split("\r").map(function (x) { return clean(x.replace(/\t/g, " ")); }).filter(Boolean).join("\n"), name, { doc: true }), T2 = R.tables[0];
+      if (T2 && T2.ok) { T2.name = "Textul documentului"; res.tables.push(T2); }
+    }
+    if (!res.tables.some(function (t) { return t.ok; })) res.notes.push("Nu am găsit în document o listă cu denumire și cantitate.");
+    return res;
+  }
   var NOLIB = "Nu am putut încărca modulul de citire. Verifică internetul și încearcă din nou.";
   /** Citește un fișier și întoarce tabelele găsite. Nu aruncă erori: ce nu merge apare în notes, pe românește. */
   function readFile(file) {
@@ -968,7 +1200,13 @@
       if (!u8.length) return fail("text", "Fișierul e gol.");
       if (pdf || ext === "pdf") return need("pdf").then(function (P) { return readPdf(P, u8, name); }, function () { return fail("pdf", NOLIB); });
       if (/^(jpe?g|png|heic|heif|gif|webp|bmp|tiff?)$/.test(ext)) return fail("text", "E o poză. Nu pot citi poze: cere lista în Excel sau PDF, ori scrie rândurile de mână.");
-      if (ext === "doc" || (ole && ext !== "xls" && ext !== "xlt")) return ext === "doc" ? fail("docx", "E un document Word vechi (.doc). Deschide-l și salvează-l ca PDF sau .docx, apoi încearcă din nou.") : need("xlsx").then(function (X) { return readBook(X, u8, name, "xls"); }, function () { return fail("xls", NOLIB); });
+      if (ext === "doc" || (ole && ext !== "xls" && ext !== "xlt")) return need("xlsx").then(function (X) { var isDoc = ext === "doc"; if (!isDoc && ole) { try { isDoc = !!X.CFB.find(X.CFB.read(u8, { type: "array" }), "WordDocument"); } catch (e) { } } return isDoc ? readDoc(X, u8, name) : readBook(X, u8, name, "xls"); }, function () { return fail(ext === "doc" ? "docx" : "xls", NOLIB); });
+      if (ext === "html" || ext === "htm" || /^\s*<(!doctype html|html|table)/i.test(decode(u8.subarray(0, 200)))) return need("xlsx").then(function (X) {
+        var R0 = null; try { if (/<table/i.test(decode(u8))) R0 = readBook(X, u8, name, "xls"); } catch (e) { R0 = null; }
+        if (R0 && R0.tables.some(function (t) { return t.ok; })) return R0;
+        var txt = decode(u8).replace(/<(script|style)[\s\S]*?<\/\1>/gi, " ").replace(/<\/(p|div|tr|li|h\d|td|th)>|<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+        var R1 = readText(txt, name, { doc: true }); R1.kind = "text"; if (!R1.tables.some(function (t) { return t.ok; })) R1.notes = ["Nu am găsit în pagină o listă cu denumire și cantitate."]; return R1;
+      }, function () { return fail("text", NOLIB); });
       if (ext === "docx" || ext === "docm") return need("xlsx").then(function (X) { return readDocx(X, u8, name); }, function () { return fail("docx", NOLIB); });
       if (ext === "csv" || ext === "tsv" || (ext === "txt" && !pk && !ole)) {
         var text = decode(u8), g = gridFromText(text, ext !== "txt");
@@ -980,7 +1218,7 @@
         var kind = ext === "xls" || ext === "xlt" || ole ? "xls" : ext === "ods" || ext === "fods" ? "ods" : "xlsx";
         return need("xlsx").then(function (X) { if (pk && !/^(xlsx|xlsm|xlsb|ods|numbers)$/.test(ext)) { try { var cf = X.CFB.read(u8, { type: "array" }); if (X.CFB.find(cf, "word/document.xml")) return readDocx(X, u8, name); } catch (e) { } } return readBook(X, u8, name, kind); }, function () { return fail(kind, NOLIB); });
       }
-      var R2 = readText(decode(u8), name); if (!R2.tables.some(function (t) { return t.ok; })) R2.notes = ["Nu cunosc acest fel de fișier. Merg: Excel (.xlsx, .xls), .ods, .csv, PDF cu text, Word (.docx) și text lipit."]; return R2;
+      var R2 = readText(decode(u8), name); if (!R2.tables.some(function (t) { return t.ok; })) R2.notes = ["Nu cunosc acest fel de fișier. Merg: Excel (.xlsx, .xls), .ods, .csv, PDF cu text, Word (.docx, .doc), pagini .html și text lipit."]; return R2;
     }).catch(function (e) { return fail(ext || "text", "Nu am putut citi fișierul."); });
   }
 

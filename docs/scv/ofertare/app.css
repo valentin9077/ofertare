@@ -19,7 +19,7 @@ main{padding-top:0}
 .pri[disabled]{opacity:.45}
 .sec{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;padding:0 16px;border-radius:16px;background:var(--surface);color:var(--navy);font-weight:700;font-size:15px;box-shadow:inset 0 0 0 1.5px #CBD5E1}
 .sec.r{color:var(--neg);box-shadow:inset 0 0 0 1.5px #F3C6C2}
-.lnk{color:var(--link);font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:4px;min-height:36px}
+.lnk{color:var(--link);font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:4px;min-height:42px}
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:14px 16px calc(18px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(242,244,247,0),var(--bg) 30%);display:flex;gap:10px;justify-content:center}
 .bar>*{flex:1;max-width:728px}
 .bar>.sec{flex:.55}
@@ -32,7 +32,8 @@ main{padding-top:0}
 /* fluturași de filtrare */
 .fl{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
 .fl::-webkit-scrollbar{display:none}
-.fl button{flex:none;min-height:38px;padding:0 14px;border-radius:19px;background:var(--surface);font-size:13.5px;font-weight:600;color:var(--ink2);white-space:nowrap}
+.fl.w{flex-wrap:wrap;overflow:visible}
+.fl button{flex:none;min-height:42px;padding:0 14px;border-radius:19px;background:var(--surface);font-size:13.5px;font-weight:600;color:var(--ink2);white-space:nowrap}
 .fl button.on{background:#DCE7F5;color:var(--navy)}
 .srch{position:relative;margin:0 0 12px}
 .srch input{width:100%;padding-left:42px;border-radius:16px;border-color:transparent;box-shadow:var(--sh1)}
@@ -98,7 +99,7 @@ main{padding-top:0}
 .full .bar{background:linear-gradient(180deg,rgba(255,255,255,0),#fff 30%);z-index:51}
 .full .bar>*{max-width:524px}
 .sheet h3{font-size:20px;font-weight:800;letter-spacing:-.01em;margin:0 0 4px;display:flex;justify-content:space-between;align-items:center;gap:10px}
-.sheet h3 button{color:var(--mut);width:40px;height:40px;display:grid;place-items:center;margin-right:-8px}
+.sheet h3 button{color:var(--mut);width:44px;height:44px;flex:none;display:grid;place-items:center;margin-right:-10px}
 .sheet p.s{color:var(--mut);font-size:14px;margin:0 0 6px}
 .sheet .pri,.sheet .sec{margin-top:14px}
 .lb{display:block;font-size:12.5px;font-weight:600;color:var(--mut);margin:14px 0 6px}
@@ -157,7 +158,7 @@ select.inp{background-color:var(--bg)}
 .tag.ok{background:var(--pos-bg);color:var(--pos)}.tag.wr{background:var(--warn-bg);color:var(--warn)}.tag.no{background:var(--neg-bg);color:var(--neg)}.tag.gy{background:var(--gray-bg);color:var(--gray)}
 .pos .sgs{margin-top:10px;padding:10px 12px;border-radius:12px;background:#EEF4FC;font-size:13px;line-height:1.4;color:var(--ink2)}
 .pos .sgs b{color:var(--ink)}
-.pos .sgs button{display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:18px;background:var(--navy);color:#fff;font-size:13px;font-weight:700;margin-top:8px}
+.pos .sgs button{display:inline-flex;align-items:center;min-height:42px;padding:0 14px;border-radius:18px;background:var(--navy);color:#fff;font-size:13px;font-weight:700;margin-top:8px}
 .more{display:block;width:100%;min-height:48px;border-radius:16px;background:var(--surface);font-weight:700;font-size:14px;color:var(--navy);margin:4px 0 12px;box-shadow:var(--sh1)}
 
 /* prețurile mele, firma mea */
@@ -173,7 +174,7 @@ select.inp{background-color:var(--bg)}
 .box p.s{color:var(--mut);font-size:13.5px;margin:2px 0 4px}
 .box .inp{background:var(--bg)}
 .fam h4{margin:14px 0 4px;font-size:14px}.fam ul{margin:0;padding-left:20px;font-size:14px;line-height:1.55;color:var(--ink2)}
-.src a{color:var(--link);font-size:13px;display:block;margin-top:6px;overflow-wrap:anywhere}
+.src a{color:var(--link);font-size:13.5px;display:flex;align-items:center;min-height:44px;padding:4px 0;border-top:1px solid var(--line2);overflow-wrap:anywhere}.src a:first-child{margin-top:8px}
 .emp{text-align:center;color:var(--mut);padding:34px 16px;font-size:15px;line-height:1.5}
 .emp b{display:block;color:var(--ink);font-size:17px;margin-bottom:6px}
 
@@ -197,3 +198,25 @@ select.inp{background-color:var(--bg)}
   .tr b{font-size:15px}
   .of{padding:15px 20px}
 }
+/* --- nu ofertez, prețuri estimate, meniul din listă --- */
+.ofw{display:flex;align-items:stretch;border-top:1px solid var(--line2)}
+.ofw:first-child{border-top:0}
+.ofw .of{border-top:0;flex:1;min-width:0;padding-right:4px}
+.ofm{flex:none;width:48px;min-height:66px;display:flex;align-items:center;justify-content:center;color:var(--mut);border-radius:0 22px 22px 0}
+.tr.off b,.tr.off span{color:var(--mut)}
+.tr.off b{text-decoration:line-through;text-decoration-thickness:1px}
+.wrn.q{background:#EEF4FC;color:var(--ink2)}
+.nt.q{background:#EEF4FC;color:var(--ink2)}
+.tag.in{background:#EEF4FC;color:var(--link)}
+.pos.off{box-shadow:none;background:transparent;border:1px dashed var(--line)}
+.pos.off .d,.pos.off .m{color:var(--mut)}
+.pos .sgs.q{background:transparent;padding:0;margin-top:8px;font-size:12.5px;color:var(--mut)}
+.pos .sgs button.g{background:transparent;color:var(--link);box-shadow:inset 0 0 0 1.5px var(--line);margin-left:8px}
+.pos .sgs.q button.g{margin-left:0;margin-top:6px}
+.pos .sgs button+button.g{margin-left:8px}
+.prg{font-size:12.5px;font-weight:700;color:var(--mut);margin:16px 4px 6px}
+/* avertizarea „nesalvat / fără internet” se vede întreagă, pe două rânduri dacă trebuie */
+.top .st.bad{max-width:52%;white-space:normal;overflow:visible;text-overflow:clip;line-height:1.2;text-align:right}
+/* nimic de apăsat sub 40 px */
+.und button{min-height:42px}
+button.am2{min-height:42px}

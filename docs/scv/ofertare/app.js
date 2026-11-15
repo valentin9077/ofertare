@@ -24,16 +24,19 @@ const svg = (inner, s, w) => '<svg class="ic" width="' + (s || 22) + '" height="
 const ic = (n, s, w) => (window.OFI && OFI[n]) ? svg(OFI[n], s, w) : SCVI.icon(n, s, w);
 const plural = (n, one, many) => n === 1 ? one : n + " " + (n % 100 >= 20 || n % 100 === 0 && n ? "de " : "") + many;
 const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-const fileSafe = s => String(s || "").replace(/[\\/:*?"<>|]/g, "").trim();
+const fileSafe = s => String(s || "").replace(/[\\/:*?"<>|]/g, "").replace(/\s+/g, " ").trim().slice(0, 80).replace(/[. ]+$/, "");   // fără semne nepermise, fără punct la coadă, cel mult 80 de litere
 
 /* ---------- starea aplicației ---------- */
 let store = null, ME = null, booted = false, DOCS = {}, IDX = { list: [] }, FIRMA = {}, PIATA = null;
-let catalog = [], BASE_CAT = [], pcat = [], REF = [], pref = [], nextCatId = 1, catDirty = false, PX = null;
+let catalog = [], BASE_CAT = [], pcat = [], REF = [], nextCatId = 1, catDirty = false, PX = null, TAR = null;
 let CUR = "", st = null;                 // oferta deschisă (același obiect ca DOCS["p/"+CUR])
 let VIEW = { name: "list" }, SAVED = "", SAVEDW = false, AFTER = null;
 const DEF_NU = ["TVA", "legături electrice"].join("\n");
 const UMS = ["buc", "ml", "mp", "kg", "set", "punct", "baie", "ore", "mc"];
 const STARI = { lucru: "în lucru", trimisa: "trimisă", castigata: "câștigată", pierduta: "pierdută" };
+/* domeniile pe care nu le face oricine: la aducerea unei liste întreb dacă le ofertezi */
+const DOMQ = { v: "Ventilație", c: "Climatizare", e: "Electrice", g: "Gaze", p: "Săpături și terasamente" };
+const LVT = ["", "prețul tău", "din prețurile tale", "socotit din prețurile tale", "estimat larg", "după piață"];
 const FF = [["firma", "Denumirea firmei"], ["firmaCif", "CIF și nr. registrul comerțului"], ["firmaAdresa", "Adresă"], ["firmaContact", "Telefon și email"], ["semnatar", "Semnează ofertele (nume)"], ["iban", "IBAN (opțional, apare în antet)"]];
 const CF = [["tva", "TVA (%)", "n"], ["avans", "Avans la semnare (%)", "n"], ["garantie", "Garanție (luni)", "n"], ["valab", "Oferta e valabilă (zile)", "n"], ["termen", "Termen de execuție", "t"], ["materialeDe", "Materialele sunt asigurate de", "t"], ["normative", "Normative", "t"]];
 const DEFC = { tva: 21, avans: 30, garantie: 24, valab: 30, termen: "conform contractului", materialeDe: "sunt asigurate de beneficiar", normative: "I9, I13, GP 043, NP 059", nuInclude: DEF_NU, includeTxt: "" };
@@ -43,6 +46,7 @@ const defc = k => (FIRMA.def && FIRMA.def[k] != null) ? FIRMA.def[k] : DEFC[k];
 function nextNr() {
   const y = String(new Date().getFullYear()); let mx = 0, w = 4;
   Object.keys(DOCS).forEach(p => { if (p.indexOf("p/") !== 0) return; const m = /^(\d{4})\/(\d+)$/.exec(String((DOCS[p].proj || {}).nrOferta || "").trim()); if (m && m[1] === y) { mx = Math.max(mx, +m[2]); w = Math.max(w, m[2].length); } });
+  if (typeof IDX !== "undefined" && IDX && IDX.nr && IDX.nr[y] > mx) mx = IDX.nr[y];   // și numerele ofertelor șterse rămân „date”
   if (mx) return y + "/" + String(mx + 1).padStart(w, "0");
   const m = /^(\d{4})\/(\d+)$/.exec(String(FIRMA.nrStart || "").trim());
   return m && m[1] === y ? FIRMA.nrStart : y + "/0001";
@@ -57,32 +61,71 @@ function normSt(s) {
     s.rows = OF.chapters(s.items, 0).map((c, i) => { const ov = (s.chapOv || {})[c.cap] || {}; return { id: i + 1, k: "c", cap: c.cap, den: ov.name || c.cap, ov: +ov.manual || 0 }; });
     s.rnd = 0;
   }
-  s.files = s.files || [];
-  syncRows(s); s.v = 3; return s;
+  s.files = s.files || []; s.files.forEach((f, i) => { if (f.id == null) f.id = i; });   // fișierele vechi își iau drept număr locul din listă (pozițiile lor așa le știu)
+  syncRows(s);
+  /* Suma scrisă de tine pe un capitol ține minte cât dădeau pozițiile în clipa aceea (ovT). Dacă apoi scoți, adaugi sau schimbi poziții,
+     suma merge odată cu ele, în aceeași măsură – altfel ai oferta lucrări pe nimic sau ai cere bani pe ce nu mai ofertezi. */
+  s.rows.forEach(r => { if (r.k === "c" && r.ov > 0 && r.ovT == null) setOv(r, r.ov, s); });
+  s.v = 3; return s;
 }
 /* fiecare poziție stă într-un capitol care apare ca rând în ofertă */
 function syncRows(s) {
-  const caps = new Set(s.rows.filter(r => r.k === "c").map(r => r.cap)); let id = Math.max(0, ...s.rows.map(r => r.id || 0));
-  for (const it of s.items) { const k = it.cap || (it.cap = "Fără capitol"); if (!caps.has(k)) { caps.add(k); s.rows.push({ id: ++id, k: "c", cap: k, den: k, ov: 0 }); } }
+  const caps = new Set(s.rows.filter(r => r.k === "c").map(r => r.cap));
+  for (const it of s.items) { const k = it.cap || (it.cap = "Fără capitol"); if (!caps.has(k)) { caps.add(k); s.rows.push({ id: newNum(s.rows), k: "c", cap: k, den: k, ov: 0 }); } }
 }
-const rndTo = (v, s) => s ? Math.round(v / s) * s : r2(v);
+/* pune (sau scoate) suma scrisă de tine pe un capitol și însemnează pozițiile de care e legată */
+function setOv(r, v, s) {
+  s = s || st; const xs = s.items.filter(i => i.cap === r.cap); xs.forEach(i => { delete i.ovd; });
+  if (!(v > 0)) { r.ov = 0; delete r.ovT; return; }
+  r.ov = v; let t = 0; if (!r.no) xs.forEach(i => { if (!i.no && i.pret > 0) { i.ovd = 1; t += OF.total(i, s.adaos); } }); t = r2(t);
+  if (t > 0) r.ovT = t; else { delete r.ovT; xs.forEach(i => { delete i.ovd; }); }
+}
+const rndTo = (v, s) => { if (!s) return r2(v); const q = Math.round(v / s) * s; return q > 0 ? q : r2(v); };   // un capitol mai mic decât jumătate de treaptă rămâne cum e, nu devine 0
 function rowInfo(r, s) {
   s = s || st;
-  if (r.k === "c") { let tot = 0, n = 0, np = 0; for (const i of s.items) if (i.cap === r.cap) { n++; if (i.pret > 0) np++; tot += OF.total(i, s.adaos); } tot = r2(tot); return { n, np, tot, val: r.ov > 0 ? r.ov : rndTo(tot, s.rnd) }; }
-  return { val: r2((+r.cant || 0) * (+r.pret || 0)) };
+  if (r.k === "c") { let tot = 0, tOld = 0, n = 0, np = 0, nn = 0, ne = 0; for (const i of s.items) if (i.cap === r.cap) { if (i.no || r.no) { nn++; continue; } n++; if (i.pret > 0) { np++; if (!i.conf && i.src === "cat" && i.lv >= 3) ne++; } const t = OF.total(i, s.adaos); tot += t; if (i.ovd) tOld += t; } tot = r2(tot); tOld = r2(tOld);
+    /* Suma pusă de tine pe capitol (ov) e legată de pozițiile care aveau preț în clipa aceea (ovd), când dădeau ovT. Dacă scoți din ele sau le schimbi,
+       suma scade ori crește în aceeași măsură; pozițiile venite după aceea se adaugă la prețul lor. Așa nu oferi lucrări pe nimic și nu ceri bani pe ce nu mai ofertezi. */
+    const off = !!r.no || (n === 0 && nn > 0), scaled = r.ov > 0 && r.ovT > 0, moved = !off && scaled && (Math.abs(tOld - r.ovT) >= 0.005 || Math.abs(tot - tOld) >= 0.005);
+    return { n, np, nn, ne, tot, tOld, off, scaled, moved, val: off ? 0 : scaled ? (moved ? r2(r.ov * tOld / r.ovT + (tot - tOld)) : r.ov) : r.ov > 0 ? r.ov : rndTo(tot, s.rnd) }; }
+  return { val: r.no ? 0 : r2((+r.cant || 0) * (+r.pret || 0)) };
 }
 function totals(s) { s = s || st; const sub = r2(s.rows.reduce((a, r) => a + rowInfo(r, s).val, 0)), tva = r2(sub * (+s.proj.tva || 0) / 100), tot = r2(sub + tva); return { sub, tva, tot, avans: r2(tot * (+s.proj.avans || 0) / 100) }; }
 const nameOf = (s, e) => (s.proj.santier || "").trim() || (e && e.nume && !/^Proiect (nou|fără nume)$/.test(e.nume) ? e.nume : "") || "Ofertă fără nume";
 const entry = id => IDX.list.find(x => x.id === id);
 const newId = () => "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
-const nextRow = () => Math.max(0, ...st.rows.map(r => r.id || 0)) + 1;
-const nextItem = () => Math.max(0, ...st.items.map(i => i.id || 0)) + 1;
-const projX = () => { const p = Object.assign({}, st.proj); for (const [k] of FF) if (!p[k] && FIRMA[k]) p[k] = FIRMA[k]; return p; };
+/* Numere de ordine care nu se pot nimeri la fel pe telefon și pe laptop (altfel două rânduri puse în același timp pe două aparate s-ar călca) */
+const newNum = xs => { let m = Date.now() * 1000; for (const x of xs) if (x.id > m) m = x.id; return m + 1 + Math.floor(Math.random() * 500); };
+const nextRow = () => newNum(st.rows);
+const nextItem = () => newNum(st.items);
+const isNo = (it, s) => !!it.no || (s || st).rows.some(r => r.k === "c" && r.no && r.cap === it.cap);
+const offered = s => (s || st).items.filter(i => !isNo(i, s));
+const noCaps = () => st.rows.filter(r => r.no || (r.k === "c" && rowInfo(r).n === 0 && rowInfo(r).nn > 0)).map(r => r.den);
+/* Prețul pe unitate care ajunge la client (anexă și fișierul lui): cu adaosul și cu tot ce a schimbat suma capitolului
+   (rotunjire, sumă pusă de tine, „vreau alt total”), ca pozițiile adunate să dea suma din ofertă. */
+function effPrices(s) {
+  s = s || st; const out = new Map(), ad = 1 + (+s.adaos || 0) / 100;
+  for (const r of s.rows) {
+    if (r.k !== "c") continue; const info = rowInfo(r, s), xs = info.off ? [] : s.items.filter(i => i.cap === r.cap && !i.no && i.pret > 0); if (!xs.length) continue;
+    const kOld = info.scaled ? r.ov / r.ovT : 1, k = !info.scaled && info.tot > 0 && info.val > 0 ? info.val / info.tot : 1; let sum = 0;
+    xs.forEach(i => { const p = Math.max(0.01, r2(r2(i.pret * ad) * (info.scaled ? (i.ovd ? kOld : 1) : k))); out.set(i.id, p); sum += r2((+i.cant || 0) * p); });
+    const d = r2(info.val - sum); if (Math.abs(d) < 0.01 || (!info.scaled && k === 1)) continue;
+    let best = null, br = Infinity;                       // restul din rotunjiri merge pe poziția unde încape cel mai bine
+    for (const i of xs) { const q = +i.cant || 0, p0 = out.get(i.id); if (!(q > 0)) continue; const p1 = r2(p0 + d / q); if (!(p1 > 0)) continue; const res = Math.abs(r2(d - (r2(q * p1) - r2(q * p0)))); if (res < br) { br = res; best = [i.id, p1]; if (res < 0.005) break; } }
+    if (br >= 0.005) for (const i of xs) {               // nu iese la ban cu două zecimale: un singur preț primește patru zecimale (în fișier se vede tot cu două)
+      const q = +i.cant || 0, p0 = out.get(i.id); if (!(q > 0)) continue; const p1 = Math.round((p0 + d / q) * 1e4) / 1e4; if (!(p1 > 0)) continue; const res = Math.abs(r2(d - (r2(q * p1) - r2(q * p0)))); if (res < br) { br = res; best = [i.id, p1]; if (res < 0.005) break; } }
+    if (best) out.set(best[0], best[1]);
+  }
+  return out;
+}
+/* în Excel, la „nu include” apar singure și capitolele neofertate */
+const projX = () => { const p = Object.assign({}, st.proj); for (const [k] of FF) if (!p[k] && FIRMA[k]) p[k] = FIRMA[k]; const nc = noCaps(); if (nc.length) p.nuInclude = [String(p.nuInclude || "").trim()].concat(nc.map(x => x.toLowerCase())).filter(Boolean).join("\n"); return p; };
 
 /* ---------- salvare ---------- */
 function setSaved(t, w) { SAVED = t; SAVEDW = !!w; const e = $("#saved"); if (e) { e.textContent = t; e.classList.toggle("bad", SAVEDW); } }
+let REV = 0;                                  // crește la fiecare salvare: „Anulează” merge doar dacă între timp nu s-a schimbat altceva
 function save() {
-  if (!booted || !CUR) return; const id = CUR;
+  if (!booted || !CUR) return; const id = CUR; REV++;
   store.put("p/" + id, () => DOCS["p/" + id]);
   const e = entry(id), nm = nameOf(st, e), d = todayIso();
   if (e && (e.nume !== nm || e.upd !== d)) { e.nume = nm; e.upd = d; store.put("index", () => IDX); }
@@ -92,39 +135,62 @@ function saveCat() { if (catDirty) { catDirty = false; store.put("catalog", () =
 function saveFirma() { store.put("firma", () => FIRMA); }
 function createOffer(proj, state) {
   const id = newId(), s = normSt(state || { rows: [], items: [] });
-  Object.assign(s.proj, proj || {}); if (!s.proj.nrOferta) s.proj.nrOferta = nextNr();
+  Object.assign(s.proj, proj || {}); if (!s.proj.nrOferta) { s.proj.nrOferta = nextNr(); s.proj.nrAuto = 1; }
   DOCS["p/" + id] = s; IDX.list.unshift({ id, nume: nameOf(s), upd: todayIso() });
   store.put("p/" + id, () => DOCS["p/" + id], 0); store.put("index", () => IDX, 0); return id;
 }
+const inLucru = s => (s.proj.stare || "lucru") === "lucru";
+/* La pornire: ofertele în lucru făcute cu reguli mai vechi își refac prețurile o singură dată (ce ai pus, ai verificat sau nu ofertezi nu se atinge).
+   Ofertele trimise, câștigate sau pierdute rămân exact cum au plecat. */
+function rematchAll() {
+  let ch = 0;
+  Object.keys(DOCS).forEach(p => { const s = DOCS[p]; if (p.indexOf("p/") !== 0 || !s.items || !s.items.length || !inLucru(s)) return;
+    if (s.mv !== OF.MV) autoMatch(null, s); else if (PIATA && !s.mk && s.items.some(i => !i.no && !(i.pret > 0))) autoMatch(s.items.filter(i => !i.no && !(i.pret > 0)), s); else return;
+    store.put(p, () => DOCS[p]); ch++; });
+  if (ch && !isOpen()) render();
+}
 function openOffer(id) {
   CUR = id; st = DOCS["p/" + id]; SCV.LS.set("scv-oferta-cur", id);
-  if (st.items.length && st.mv !== OF.MV) { autoMatch(); save(); }
+  if (st.items.length && st.mv !== OF.MV && inLucru(st)) { autoMatch(); save(); }
 }
 
 /* ---------- prețuri: catalog, potrivire, învățare ---------- */
-function rebuildCat() { pcat = OF.prepCatalog(catalog); PX = null; }
+function rebuildCat() { pcat = OF.prepCatalog(catalog); PX = null; TAR = null; }
 const catById = id => pcat.find(c => c.id === id);
-/* Pune singură prețul unde lucrarea și dimensiunea sunt sigure; în rest lasă o sugestie cu motivul. Ce ai pus sau verificat tu nu se atinge. */
+/* documentul „ref2”: rândurile din alte oferte ale tale, scrise scurt (denumire, unitate, preț, sursă) */
+function ref2Items() { const d = DOCS.ref2 || {}, src = d.src || []; return (d.items || []).concat((d.rows || []).map(r => { const z = src[r[3]] || {}; return { d: r[0], u: r[1], p: r[2], pr: z.pr || "", an: z.an || "", s: "s" }; })); }
+/* Tariful: tot ce știu despre prețurile tale, pus la un loc (prețurile puse de tine, lista ta, ofertele vechi, bugete, piață). */
+function tarif() {
+  if (TAR) return TAR; const S = [];
+  catalog.forEach(c => S.push({ den: c.den, desc: c.desc, um: c.um, pret: c.pret, q: c.learned ? OF.QUAL.mine : OF.QUAL.cat, an: c.an || 2026, lab: c.learned ? (c.sec ? "prețul tău (" + String(c.sec).trim() + ")" : "prețul tău") : "lista ta de prețuri", dom: c.dom, sec: c.sec, id: c.id, learned: !!c.learned && !c.imp }));
+  REF.forEach((r, i) => S.push({ den: r.d, um: r.u, pret: r.p, q: r.s === "s" ? OF.QUAL.ref : OF.QUAL.weak, an: r.an, lab: (r.pr || "ofertă veche") + (r.an ? ", " + r.an : ""), id: "r" + i }));
+  const R2 = DOCS.ref2 || {}; (R2.pts || []).forEach((p, i) => { if (p[2] == null && OF.isBroad(p[0])) return; S.push({ den: OF.famLabel(p[0]).replace(/ \(.*$/, ""), fam: p[0], um: p[1], sz: p[2], pret: p[3], q: OF.QUAL.weak, an: R2.an || 2026, lab: R2.lab || "bugete de antreprenor", id: "b" + i }); });
+  ((PIATA && PIATA.lista) || []).forEach((p, i) => { const v = +p.eng || +p.tipic || (p.min && p.max ? (p.min + p.max) / 2 : 0); if (p.fam && v > 0) S.push({ den: p.lucrare, fam: p.fam, vars: p.vars, um: String(p.um || "").replace(/^lei\//, "").replace("m2", "mp"), pret: v, q: OF.QUAL.mkt, lab: "piață", lo: p.lo, hi: p.hi, id: "m" + i }); });
+  return TAR = OF.buildTarif(S);
+}
+/* Pune preț pe tot ce poate și spune de unde l-a luat și cât de sigur e. Ce ai pus, ai verificat sau ai trecut „nu ofertez” nu se atinge. */
+/* reperele din bugete de antreprenor: un preț mediu pe familie. Le folosesc doar la familiile înguste sau cu dimensiune (la „ventilație” ori „rezervor” un mijlociu nu spune nimic). */
+function ref2Pts() { return ((DOCS.ref2 && DOCS.ref2.pts) || []).filter(p => p[2] != null || !OF.isBroad(p[0])); }
 function autoMatch(only, S) {
-  S = S || st; let a = 0, s = 0, v = 0;
+  S = S || st; const T = tarif(); let a = 0, e = 0, z = 0;
   for (const it of (only || S.items)) {
-    if (it.pret > 0 && (it.src === "manual" || it.src === "file" || it.src === "ref" || it.conf || it.ap)) continue;
-    if (it.pret > 0 && it.src === "cat") { it.pret = 0; it.src = ""; it.catId = null; }
-    const m = OF.matchItem(it, pcat); it.sug = null; it.sugW = ""; it.sugR = null;
-    if ((!m || !m.sure) && pref.length) { const m2 = OF.matchItem(it, pref); if (m2) { const r = REF[+String(m2.id).slice(1)]; if (r && !(m && catById(m.id) && +catById(m.id).pret === +r.p)) { it.sugR = { p: r.p, d: r.d, pr: r.pr, an: r.an, w: m2.why }; v++; } } }
-    if (!m) continue;
-    if (m.sure) { const c = catById(m.id); it.pret = c.pret; it.src = "cat"; it.catId = c.id; it.conf = !!m.exact; it.sugW = m.why; a++; } else { it.sug = m.id; it.sugW = m.why; s++; }
+    if (it.no) continue;
+    if (it.pret > 0 && (it.src === "manual" || it.src === "file" || it.conf || it.ap)) continue;
+    it.sug = null; it.sugR = null; const r = OF.priceItem(it, T);
+    if (!r) { if (it.src === "cat" || it.src === "ref") { it.pret = 0; it.src = ""; } it.lv = 0; it.sugW = ""; it.lab = ""; it.catId = null; z++; continue; }
+    it.pret = r.p; it.src = "cat"; it.lv = r.lv; it.sugW = r.why; it.lab = r.lab || ""; it.catId = typeof r.id === "number" ? r.id : null; it.conf = false; r.lv <= 2 ? a++ : e++;   // „verificat” e doar ce ai confirmat tu în oferta asta; prețul tău de altădată apare ca „din prețurile tale”
   }
-  S.items.forEach(it => { if (it.pret > 0 && !it.src) it.src = "file"; }); S.mv = OF.MV;
-  return { a, s, v };
+  S.items.forEach(it => { if (it.pret > 0 && !it.src) it.src = "file"; }); S.mv = OF.MV; S.mk = PIATA ? 1 : 0;   // mk: reperele de piață erau încărcate când s-au pus prețurile
+  return { a, e, z };
 }
 /* prețul pus de tine rămâne ținut minte pentru denumirea asta (și, prin familie, pentru cele scrise altfel) */
+const newCatId = () => { let m = Date.now() * 1000; for (const c of catalog) if (c.id > m) m = c.id; return m + 1 + Math.floor(Math.random() * 500); };   // două aparate pot învăța câte un preț în același timp
 function learn(it) {
   if (!(it.pret > 0) || !String(it.den || "").trim()) return;
   const k = OF.keyOf(it.den), f = OF.umFamily(it.um); let c = catalog.find(x => x.learned && OF.keyOf(x.den) === k && OF.umFamily(x.um) === f);
   const h = { p: +it.pret, d: todayIso(), o: st ? nameOf(st, entry(CUR)) : "" };
   if (c) { if (+c.pret !== +it.pret || !(c.h || []).length) c.h = [h].concat((c.h || []).filter(x => !(x.d === h.d && x.o === h.o))).slice(0, 6); c.pret = +it.pret; }
-  else catalog.push({ id: nextCatId++, dom: "ÎNVĂȚAT", sec: "", den: it.den, desc: "", um: it.um, pret: +it.pret, learned: true, h: [h] });
+  else catalog.push({ id: newCatId(), dom: "ÎNVĂȚAT", sec: "", den: it.den, desc: "", um: it.um, pret: +it.pret, learned: true, h: [h] });
   catDirty = true; rebuildCat();
 }
 /* căutare în toate prețurile, pentru sugestiile de la „Rând nou” și pentru ecranul „Prețurile mele” */
@@ -153,9 +219,11 @@ function searchPrices(q, lim, types) {
 /* ---------- fișe, ecrane peste aplicație, mesaje ---------- */
 const ovl = () => $("#ovl");
 const isOpen = () => !!ovl().firstChild;
+/* cursorul se pune singur în prima căsuță doar dacă n-ai apucat tu să intri în alta (altfel ți-ar muta scrisul în altă căsuță) */
+const typing = f => { const a = document.activeElement; return !f.isConnected || (a && a !== f && /INPUT|TEXTAREA|SELECT/.test(a.tagName) && ovl().contains(a)); };
 function closeOvl() { ovl().innerHTML = ""; document.body.style.overflow = ""; }
-function sheet(html) { if (!UNDO) { const tq = $("#toast"); if (tq) tq.classList.remove("on"); } ovl().innerHTML = '<button class="scrim" data-a="x" aria-label="Închide"></button><div class="sheet" role="dialog" aria-modal="true">' + html + "</div>"; document.body.style.overflow = "hidden"; const f = $(".sheet [autofocus]"); if (f) setTimeout(() => { f.focus(); if (f.select) f.select(); }, 60); return $(".sheet"); }
-function full(html) { ovl().innerHTML = '<div class="full" role="dialog" aria-modal="true"><div class="in">' + html + "</div></div>"; document.body.style.overflow = "hidden"; const f = $(".full [autofocus]"); if (f) setTimeout(() => f.focus(), 60); return $(".full"); }
+function sheet(html) { if (!UNDO) { const tq = $("#toast"); if (tq) tq.classList.remove("on"); } ovl().innerHTML = '<button class="scrim" data-a="x" aria-label="Închide"></button><div class="sheet" role="dialog" aria-modal="true">' + html + "</div>"; document.body.style.overflow = "hidden"; const f = $(".sheet [autofocus]"); if (f) setTimeout(() => { if (typing(f)) return; f.focus(); if (f.select) f.select(); }, 60); return $(".sheet"); }
+function full(html) { ovl().innerHTML = '<div class="full" role="dialog" aria-modal="true"><div class="in">' + html + "</div></div>"; document.body.style.overflow = "hidden"; const f = $(".full [autofocus]"); if (f) setTimeout(() => { if (!typing(f)) f.focus(); }, 60); return $(".full"); }
 const h3 = t => `<h3>${t}<button data-a="x" aria-label="Închide">${ic("x", 22, 2.2)}</button></h3>`;
 let toastT = null, UNDO = null;
 function toast(t, undo) {
@@ -165,8 +233,8 @@ function toast(t, undo) {
 }
 /* schimbare care se poate anula din mesajul de jos */
 function undoable(msg, fn) {
-  const id = CUR, snap = JSON.stringify(st), cat = JSON.stringify(catalog); fn(); save(); render();
-  toast(msg, () => { DOCS["p/" + id] = normSt(JSON.parse(snap)); if (CUR === id) st = DOCS["p/" + id]; catalog = JSON.parse(cat); catDirty = true; rebuildCat(); save(); render(); });
+  const id = CUR, snap = JSON.stringify(st), cat = JSON.stringify(catalog); fn(); save(); render(); const rv = REV;
+  toast(msg, () => { if (REV !== rv || CUR !== id) { toast("Nu mai pot anula: ai schimbat altceva între timp."); return; } DOCS["p/" + id] = normSt(JSON.parse(snap)); st = DOCS["p/" + id]; catalog = JSON.parse(cat); catDirty = true; rebuildCat(); save(); render(); });
 }
 const sw = (id, label, on) => `<button class="sw${on ? " on" : ""}" data-a="sw" id="${id}" role="switch" aria-checked="${on ? "true" : "false"}"><span>${label}</span><i></i></button>`;
 const isOn = id => { const e = $("#" + id); return !!e && e.classList.contains("on"); };
@@ -176,7 +244,7 @@ const val = id => { const e = $("#" + id); return e ? e.value.trim() : ""; };
 /* ---------- drumul prin aplicație (adresa din bară) ---------- */
 function parseHash() {
   const h = location.hash.replace(/^#\/?/, "").split("/");
-  if (h[0] === "o" && h[1]) { if (h[2] === "c" && h[3]) return { name: "pos", id: h[1], row: +h[3] }; if (h[2] === "fara") return { name: "pos", id: h[1], row: 0, f: "no" }; return { name: "offer", id: h[1] }; }
+  if (h[0] === "o" && h[1]) { if (h[2] === "c" && h[3]) return { name: "pos", id: h[1], row: +h[3] }; if (h[2] === "fara") return { name: "pos", id: h[1], row: 0, f: "no" }; if (h[2] === "verifica") return { name: "pos", id: h[1], row: 0, f: "est" }; return { name: "offer", id: h[1] }; }
   if (h[0] === "preturi") return { name: "prices" }; if (h[0] === "firma") return { name: "firma" };
   return { name: "list" };
 }
@@ -197,25 +265,25 @@ function render() {
 const stPill = '<div class="st" id="saved"></div>';
 
 /* ---------- lista ofertelor ---------- */
-function listData() { const all = IDX.list.map(e => ({ e, s: DOCS["p/" + e.id] })).filter(x => x.s), c = { all: 0, lucru: 0, gata: 0, arh: 0 }; all.forEach(x => { if (x.e.arh) c.arh++; else { c.all++; (x.s.proj.stare || "lucru") === "lucru" ? c.lucru++ : c.gata++; } }); return { all, c }; }
+function listData() { const all = IDX.list.map(e => ({ e, s: DOCS["p/" + e.id] })).filter(x => x.s), c = { all: 0, lucru: 0, trimisa: 0, castigata: 0, pierduta: 0, arh: 0 }; all.forEach(x => { if (x.e.arh) c.arh++; else { c.all++; const k = x.s.proj.stare || "lucru"; c[k in c ? k : "lucru"]++; } }); return { all, c }; }
 function listRows() {
   const { all } = listData(), f = VIEW.f || "all", q = OF.strip(VIEW.q || "");
-  const xs = all.filter(x => f === "arh" ? x.e.arh : !x.e.arh && (f === "all" || (f === "lucru") === ((x.s.proj.stare || "lucru") === "lucru")))
+  const xs = all.filter(x => f === "arh" ? x.e.arh : !x.e.arh && (f === "all" || f === (x.s.proj.stare || "lucru")))
     .filter(x => !q || OF.strip(nameOf(x.s, x.e) + " " + (x.s.proj.beneficiar || "") + " " + (x.s.proj.nrOferta || "")).includes(q))
     .sort((a, b) => String(b.e.upd || "").localeCompare(String(a.e.upd || "")));
   if (!xs.length) return `<div class="emp">${q || f !== "all" ? "Nicio ofertă aici." : "<b>Nu ai nicio ofertă încă.</b>Apasă „Ofertă nouă” și fă prima."}</div>`;
   return '<div class="ofl">' + xs.map(x => {
-    const s = x.s, p = s.proj, t = totals(s), n = s.items.length, np = n ? s.items.filter(i => i.pret > 0).length : 0, sr = p.stare || "lucru";
+    const s = x.s, p = s.proj, t = totals(s), of = offered(s), n = of.length, np = of.filter(i => i.pret > 0).length, sr = p.stare || "lucru";
     const tag = n && np < n ? `<span class="w">${np} din ${n} cu preț</span>` : `<span class="${sr === "castigata" ? "p" : sr === "pierduta" ? "n" : ""}">${STARI[sr] || STARI.lucru}</span>`;
-    return `<button class="of" data-a="open" data-id="${x.e.id}"><div class="tx"><b>${esc(nameOf(s, x.e))}</b><span>${esc([p.beneficiar, p.data].filter(Boolean).join(" · ") || "fără beneficiar")}</span></div><div class="am"><b>${fmt(t.sub)} lei</b>${tag}</div></button>`;
+    return `<div class="ofw"><button class="of" data-a="open" data-id="${x.e.id}"><div class="tx"><b>${esc(nameOf(s, x.e))}</b><span>${esc([p.beneficiar, p.data].filter(Boolean).join(" · ") || "fără beneficiar")}</span></div><div class="am"><b>${fmt(t.sub)} lei</b>${tag}</div></button><button class="ofm" data-a="lmenu" data-id="${x.e.id}" aria-label="Mai multe pentru oferta ${esc(nameOf(s, x.e))}">${ic("ellipsis-vertical", 20, 2.2)}</button></div>`;
   }).join("") + "</div>";
 }
 function vList() {
-  const { c } = listData(), f = VIEW.f || "all", ch = (k, t, n) => `<button data-a="lf" data-f="${k}" class="${f === k ? "on" : ""}">${t} · ${n}</button>`;
+  const { c } = listData(), f = VIEW.f || "all", ch = (k, t, n, always) => n || always || f === k ? `<button data-a="lf" data-f="${k}" class="${f === k ? "on" : ""}">${t} · ${n}</button>` : "";
   return `<div class="top"><div class="tt"><h1>Ofertele mele</h1></div>${stPill}</div><main>
 <button class="pri" data-a="new" id="bNew">${ic("plus", 22, 2.6)}Ofertă nouă</button>
 <div class="srch" style="margin-top:14px">${ic("search", 20, 2.2)}<input id="lq" data-i="lq" placeholder="Caută o ofertă" value="${esc(VIEW.q || "")}" autocomplete="off"></div>
-<div class="fl">${ch("all", "Toate", c.all)}${ch("lucru", "În lucru", c.lucru)}${ch("gata", "Trimise", c.gata)}${c.arh ? ch("arh", "Arhivă", c.arh) : ""}</div>
+<div class="fl">${ch("all", "Toate", c.all, 1)}${ch("lucru", "În lucru", c.lucru, 1)}${ch("trimisa", "Trimise", c.trimisa, 1)}${ch("castigata", "Câștigate", c.castigata)}${ch("pierduta", "Pierdute", c.pierduta)}${ch("arh", "Arhivă", c.arh)}</div>
 <div id="lst">${listRows()}</div></main>`;
 }
 
@@ -223,23 +291,24 @@ function vList() {
 function rowHtml(r, i) {
   const x = rowInfo(r), nr = (i + 1) * 10;
   if (r.k === "c") {
-    const pct = x.n ? Math.round(100 * x.np / x.n) : 0;
-    return `<button class="tr" data-a="cap" data-id="${r.id}"><i>${nr}</i><div><b>${esc(r.den)}</b><span>${x.n ? `${x.np} din ${x.n} poziții au preț` : "nicio poziție"}${r.ov > 0 ? " · sumă pusă de tine" : ""}</span>${x.n ? `<div class="mb"><u style="width:${pct}%"></u></div>` : ""}</div>${x.val > 0 ? `<strong>${fmt(x.val)}${ic("chevron-right", 15, 2.4)}</strong>` : `<strong class="n">fără preț${ic("chevron-right", 15, 2.4)}</strong>`}</button>`;
+    const pct = x.n ? Math.round(100 * x.np / x.n) : 0, off = r.no || (!x.n && x.nn > 0);
+    return `<button class="tr${off ? " off" : ""}" data-a="cap" data-id="${r.id}"><i>${nr}</i><div><b>${esc(r.den)}</b><span>${off ? (x.nn === 1 ? "o poziție, nu o ofertez" : plural(x.nn, "o poziție", "poziții") + ", nu le ofertez") : x.n ? `${x.n === 1 ? (x.np ? "poziția are preț" : "poziția nu are preț") : x.np + " din " + x.n + " poziții au preț"}${x.ne ? " · " + x.ne + " de verificat" : ""}${x.nn ? " · " + x.nn + " neofertate" : ""}` : "nicio poziție"}${r.ov > 0 && !off ? (x.moved ? " · pornind de la suma ta" : " · sumă pusă de tine") : ""}</span>${x.n && !off ? `<div class="mb"><u style="width:${pct}%"></u></div>` : ""}</div>${off ? `<strong class="n">nu ofertez${ic("chevron-right", 15, 2.4)}</strong>` : x.val > 0 ? `<strong>${fmt(x.val)}${ic("chevron-right", 15, 2.4)}</strong>` : `<strong class="n">fără preț${ic("chevron-right", 15, 2.4)}</strong>`}</button>`;
   }
-  return `<button class="tr" data-a="row" data-id="${r.id}"><i>${nr}</i><div><b>${esc(r.den)}</b><span>${fq(r.cant)} ${esc(r.um)} × ${fmt(r.pret)} lei</span></div>${x.val > 0 ? `<em>${fmt(x.val)}</em>` : `<em class="z">pune preț</em>`}</button>`;
+  return `<button class="tr${r.no ? " off" : ""}" data-a="row" data-id="${r.id}"><i>${nr}</i><div><b>${esc(r.den)}</b><span>${r.no ? "nu ofertez" : `${fq(r.cant)} ${esc(r.um)} × ${fmt(r.pret)} lei`}</span></div>${r.no ? `<em class="z">—</em>` : x.val !== 0 ? `<em>${fmt(x.val)}</em>` : `<em class="z">pune preț</em>`}</button>`;
 }
 function vOffer() {
-  const p = st.proj, e = entry(CUR), t = totals(), fara = st.items.filter(i => !(i.pret > 0)).length, ch = ic("chevron-right", 15, 2.4);
+  const p = st.proj, e = entry(CUR), t = totals(), of = offered(), fara = of.filter(i => !(i.pret > 0)).length, nest = of.filter(i => stOf(i) === "est").length, ch = ic("chevron-right", 15, 2.4);
   const nu = String(p.nuInclude || "").split("\n").map(x => x.replace(/^\s*[-•]\s*/, "").trim()).filter(Boolean), inc = String(p.includeTxt || "").split("\n").map(x => x.replace(/^\s*[-•]\s*/, "").trim()).filter(Boolean);
   return `<div class="top"><button class="ibn" data-a="back" data-h="#/" aria-label="Înapoi la oferte">${ic("chevron-left", 22, 2.4)}</button><div class="tt"><b>${esc(nameOf(st, e))}</b><small>${esc(p.beneficiar || "fără beneficiar")} · ${fmt(t.sub)} lei${e && e.arh ? " · în arhivă" : ""}</small></div>${stPill}<button class="ibn" data-a="menu" aria-label="Mai multe">${ic("ellipsis", 20, 2.2)}</button></div><main>
 <div class="paper" id="paper">
-<button class="band" data-a="hnr"><div><b>OFERTĂ DE PREȚ</b><span>manoperă instalații · ${STARI[p.stare] || STARI.lucru}</span></div><div><b>Nr. ${esc(p.nrOferta || "—")}</b><span>${esc(p.data || "")} · valabilă ${fq(p.valab)} zile</span></div></button>
+<button class="band" data-a="hnr"><div><b>OFERTĂ DE PREȚ</b><span>manoperă instalații · ${STARI[p.stare] || STARI.lucru}</span></div><div><b>Nr. ${esc(p.nrOferta || "—")}</b><span>${esc(p.data || "")} · valabilă ${plural(+p.valab || 0, "o zi", "zile")}</span></div></button>
 <button class="fr" data-a="hben"><span>Beneficiar</span><b class="${p.beneficiar ? "" : "ph"}"><i>${esc(p.beneficiar || "apasă și scrie")}</i>${ch}</b></button>
 <button class="fr" data-a="hluc"><span>Lucrarea</span><b class="${p.santier ? "" : "ph"}"><i>${esc(p.santier || "apasă și scrie")}</i>${ch}</b></button>
 <div class="th"><span>Nr.</span><span>Denumire</span><span>Valoare fără TVA</span></div>
 ${st.rows.length ? st.rows.map(rowHtml).join("") : '<div class="hint">Oferta e goală. Apasă „Rând nou” și scrie prima lucrare, sau adu o listă.</div>'}
 <div class="add"><button data-a="row" data-id="0" id="bRow">${ic("plus", 16, 2.6)}Rând nou</button><button data-a="imp" id="bImp">${ic("file-spreadsheet", 16, 2.2)}Adu o listă</button></div>
 ${fara ? `<button class="wrn" data-a="go" data-h="#/o/${CUR}/fara">${ic("triangle-alert", 16, 2.2)}${plural(fara, "o poziție nu are", "poziții nu au")} încă preț<span>arată-le</span></button>` : ""}
+${nest ? `<button class="wrn q" data-a="go" data-h="#/o/${CUR}/verifica">${ic("circle-help", 16, 2.2)}${plural(nest, "un preț e estimat", "prețuri sunt estimate")}<span>verifică</span></button>` : ""}
 <div class="tl"><span>${fara ? "Subtotal până acum" : "Subtotal manoperă"} (fără TVA)</span><b id="tSub">${fmt(t.sub)}</b></div>
 <div class="tl"><span>TVA ${fq(p.tva)}%</span><b>${fmt(t.tva)}</b></div>
 <div class="tl T"><span>TOTAL CU TVA</span><span id="tTot">${fmt(t.tot)} lei</span></div>
@@ -251,36 +320,41 @@ ${inc.length ? `<button class="am2 inc" data-a="inc"><b>Include:</b> ${esc(inc.j
 }
 
 /* ---------- pozițiile unui capitol (lista lungă) ---------- */
-const stOf = it => it.pret > 0 ? (it.conf ? "ok" : "ver") : ((it.sug != null && catById(it.sug)) || it.sugR ? "sg" : "no");
-const SRC = { cat: "din catalog", file: "din fișier", ref: "din ofertă veche", manual: "pus de mână" };
+const stOf = it => isNo(it) ? "nu" : it.pret > 0 ? (it.conf ? "ok" : it.src === "cat" && it.lv >= 3 ? "est" : "sig") : "no";
+const SRC = { cat: "din prețurile tale", file: "din fișier", ref: "din ofertă veche", manual: "pus de tine" };
 function posAll() { const r = VIEW.row ? st.rows.find(x => x.id === VIEW.row) : null; return { r, xs: r ? st.items.filter(i => i.cap === r.cap) : st.items }; }
-function posShown() { const f = VIEW.f || "all", q = OF.strip(VIEW.q || ""); return posAll().xs.filter(it => (f === "all" || (f === "no" ? !(it.pret > 0) : stOf(it) === f)) && (!q || OF.strip(it.den + " " + (it.cod || "")).includes(q))); }
+function posShown() { const f = VIEW.f || "all", q = OF.strip(VIEW.q || ""); return posAll().xs.filter(it => (f === "all" || stOf(it) === f) && (!q || OF.strip(it.den + " " + (it.cod || "")).includes(q))); }
 function posCard(it, cap) {
-  const s = stOf(it), c = it.sug != null ? catById(it.sug) : null, cc = s === "ver" && it.src === "cat" && it.catId != null ? catById(it.catId) : null, pb = PROB[it.id];
-  return `<div class="pos" data-id="${it.id}"><div class="d" data-a="pexp">${esc(it.den)}</div><div class="m">${fq(it.cant)} ${esc(it.um)}${it.cod ? " · " + esc(it.cod) : ""}${cap ? " · " + esc(it.cap) : ""}</div>
-<div class="pr"><button class="p${it.pret > 0 ? "" : " z"}" data-a="pp" data-id="${it.id}">${it.pret > 0 ? fmt(it.pret) + " lei/" + esc(it.um) : "pune preț"}</button>${s === "ok" ? `<span class="tag ok">${ic("check", 14, 2.8)}verificat</span>` : s === "ver" ? `<span class="tag wr">de verificat</span>` : ""}<div class="t">${it.pret > 0 ? fmt(OF.total(it, st.adaos)) + " lei" : ""}</div></div>
-${pb ? `<div class="nt">${ic("triangle-alert", 14, 2.2)} ${esc(pb)}</div>` : ""}
-${s === "ver" ? `<div class="sgs">${SRC[it.src] || "preț"}${cc ? ": <b>" + esc(OF.entryLabel(cc)) + "</b>" : ""}${it.sugW ? "<br>" + esc(it.sugW) : ""}<br><button data-a="pok" data-id="${it.id}">E bun</button></div>` : ""}
-${!(it.pret > 0) && c ? `<div class="sgs">Sugestie din prețurile tale: <b>${esc(OF.entryLabel(c))} – ${fmt(c.pret)} lei</b>${it.sugW ? "<br>" + esc(it.sugW) : ""}<br><button data-a="sug" data-id="${it.id}">Pune ${fmt(c.pret)} lei</button></div>` : ""}
-${!(it.pret > 0) && it.sugR ? `<div class="sgs">Din oferta ta veche${it.sugR.pr ? " (" + esc(it.sugR.pr) + (it.sugR.an ? ", " + esc(it.sugR.an) : "") + ")" : ""}: <b>${esc(it.sugR.d)} – ${fmt(it.sugR.p)} lei</b>${it.sugR.w ? "<br>" + esc(it.sugR.w) : ""}<br><button data-a="sugr" data-id="${it.id}">Pune ${fmt(it.sugR.p)} lei</button></div>` : ""}</div>`;
+  const s = stOf(it), pb = PROB[it.id], lv = it.src === "cat" ? (it.lv || 2) : 0;
+  const tag = s === "nu" ? '<span class="tag gy">nu ofertez</span>' : s === "ok" ? `<span class="tag ok">${ic("check", 14, 2.8)}verificat</span>` : s === "est" ? `<span class="tag wr">${lv >= 5 ? "după piață" : lv === 4 ? "estimat larg" : "estimat"}</span>` : s === "sig" ? `<span class="tag in">${esc(SRC[it.src] || "preț")}</span>` : "";
+  return `<div class="pos${s === "nu" ? " off" : ""}" data-id="${it.id}"><div class="d" data-a="pexp">${esc(it.den)}</div><div class="m">${fq(it.cant)} ${esc(it.um)}${it.cod ? " · " + esc(it.cod) : ""}${cap ? " · " + esc(it.cap) : ""}${it.hid ? " · ascuns în fișier" : ""}</div>
+<div class="pr"><button class="p${it.pret > 0 && s !== "nu" ? "" : " z"}" data-a="pp" data-id="${it.id}">${s === "nu" ? "nu ofertez" : it.pret > 0 ? fmt(it.pret) + " lei/" + esc(it.um) : "pune preț"}</button>${tag}<div class="t">${it.pret > 0 && s !== "nu" ? fmt(OF.total(it, st.adaos)) + " lei" : ""}</div></div>
+${pb && s !== "nu" ? `<div class="nt">${ic("triangle-alert", 14, 2.2)} ${esc(pb)}</div>` : ""}
+${(s === "est" || s === "sig") && it.src === "cat" && it.sugW ? `<div class="sgs${s === "sig" ? " q" : ""}">${esc(it.sugW)}${it.lab && it.sugW.indexOf(it.lab) < 0 ? " · " + esc(it.lab) : ""}${s === "est" ? `<br><button data-a="pok" data-id="${it.id}">E bun</button><button class="g" data-a="pp" data-id="${it.id}">Schimbă</button>` : ""}</div>` : ""}
+${s === "no" ? `<div class="sgs q">Nu am un preț de la care să pornesc.<br><button class="g" data-a="pno" data-id="${it.id}">Nu ofertez</button></div>` : ""}
+${s === "nu" ? `<div class="sgs q"><button class="g" data-a="pyes" data-id="${it.id}">Ofertez totuși</button></div>` : ""}</div>`;
 }
 function posList() {
   const xs = posShown(), lim = VIEW.lim || 40, f = VIEW.f || "all";
   let h = "";
-  if (f === "sg" && xs.length) h += `<button class="sec" data-a="sgall" style="margin-bottom:12px">${ic("check-check", 18, 2.2)}Pune toate cele ${xs.length} sugestii</button>`;
-  if (f === "ver" && xs.length) h += `<button class="sec" data-a="okall" style="margin-bottom:12px">${ic("check-check", 18, 2.2)}Sunt bune toate (${xs.length})</button>`;
+  if (f === "est" && xs.length) h += `<button class="sec" data-a="okall" style="margin-bottom:12px">${ic("check-check", 18, 2.2)}Sunt bune toate (${xs.length})</button>`;
+  if (f === "no" && xs.length) h += `<button class="sec" data-a="noall" style="margin-bottom:12px">${ic("ban", 18, 2.2)}${xs.length === 1 ? "Nu ofertez poziția rămasă fără preț" : "Nu ofertez cele " + plural(xs.length, "", "poziții") + " rămase fără preț"}</button>`;
+  if (f === "nu" && xs.length) h += `<button class="sec" data-a="yesall" style="margin-bottom:12px">${ic("rotate-ccw", 18, 2.2)}Ofertez totuși ${plural(xs.length, "poziția", "poziții")}</button>`;
   if (!xs.length) return h + '<div class="emp">Nimic aici.</div>';
   return h + xs.slice(0, lim).map(it => posCard(it, !VIEW.row)).join("") + (xs.length > lim ? `<button class="more" data-a="pmore">Arată încă ${Math.min(40, xs.length - lim)} (din ${xs.length})</button>` : "");
 }
 function vPos() {
-  const { r, xs } = posAll(), f = VIEW.f || "all", cn = { all: xs.length, no: 0, sg: 0, ver: 0, pb: 0 };
-  checks(); xs.forEach(it => { const s = stOf(it); if (!(it.pret > 0)) cn.no++; if (s === "sg") cn.sg++; if (s === "ver") cn.ver++; });
-  const x = r ? rowInfo(r) : { val: r2(xs.reduce((a, i) => a + OF.total(i, st.adaos), 0)), n: xs.length, np: xs.length - cn.no };
-  const ch = (k, t) => `<button data-a="pf" data-f="${k}" class="${f === k ? "on" : ""}">${t} · ${cn[k]}</button>`;
+  const { r, xs } = posAll(), f = VIEW.f || "all", cn = { all: xs.length, no: 0, est: 0, nu: 0, sig: 0, ok: 0 };
+  checks(); xs.forEach(it => { cn[stOf(it)]++; });
+  const off = xs.filter(i => !isNo(i)), x = r ? rowInfo(r) : { val: r2(off.reduce((a, i) => a + OF.total(i, st.adaos), 0)), n: off.length, np: off.length - cn.no };
+  const est = r2(off.reduce((a, i) => a + (stOf(i) === "est" ? OF.total(i, st.adaos) : 0), 0));
+  const ch = (k, t) => cn[k] || k === "all" || k === f ? `<button data-a="pf" data-f="${k}" class="${f === k ? "on" : ""}">${t} · ${cn[k]}</button>` : "";
   return `<div class="top"><button class="ibn" data-a="back" data-h="#/o/${CUR}" aria-label="Înapoi la ofertă">${ic("chevron-left", 22, 2.4)}</button><div class="tt"><b>${esc(r ? r.den : "Toate pozițiile")}</b><small>${esc(nameOf(st, entry(CUR)))}</small></div>${stPill}${r ? `<button class="ibn" data-a="cmenu" aria-label="Capitolul">${ic("ellipsis", 20, 2.2)}</button>` : ""}</div><main>
-<div class="sum"><div><small>${r ? "Capitolul" : "Toate capitolele"}, fără TVA</small><b>${fmt(x.val)}<span>lei</span></b></div><em>${x.np} din ${x.n}<br>au preț${r && r.ov > 0 ? "<br>sumă pusă de tine" : ""}</em></div>
+<div class="sum"><div><small>${r ? "Capitolul" : "Toate capitolele"}, fără TVA</small><b>${r && r.no ? "nu ofertez" : fmt(x.val) + "<span>lei</span>"}</b></div><em>${x.np} din ${x.n}<br>au preț${r && r.ov > 0 ? (x.moved ? "<br>pornind de la suma ta" : "<br>sumă pusă de tine") : ""}</em></div>
+${r && x.moved ? `<p class="s" style="margin:-4px 2px 12px">Ai pus tu suma ${fmt(r.ov)} lei când pozițiile dădeau ${fmt(r.ovT)} lei. De atunci pozițiile s-au schimbat, așa că suma a mers odată cu ele: ${fmt(x.val)} lei. O poți scrie din nou din meniul capitolului.</p>` : ""}
+${est > 0 && !(r && (r.no || r.ov > 0)) ? `<p class="s" style="margin:-4px 2px 12px">Din sumă, ${fmt(est)} lei sunt prețuri estimate. Uită-te peste ele la „De verificat”.</p>` : ""}
 <div class="srch">${ic("search", 20, 2.2)}<input id="pq" data-i="pq" placeholder="Caută în poziții" value="${esc(VIEW.q || "")}" autocomplete="off"></div>
-<div class="fl">${ch("all", "Toate")}${ch("no", "Fără preț")}${ch("sg", "Cu sugestie")}${ch("ver", "De verificat")}</div>
+<div class="fl">${ch("all", "Toate")}${ch("no", "Fără preț")}${ch("est", "De verificat")}${ch("sig", "Din prețurile mele")}${ch("ok", "Verificate")}${ch("nu", "Nu ofertez")}</div>
 <div id="plist">${posList()}</div></main>`;
 }
 
@@ -289,21 +363,24 @@ function priceRows() {
   const q = (VIEW.q || "").trim(), f = VIEW.f || (catalog.some(c => c.learned) ? "m" : "c"), lim = VIEW.lim || 50;
   let xs;
   if (q.length > 1) xs = searchPrices(q, 80).map(e => ({ e })).concat(piataFind(q).map(p => ({ p })));
-  else if (f === "p") xs = ((PIATA && PIATA.lista) || []).map(p => ({ p }));
-  else xs = priceIndex().filter(e => e.t === f).map(e => ({ e }));
+  else if (f === "p") xs = ((PIATA && PIATA.lista) || []).filter(p => p.min || p.max).map(p => ({ p }));
+  else { xs = priceIndex().filter(e => e.t === f); if (f !== "r") xs = xs.map(e => ({ e, g: OF.famLabel(e.fam).replace(/ \(.*$/, "") || "Altele" })).sort((a, b) => (a.g === "Altele") - (b.g === "Altele") || a.g.localeCompare(b.g, "ro") || a.e.den.localeCompare(b.e.den, "ro", { numeric: true })); else xs = xs.map(e => ({ e })); }
   if (!xs.length) return `<div class="emp">${q.length > 1 ? "Nu am găsit nimic pentru „" + esc(q) + "”." : f === "m" ? "<b>Aici se adună prețurile pe care le pui tu.</b>De fiecare dată când scrii un preț într-o ofertă, îl țin minte." : "Nimic aici."}</div>`;
-  return '<div class="prl">' + xs.slice(0, lim).map(x => x.p
-    ? `<button data-a="ppia" data-k="${PIATA.lista.indexOf(x.p)}"><p>${esc(x.p.lucrare)}<small>reper de piață · ${esc(x.p.cat || "")}</small></p><b>${fmt(x.p.min)}–${fmt(x.p.max)}<small>${esc(x.p.um || "")}</small></b></button>`
-    : `<button data-a="${x.e.t === "r" ? "pref" : "pcat"}" data-k="${x.e.t === "r" ? x.e.ri : x.e.id}"><p>${esc(x.e.den)}<small>${esc(x.e.sub)}</small></p><b>${fmt(x.e.p)} lei<small>/ ${esc(x.e.um)}</small></b></button>`).join("") + "</div>" + (xs.length > lim ? `<button class="more" data-a="prmore">Arată mai multe (din ${xs.length})</button>` : "");
+  let lastG = null; const grp = x => x.g && x.g !== lastG ? (lastG = x.g, `</div><div class="prg">${esc(x.g)}</div><div class="prl">`) : "";
+  return '<div class="prl">' + xs.slice(0, lim).map(x => grp(x) + (x.p
+    ? `<button data-a="ppia" data-k="${PIATA.lista.indexOf(x.p)}"><p>${esc(x.p.lucrare)}<small>reper de piață · ${esc(x.p.cat || "")}${x.p.dim ? " · " + esc(x.p.dim) : ""}</small></p><b>${fmt(x.p.min)}–${fmt(x.p.max)}<small>${esc(x.p.um || "")}</small></b></button>`
+    : `<button data-a="${x.e.t === "r" ? "pref" : "pcat"}" data-k="${x.e.t === "r" ? x.e.ri : x.e.id}"><p>${esc(x.e.den)}<small>${esc(x.e.sub)}</small></p><b>${fmt(x.e.p)} lei<small>/ ${esc(x.e.um)}</small></b></button>`)).join("").replace('<div class="prl"></div>', "") + "</div>" + (xs.length > lim ? `<button class="more" data-a="prmore">Arată mai multe (din ${xs.length})</button>` : "");
 }
 function piataFind(q) { const ws = OF.strip(q).split(" ").filter(w => w.length > 1); return ((PIATA && PIATA.lista) || []).filter(p => { const s = OF.strip(p.lucrare + " " + (p.cat || "")); return ws.every(w => s.includes(w)); }).slice(0, 20); }
 function vPrices() {
-  const n = { m: catalog.filter(c => c.learned).length, c: catalog.filter(c => !c.learned).length, r: REF.length, p: ((PIATA && PIATA.lista) || []).length }, f = VIEW.f || (n.m ? "m" : "c");
+  const n = { m: catalog.filter(c => c.learned).length, c: catalog.filter(c => !c.learned).length, r: REF.length, p: ((PIATA && PIATA.lista) || []).filter(p => p.min || p.max).length }, f = VIEW.f || (n.m ? "m" : "c");
   const ch = (k, t) => `<button data-a="prf" data-f="${k}" class="${f === k ? "on" : ""}">${t} · ${n[k]}</button>`;
   return `<div class="top"><div class="tt"><h1>Prețurile mele</h1></div>${stPill}</div><main>
 <button class="pri" data-a="pnew" id="bPnew">${ic("plus", 22, 2.6)}Preț nou</button>
+<button class="sec" data-a="plearn" id="bLearn" style="margin-top:10px">${ic("book-open", 18, 2.2)}Învață prețurile dintr-o ofertă veche</button>
+<p class="s" style="margin:12px 2px 0">Când aduci o listă, pornesc de la ${plural(n.m + n.c, "un preț al tău", "prețuri ale tale")}, apoi de la cele ${n.r} din ofertele tale vechi, și la urmă de la ${ref2Pts().length} repere din bugete de antreprenor și ${((PIATA && PIATA.lista) || []).filter(x => x.fam).length} de pe piață.</p>
 <div class="srch" style="margin-top:14px">${ic("search", 20, 2.2)}<input id="prq" data-i="prq" placeholder="Caută: calorifer, țeavă PPR 25, hidrant…" value="${esc(VIEW.q || "")}" autocomplete="off"></div>
-<div class="fl">${ch("m", "Puse de mine")}${ch("c", "Catalogul meu")}${ch("r", "Din oferte vechi")}${ch("p", "Piață")}</div>
+<div class="fl w">${ch("m", "Puse de mine")}${ch("c", "Catalogul meu")}${ch("r", "Din oferte vechi")}${ch("p", "Piață")}</div>
 <div id="prl">${priceRows()}</div>
 <div class="box"><h3>Toate prețurile deodată</h3><p class="s">La început de an poți crește sau scădea toate prețurile tale cu un procent.</p><button class="sec" data-a="pidx">${ic("percent", 18, 2.2)}Schimbă toate prețurile cu un procent</button></div>
 <div class="box fam"><h3>Denumiri pe care le socotesc la fel</h3><p class="s">Proiectanții scriu aceeași lucrare în multe feluri. Un preț pus la una se propune și la celelalte din același rând.</p><button class="lnk" data-a="fam">arată lista${ic("chevron-down", 15, 2.4)}</button><div id="famList"></div></div></main>`;
@@ -329,9 +406,9 @@ ${CF.map(([k, l, t]) => `<label class="lb" for="d_${k}">${l}</label><input class
 const ACT = {}, INP = {};
 document.addEventListener("click", e => { const el = e.target.closest("[data-a]"); if (!el || el.disabled) return; const f = ACT[el.dataset.a]; if (f) { e.preventDefault(); f(el, e); } });
 document.addEventListener("input", e => { const el = e.target.closest("[data-i]"); if (el && INP[el.dataset.i]) INP[el.dataset.i](el); });
-document.addEventListener("keydown", e => { if (e.key === "Escape" && isOpen()) closeOvl(); if (e.key === "Enter" && e.target.tagName === "INPUT" && isOpen()) { const b = $("#ovl [data-ok]"); if (b) { e.preventDefault(); b.click(); } } });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && isOpen()) ACT.x(); if (e.key === "Enter" && e.target.tagName === "INPUT" && isOpen()) { const b = $("#ovl [data-ok]"); if (b) { e.preventDefault(); b.click(); } } });
 window.addEventListener("hashchange", route);
-ACT.x = () => closeOvl();
+ACT.x = () => { if (DQ && $('[data-a="dqok"]')) { ACT.dqok(); return; } closeOvl(); };   // „Ce ofertezi din listă?” închis altfel decât cu butonul: tot ce arată comutatoarele se aplică
 ACT.undo = () => { const u = UNDO; UNDO = null; $("#toast").classList.remove("on"); if (u) u(); };
 ACT.sw = el => { el.classList.toggle("on"); el.setAttribute("aria-checked", el.classList.contains("on") ? "true" : "false"); if (el.dataset.then && ACT[el.dataset.then]) ACT[el.dataset.then](el); };
 ACT.go = el => go(el.dataset.h);
@@ -377,7 +454,8 @@ ACT.cond = () => { const p = st.proj; sheet(h3("Condiții") + '<p class="s">Doar
 ACT.inc = () => { const p = st.proj; sheet(h3("Ce include și ce nu") + fld("iNu", "Oferta NU include (câte una pe rând)", p.nuInclude, { area: 1 }) + fld("iInc", "Oferta include (poate rămâne gol)", p.includeTxt, { area: 1, ph: "ex. probe la rece, probe la cald, punere în funcțiune" }) + sw("iAll", "Folosește-le și la ofertele următoare", false) + '<button class="pri" data-a="hsave" data-k="inc">Gata</button>'); };
 ACT.hsave = el => {
   const p = st.proj, k = el.dataset.k;
-  if (k === "nr") { p.nrOferta = val("hNr"); p.data = val("hDat") || p.data; p.valab = num(val("hVal")) || p.valab; }
+  if (k === "nr") { const ds = val("hDat"), dd = OFX.readDate(ds); if (ds && !dd) { toast("Data nu e bună. Scrie-o așa: 15.11.2026."); const e0 = $("#hDat"); if (e0) e0.focus(); return; }   // altfel în Excel ar ieși altă zi decât cea scrisă
+    if (val("hNr") !== p.nrOferta) delete p.nrAuto; p.nrOferta = val("hNr"); if (dd) p.data = OFX.fmtDate(dd); p.valab = num(val("hVal")) || p.valab; }
   if (k === "ben") { p.beneficiar = val("hBen"); p.beneficiarCif = val("hCif"); p.beneficiarContact = val("hCon"); }
   if (k === "luc") { p.santier = val("hLuc"); p.obiect = val("hOb"); }
   if (k === "cond") { CF.forEach(([c, , t]) => { p[c] = t === "n" ? num(val("c_" + c)) : val("c_" + c); }); p.semnatar = val("c_semnatar"); if (isOn("cAll")) { FIRMA.def = FIRMA.def || {}; CF.forEach(([c]) => FIRMA.def[c] = p[c]); saveFirma(); } }
@@ -398,11 +476,11 @@ function openRow(id) {
 <div><label class="lb" for="rPret">Preț (lei)</label><input class="inp" id="rPret" data-i="rnum" inputmode="decimal" value="${r ? edn(r.pret) : ""}" autocomplete="off"></div></div>
 <div class="val"><span>Valoare rând</span><b id="rVal">0 lei</b></div>
 ${sw("rKeep", "Ține minte prețul pentru data viitoare", true)}
-${r ? `<div class="minis"><button data-a="rmv" data-d="-1">${ic("arrow-up", 16, 2.2)}Mai sus</button><button data-a="rmv" data-d="1">${ic("arrow-down", 16, 2.2)}Mai jos</button><button class="r" data-a="rdel">${ic("trash-2", 16, 2.2)}Șterge</button></div>` : ""}
+${r ? sw("rNo", "Nu ofertez rândul ăsta", !!r.no) + `<div class="minis"><button data-a="rmv" data-d="-1">${ic("arrow-up", 16, 2.2)}Mai sus</button><button data-a="rmv" data-d="1">${ic("arrow-down", 16, 2.2)}Mai jos</button><button class="r" data-a="rdel">${ic("trash-2", 16, 2.2)}Șterge</button></div>` : ""}
 <div class="bar"><button class="pri" data-a="rsave" data-ok="1">${r ? "Gata" : "Pune în ofertă"}</button></div>`);
   rVal(); if (r) rSug();
 }
-const rVal = () => { $("#rVal").textContent = fmt(r2(num($("#rCant").value) * num($("#rPret").value))) + " lei"; };
+const rVal = () => { const ps = $("#rPret").value.replace(/\s/g, ""); $("#rVal").textContent = fmt(r2(num($("#rCant").value) * (/^[-−–]/.test(ps) ? -1 : 1) * num(ps.replace(/^[-−–+]/, "")))) + " lei"; };
 let RSG = [], RPL = null;
 function rSug() {
   const q = $("#rDen").value; RSG = q.trim().length > 1 ? searchPrices(RPL ? RPL.den : q, 6) : [];
@@ -420,8 +498,10 @@ ACT.rsug = el => { const e = RSG[+el.dataset.k]; if (!e) return; const d = $("#r
 INP.rnum = rVal;
 ACT.rsave = () => {
   const den = val("rDen"); if (!den) { toast("Scrie ce lucrare e."); $("#rDen").focus(); return; }
-  const o = { den, um: $("#rUm").value || "buc", cant: num(val("rCant")) || 1, pret: num(val("rPret")) }, keep = isOn("rKeep"), id = RE.id;
-  if (id) Object.assign(st.rows.find(x => x.id === id), o); else st.rows.push(Object.assign({ id: nextRow(), k: "r" }, o));
+  const qs = val("rCant"), ps = val("rPret").replace(/\s/g, ""), neg = /^[-−–]/.test(ps);
+  const o = { den, um: $("#rUm").value || "buc", cant: qs === "" ? 1 : num(qs), pret: (neg ? -1 : 1) * num(ps.replace(/^[-−–+]/, "")) }, keep = isOn("rKeep"), id = RE.id;
+  if (!(o.cant > 0)) { toast("Cantitatea trebuie să fie mai mare ca 0."); $("#rCant").focus(); return; }
+  if (id) { let r0 = st.rows.find(x => x.id === id); if (!r0) { r0 = { id: nextRow(), k: "r" }; st.rows.push(r0); toast("Rândul fusese șters de pe celălalt aparat. L-am pus la loc, cu ce ai scris."); } Object.assign(r0, o); if (isOn("rNo")) r0.no = 1; else delete r0.no; } else st.rows.push(Object.assign({ id: nextRow(), k: "r" }, o));
   if (keep && o.pret > 0 && !(o.cant === 1 && o.um === "buc" && o.pret >= 20000)) learn(o);     // sumele mari pe capitol nu sunt „prețuri” de ținut minte
   save(); closeOvl(); render(); if (!id) toast("Rând pus în ofertă.");
 };
@@ -438,12 +518,13 @@ ACT.pf = el => { VIEW.f = el.dataset.f; VIEW.lim = 40; rePos(); };
 ACT.pmore = () => { VIEW.lim = (VIEW.lim || 40) + 40; $("#plist").innerHTML = posList(); };
 INP.pq = el => { VIEW.q = el.value; VIEW.lim = 40; $("#plist").innerHTML = posList(); };
 ACT.pexp = el => el.classList.toggle("x");
-function applySug(it, ref) { if (ref) { it.pret = +it.sugR.p; it.src = "ref"; } else { const c = catById(it.sug); if (!c) return; it.pret = +c.pret; it.src = "cat"; it.catId = c.id; } it.ap = 1; it.conf = false; it.sug = null; it.sugR = null; }
-ACT.sug = el => { applySug(itemOf(el.dataset.id), false); save(); rePos(); };
-ACT.sugr = el => { applySug(itemOf(el.dataset.id), true); save(); rePos(); };
 ACT.pok = el => { itemOf(el.dataset.id).conf = true; save(); rePos(); };
-ACT.sgall = () => { const xs = posShown(); undoable(plural(xs.length, "o sugestie pusă", "sugestii puse") + ". Verifică-le.", () => xs.forEach(it => applySug(it, !(it.sug != null && catById(it.sug))))); };
 ACT.okall = () => { const xs = posShown(); undoable("Le-am trecut ca verificate.", () => xs.forEach(it => { it.conf = true; })); };
+const setNo = (it, v) => { if (v) it.no = 1; else { delete it.no; const r = st.rows.find(x => x.k === "c" && x.cap === it.cap); if (r && r.no) { delete r.no; st.items.forEach(o => { if (o.cap === it.cap && o !== it) o.no = 1; }); } } };
+ACT.pno = el => { setNo(itemOf(el.dataset.id), 1); save(); rePos(); };
+ACT.pyes = el => { const it = itemOf(el.dataset.id); setNo(it, 0); if (!(it.pret > 0)) autoMatch([it]); save(); rePos(); };
+ACT.noall = () => { const xs = posShown(); undoable(plural(xs.length, "O poziție trecută", "poziții trecute") + " la „nu ofertez”.", () => xs.forEach(it => setNo(it, 1))); };
+ACT.yesall = () => { const xs = posShown(); undoable("Le ofertezi din nou.", () => { xs.forEach(it => setNo(it, 0)); autoMatch(xs.filter(it => !(it.pret > 0))); }); };
 let PP = null;
 ACT.pp = el => {
   const it = itemOf(el.dataset.id), k = OF.keyOf(it.den), f = OF.umFamily(it.um), same = st.items.filter(o => o !== it && OF.keyOf(o.den) === k && OF.umFamily(o.um) === f && !(o.src === "manual" && o.pret > 0)).length;
@@ -451,21 +532,28 @@ ACT.pp = el => {
   sheet(h3("Preț") + `<p class="s">${esc(it.den.length > 140 ? it.den.slice(0, 140) + "…" : it.den)}</p><div class="r3"><div>` + fld("ppP", "Preț (lei / " + esc(it.um) + ")", edn(it.pret), { n: 1, af: 1 }) + "</div><div>" + fld("ppQ", "Cantitate", edn(it.cant), { n: 1 }) + "</div></div>" +
     (same ? sw("ppSame", "La fel la celelalte " + same + " cu aceeași denumire", true) : "") + sw("ppKeep", "Ține minte prețul pentru data viitoare", true) +
     `<label class="lb" for="ppCap">Capitol</label><select class="inp" id="ppCap">${caps.map(r => `<option value="${esc(r.cap)}" ${r.cap === it.cap ? "selected" : ""}>${esc(r.den)}</option>`).join("")}</select>
-<div class="minis"><button class="r" data-a="ppdel">${ic("trash-2", 16, 2.2)}Șterge poziția</button></div><button class="pri" data-a="ppsave" data-ok="1">Gata</button>`);
+<div class="minis"><button data-a="ppno">${ic("ban", 16, 2.2)}Nu ofertez</button><button class="r" data-a="ppdel">${ic("trash-2", 16, 2.2)}Șterge poziția</button></div><p class="s" style="margin-top:10px">Preț 0 înseamnă că nu ofertezi poziția: rămâne în listă, dar nu intră în total și nu apare ca „fără preț”.</p><button class="pri" data-a="ppsave" data-ok="1">Gata</button>`);
 };
 ACT.ppsave = () => {
-  const it = itemOf(PP.id), p = num(val("ppP")), q = num(val("ppQ")), k = OF.keyOf(it.den), f = OF.umFamily(it.um);
-  if (q > 0) it.cant = q; it.cap = $("#ppCap").value || it.cap;
+  if (!itemOf(PP.id)) { closeOvl(); rePos(); toast("Poziția a fost ștearsă de pe celălalt aparat."); return; }
+  const it = itemOf(PP.id), p = num(val("ppP")), q = num(val("ppQ")), k = OF.keyOf(it.den), f = OF.umFamily(it.um), zero = /^\s*0+([.,]0*)?\s*$/.test(val("ppP"));
+  if (q > 0) it.cant = q; { const nc = $("#ppCap").value || it.cap; if (nc !== it.cap) { it.cap = nc; delete it.ovd; } }
+  if (zero) { setNo(it, 1); if (PP.same && isOn("ppSame")) st.items.forEach(o => { if (o !== it && OF.keyOf(o.den) === k && OF.umFamily(o.um) === f) o.no = 1; }); save(); closeOvl(); rePos(); toast("Am trecut-o la „nu ofertez”."); return; }
+  if (/^\s*[-−–]/.test(val("ppP"))) { toast("Prețul unei poziții nu poate fi cu minus. Pentru o reducere, pune un rând separat în ofertă."); return; }
+  if (p > 0 && it.no) setNo(it, 0);
   if (p !== +it.pret || (p > 0 && !it.conf)) { it.pret = p; it.src = p > 0 ? "manual" : ""; it.conf = p > 0; it.sug = null; it.sugR = null; it.ap = 0;
     if (p > 0) { if (PP.same && isOn("ppSame")) st.items.forEach(o => { if (o !== it && OF.keyOf(o.den) === k && OF.umFamily(o.um) === f && !(o.src === "manual" && o.pret > 0)) { o.pret = p; o.src = "manual"; o.conf = true; o.sug = null; o.sugR = null; } }); if (isOn("ppKeep")) learn(it); }
     else autoMatch([it]); }
   save(); closeOvl(); rePos();
 };
-ACT.ppdel = () => { const id = PP.id; closeOvl(); undoable("Poziție ștearsă.", () => { st.items = st.items.filter(i => i.id !== id); }); };
-ACT.cmenu = () => { const r = st.rows.find(x => x.id === VIEW.row), x = rowInfo(r); sheet(h3("Capitolul") + fld("cDen", "Cum apare în ofertă", r.den, {}) + fld("cOv", "Sumă pe tot capitolul (gol = suma pozițiilor: " + fmt(rndTo(x.tot, st.rnd)) + " lei)", r.ov > 0 ? edn(r.ov) : "", { n: 1 }) + `<div class="minis"><button data-a="cmv" data-d="-1">${ic("arrow-up", 16, 2.2)}Mai sus</button><button data-a="cmv" data-d="1">${ic("arrow-down", 16, 2.2)}Mai jos</button><button class="r" data-a="cdel">${ic("trash-2", 16, 2.2)}Șterge</button></div><button class="pri" data-a="csave" data-ok="1">Gata</button>`); };
-ACT.csave = () => { const r = st.rows.find(x => x.id === VIEW.row); r.den = val("cDen") || r.den; r.ov = num(val("cOv")); save(); closeOvl(); render(); };
+ACT.ppno = () => { const it = itemOf(PP.id); setNo(it, 1); save(); closeOvl(); rePos(); toast("Am trecut-o la „nu ofertez”."); };
+/* o poziție adusă dintr-un fișier și ștearsă apoi: țin minte rândul, ca în fișierul clientului să nu rămână acolo prețul lui vechi */
+function dropItems(pred) { st.items.forEach(i => { if (!pred(i) || !i.rw) return; const f = fileOf(i.f); if (f) (f.del = f.del || []).push([i.sh || "", i.rw]); }); st.items = st.items.filter(i => !pred(i)); }
+ACT.ppdel = () => { const id = PP.id; closeOvl(); undoable("Poziție ștearsă.", () => { dropItems(i => i.id === id); }); };
+ACT.cmenu = () => { const r = st.rows.find(x => x.id === VIEW.row), x = rowInfo(r); sheet(h3("Capitolul") + fld("cDen", "Cum apare în ofertă", r.den, {}) + fld("cOv", "Sumă pe tot capitolul (gol = suma pozițiilor: " + fmt(rndTo(x.tot, st.rnd)) + " lei)", r.ov > 0 ? edn(x.off ? r.ov : x.val) : "", { n: 1 }) + sw("cNo", "Nu ofertez capitolul ăsta", !!r.no) + `<div class="minis"><button data-a="cmv" data-d="-1">${ic("arrow-up", 16, 2.2)}Mai sus</button><button data-a="cmv" data-d="1">${ic("arrow-down", 16, 2.2)}Mai jos</button><button class="r" data-a="cdel">${ic("trash-2", 16, 2.2)}Șterge</button></div><button class="pri" data-a="csave" data-ok="1">Gata</button>`); };
+ACT.csave = () => { const r = st.rows.find(x => x.id === VIEW.row), no = isOn("cNo"); r.den = val("cDen") || r.den; { const x0 = rowInfo(r), was = r.ov > 0 ? (x0.off ? r.ov : x0.val) : 0, nv = num(val("cOv")); if (Math.abs(nv - was) >= 0.005) setOv(r, nv); } if (no) r.no = 1; else if (r.no) { delete r.no; autoMatch(st.items.filter(i => i.cap === r.cap && !i.no && !(i.pret > 0))); } save(); closeOvl(); render(); if (no) toast("Capitolul nu intră în ofertă."); };
 ACT.cmv = el => { if (moveRow(VIEW.row, +el.dataset.d)) { save(); toast(+el.dataset.d < 0 ? "Mutat mai sus în ofertă." : "Mutat mai jos în ofertă."); } };
-ACT.cdel = () => { const r = st.rows.find(x => x.id === VIEW.row), n = rowInfo(r).n, id = CUR; closeOvl(); const snap = JSON.stringify(st); st.rows = st.rows.filter(x => x !== r); st.items = st.items.filter(i => i.cap !== r.cap); save(); go("#/o/" + id); toast("Capitol șters" + (n ? " (cu " + plural(n, "o poziție", "poziții") + ")" : "") + ".", () => { DOCS["p/" + id] = normSt(JSON.parse(snap)); if (CUR === id) st = DOCS["p/" + id]; save(); render(); }); };
+ACT.cdel = () => { const r = st.rows.find(x => x.id === VIEW.row), n = rowInfo(r).n, id = CUR; closeOvl(); const snap = JSON.stringify(st); st.rows = st.rows.filter(x => x !== r); dropItems(i => i.cap === r.cap); save(); const rv = REV; go("#/o/" + id); toast("Capitol șters" + (n ? " (cu " + plural(n, "o poziție", "poziții") + ")" : "") + ".", () => { if (REV !== rv || CUR !== id) { toast("Nu mai pot anula: ai schimbat altceva între timp."); return; } DOCS["p/" + id] = normSt(JSON.parse(snap)); st = DOCS["p/" + id]; save(); render(); }); };
 
 /* ---------- lucruri de verificat în listă (dubluri, unități ciudate, preț mult diferit de al tău) ---------- */
 let PROB = {};
@@ -492,18 +580,42 @@ ACT.menu = () => {
     op("risc", "", "calculator", "Îmi iese?", "Câți oameni, câte zile: vezi ce îți rămâne.") +
     op("dup", "", "copy", "Fă o copie", "Pentru o variantă sau pentru altă lucrare la fel.") +
     (has ? op("opts", "", "sliders-horizontal", "Rotunjire și adaos", "Capitole rotunjite, adaos la toate pozițiile.") : "") +
-    (e && e.arh ? op("unarh", "", "archive", "Scoate din arhivă", "O pui înapoi în lista de oferte.") + op("del", "", "trash-2", "Șterge definitiv", "Nu se mai poate aduce înapoi din aplicație.") : op("arh", "", "archive", "Arhivează", "Dispare din listă. O găsești la „Arhivă”.")));
+    (has && st.items.some(i => DOMQ[OF.domainOf(i.den, i.um)]) ? op("domq", "", "ban", "Ce ofertez din listă", "Ventilație, climatizare, electrice… le scoți din ofertă sau le pui la loc.") : "") +
+    (has ? op("rematch", "", "refresh-cw", "Pune din nou prețurile", "După ce ți-ai schimbat prețurile. Ce ai pus sau ai verificat tu rămâne.") : "") +
+    (e && e.arh ? op("unarh", "", "archive", "Scoate din arhivă", "O pui înapoi în lista de oferte.") : op("arh", "", "archive", "Arhivează", "Dispare din listă. O găsești la „Arhivă”.")) +
+    op("del", "", "trash-2", "Șterge oferta", "Se șterge de tot, de pe telefon și de pe laptop."));
 };
+/* aceeași întrebare ca la aducerea listei, pentru o ofertă deja făcută */
+ACT.domq = () => { const dq = {}; st.items.forEach(x => { const d = OF.domainOf(x.den, x.um); if (DOMQ[d]) (dq[d] = dq[d] || []).push(x); });
+  sheet(h3("Ce ofertezi din listă?") + '<p class="s">Lasă pornit doar ce ofertezi. Restul rămân în listă, dar nu intră în ofertă și nu apar ca „fără preț”.</p>' + Object.keys(dq).map(k => sw("dq_" + k, DOMQ[k] + " · " + plural(dq[k].length, "o poziție", "poziții"), dq[k].some(x => !isNo(x)))).join("") + '<button class="pri" data-a="domqok">Gata</button>'); DQ = { dq, old: 1 }; };
+ACT.domqok = () => { if (!DQ) { closeOvl(); return; } const dq = DQ.dq, on = {}; for (const k in dq) on[k] = isOn("dq_" + k); DQ = null; closeOvl(); FIRMA.dom = FIRMA.dom || {}; for (const k in dq) FIRMA.dom[k] = on[k] ? 1 : 0; saveFirma();
+  undoable("Am schimbat ce ofertezi.", () => { const back = []; for (const k in dq) dq[k].forEach(x => { if (on[k]) { if (isNo(x)) { setNo(x, 0); back.push(x); } } else x.no = 1; }); autoMatch(back.filter(x => !(x.pret > 0))); }); };
+ACT.rematch = () => { closeOvl(); let m; undoable("Am pus din nou prețurile.", () => { m = autoMatch(); }); };
+/* meniul unei oferte direct din listă */
+ACT.lmenu = el => { const id = el.dataset.id, s0 = DOCS["p/" + id], e = entry(id); if (!s0) return; LM = id;
+  sheet(h3(esc(nameOf(s0, e))) + '<span class="lb">Cum stă</span><div class="seg">' + Object.keys(STARI).map(k => `<button data-a="lstare" data-k="${k}" class="${(s0.proj.stare || "lucru") === k ? "on" : ""}">${STARI[k]}</button>`).join("") + "</div>" +
+    op("lopen", "", "folder-open", "Deschide", "Vezi și schimbi oferta.") + op("ldup", "", "copy", "Fă o copie", "Pentru o variantă sau pentru altă lucrare la fel.") +
+    (e && e.arh ? op("lunarh", "", "archive", "Scoate din arhivă", "O pui înapoi în lista de oferte.") : op("larh", "", "archive", "Arhivează", "Dispare din listă. O găsești la „Arhivă”.")) +
+    op("ldel", "", "trash-2", "Șterge oferta", "Se șterge de tot, de pe telefon și de pe laptop.")); };
+let LM = "";
+ACT.lstare = el => { const s0 = DOCS["p/" + LM]; s0.proj.stare = el.dataset.k; store.put("p/" + LM, () => DOCS["p/" + LM]); closeOvl(); render(); toast("Oferta e " + STARI[el.dataset.k] + "."); };
+ACT.lopen = () => go("#/o/" + LM);
+ACT.ldup = () => { const id = dupOffer(LM); go("#/o/" + id); toast("Am făcut o copie. Ești în copie acum."); };
+ACT.larh = () => { const e = entry(LM); e.arh = true; store.put("index", () => IDX, 0); closeOvl(); render(); toast("Am pus-o în arhivă.", () => { delete e.arh; store.put("index", () => IDX, 0); render(); }); };
+ACT.lunarh = () => { delete entry(LM).arh; store.put("index", () => IDX, 0); closeOvl(); render(); toast("E din nou în lista de oferte."); };
+ACT.ldel = () => delAsk(LM);
+function delAsk(id) { DEL = id; sheet(h3("Ștergi oferta?") + `<p class="s">„${esc(nameOf(DOCS["p/" + id], entry(id)))}” se șterge de tot, de pe telefon și de pe laptop, și nu se mai poate aduce înapoi din listă.</p><button class="sec r" data-a="delok">Da, șterge definitiv</button><button class="pri" data-a="x">Nu, las-o</button>`); }
+let DEL = "";
 ACT.stare = el => { st.proj.stare = el.dataset.k; save(); closeOvl(); render(); toast("Oferta e " + STARI[el.dataset.k] + "."); };
 ACT.dup = () => { const id = dupOffer(CUR); go("#/o/" + id); toast("Am făcut o copie. Ești în copie acum."); };
 ACT.arh = () => { const e = entry(CUR); e.arh = true; store.put("index", () => IDX, 0); go("#/"); toast("Am pus-o în arhivă.", () => { delete e.arh; store.put("index", () => IDX, 0); render(); }); };
 ACT.unarh = () => { delete entry(CUR).arh; store.put("index", () => IDX, 0); closeOvl(); render(); toast("E din nou în lista de oferte."); };
-ACT.del = () => { sheet(h3("Ștergi oferta?") + `<p class="s">„${esc(nameOf(st, entry(CUR)))}” se șterge de tot, de pe telefon și de pe laptop. Din aplicație nu se mai poate aduce înapoi.</p><button class="sec r" data-a="delok">Da, șterge definitiv</button><button class="pri" data-a="x">Nu, las-o</button>`); };
-ACT.delok = async () => { const id = CUR; IDX.list = IDX.list.filter(x => x.id !== id); delete DOCS["p/" + id]; CUR = ""; st = null; store.put("index", () => IDX, 0); try { await store.remove("p/" + id); } catch (e) { } go("#/"); toast("Ofertă ștearsă."); };
+ACT.del = () => delAsk(CUR);
+ACT.delok = async () => { const id = DEL || CUR; { const mn = /^(\d{4})\/(\d+)$/.exec(String(((DOCS["p/" + id] || {}).proj || {}).nrOferta || "").trim()); if (mn) { IDX.nr = IDX.nr || {}; IDX.nr[mn[1]] = Math.max(IDX.nr[mn[1]] || 0, +mn[2]); } } IDX.list = IDX.list.filter(x => x.id !== id); (IDX.del = IDX.del || {})[id] = todayIso(); delete DOCS["p/" + id]; if (CUR === id) { CUR = ""; st = null; } store.put("index", () => IDX, 0); try { await store.remove("p/" + id); } catch (e) { } closeOvl(); if (VIEW.name === "list") render(); else go("#/"); toast("Ofertă ștearsă."); };
 ACT.target = () => { const t = totals(); sheet(h3("Vreau alt total") + `<p class="s">Acum oferta e ${fmt(t.sub)} lei fără TVA. Scrie cât vrei să fie. Toate prețurile se schimbă în aceeași măsură.</p>` + fld("tgt", "Total dorit, fără TVA (lei)", "", { n: 1, af: 1 }) + '<button class="pri" data-a="tgtok" data-ok="1">Schimbă prețurile</button>'); };
 function scaleTo(target) {
   const cur = totals().sub; if (!(cur > 0) || !(target > 0)) return null; const f = target / cur;
-  st.rows.forEach(r => { if (r.k === "c") { const i = rowInfo(r); if (i.val > 0) r.ov = Math.round(i.val * f); } else if (r.pret > 0) r.pret = r2(r.pret * f); });
+  st.rows.forEach(r => { if (r.k === "c") { const i = rowInfo(r); if (i.val > 0) setOv(r, Math.round(i.val * f)); } else if (+r.pret) r.pret = r2(r.pret * f); });   // și reducerile (rânduri cu minus) se schimbă în aceeași măsură
   const d = r2(target - totals().sub);
   if (Math.abs(d) >= 0.005) { const c = st.rows.filter(r => (r.k === "c" && r.ov > 0) || (r.k === "r" && (+r.cant || 0) === 1 && r.pret > 0)).sort((a, b) => rowInfo(b).val - rowInfo(a).val)[0]; if (c) { if (c.k === "c") c.ov = r2(c.ov + d); else c.pret = r2(c.pret + d); } }
   return r2(target - totals().sub);
@@ -531,26 +643,41 @@ ACT.imp = () => { sheet(h3("Adu o listă") + '<p class="s">Lista de cantități 
 ACT.ifile = () => { $("#fImp").value = ""; $("#fImp").click(); };
 $("#fImp").addEventListener("change", async e => {
   const f = e.target.files[0]; if (!f) return; sheet(h3("Citesc fișierul…") + `<p class="s">${esc(f.name)}</p>`);
-  try { const buf = await f.arrayBuffer(), res = await IMP.readFile({ name: f.name, data: buf }); IM = { res, buf, on: res.tables.map(t => t.ok && !t.skip), grp: "fel" }; impSheet(); }
+  try { const buf = await f.arrayBuffer(), res = await IMP.readFile({ name: f.name, data: buf }); IM = { res, buf, on: res.tables.map(t => t.ok && !t.skip), grp: "fel", hid: 1 }; impSheet(); }
   catch (err) { sheet(h3("Nu am putut citi fișierul") + `<p class="s">${esc((err && err.message) || err)}</p><button class="pri" data-a="x">Am înțeles</button>`); }
 });
 function impSheet() {
-  const r = IM.res, n = r.tables.reduce((a, t, i) => a + (IM.on[i] ? t.n : 0), 0), any = r.tables.some(t => t.ok);
+  const r = IM.res, n = r.tables.reduce((a, t, i) => a + (IM.on[i] ? t.n : 0), 0), any = r.tables.some(t => t.ok), nh = r.tables.reduce((a, t, i) => a + (IM.on[i] && t.ok ? t.items.filter(x => x.hid).length : 0), 0);
   sheet(h3(any ? "Am găsit " + plural(r.tables.reduce((a, t) => a + (t.ok ? t.n : 0), 0), "o poziție", "poziții") : "Nu am găsit o listă") + `<p class="s">${esc(r.name || "")}</p>` +
-    r.tables.map((t, i) => `<button class="tb ${t.ok ? (IM.on[i] ? "on" : "") : "off"}" data-a="${t.ok ? "imt" : ""}" data-k="${i}"><i>${IM.on[i] ? ic("check", 16, 3) : ""}</i><p>${esc(t.name || "Tabel")}<small>${t.ok ? plural(t.n, "o poziție", "poziții") + (t.kind === "sume" || t.kind === "randuri" ? " · intră ca rânduri în ofertă" : "") + (t.skip ? " · " + (t.hint === "echipamente" ? "listă de echipamente, nebifată" : "centralizator, nebifat") : "") + (t.title && t.title !== t.name ? " · " + esc(t.title) : "") : esc(t.why || "nu am găsit denumire și cantitate")}${(t.warn || []).length ? "<br>" + t.warn.map(esc).join("<br>") : ""}</small></p></button>`).join("") +
+    r.tables.map((t, i) => `<button class="tb ${t.ok ? (IM.on[i] ? "on" : "") : "off"}" data-a="${t.ok ? "imt" : ""}" data-k="${i}"><i>${IM.on[i] ? ic("check", 16, 3) : ""}</i><p>${esc(t.name || "Tabel")}<small>${t.ok ? plural(t.n, "o poziție", "poziții") + (t.kind === "sume" || t.kind === "randuri" ? " · intră ca rânduri în ofertă" : "") + (t.skip ? " · " + (t.hint === "echipamente" ? "listă de echipamente, nebifată" : t.hint === "ascunsa" ? "foaie ascunsă în fișier, nebifată" : t.hint === "alaturate" ? "două tabele alăturate, nebifată" : "centralizator, nebifat") : "") + (t.title && t.title !== t.name ? " · " + esc(t.title) : "") : esc(t.why || "nu am găsit denumire și cantitate")}${(t.warn || []).length ? "<br>" + t.warn.map(esc).join("<br>") : ""}</small></p></button>`).join("") +
     (r.notes || []).map(x => `<div class="nt">${esc(x)}</div>`).join("") +
+    (nh ? `<span class="lb">${plural(nh, "Un rând ascuns", "rânduri ascunse")} în fișier</span><div class="seg"><button data-a="imhid" data-k="1" class="${IM.hid ? "on" : ""}">le ofertez</button><button data-a="imhid" data-k="0" class="${IM.hid ? "" : "on"}">nu le ofertez</button></div>` : "") +
     (any ? `<span class="lb">Cum le împart pe capitole</span><div class="seg"><button data-a="imgrp" data-k="fel" class="${IM.grp === "fel" ? "on" : ""}">după felul lucrării</button><button data-a="imgrp" data-k="fis" class="${IM.grp === "fis" ? "on" : ""}">ca în fișier</button></div><button class="pri" data-a="imok" ${n ? "" : "disabled"}>Adu ${plural(n, "o poziție", "poziții")}</button>` : '<button class="pri" data-a="x">Am înțeles</button>'));
 }
+ACT.imagain = () => { if (!IM) { closeOvl(); return; } IM.again = 1; ACT.imok(); };
 ACT.imt = el => { const i = +el.dataset.k; IM.on[i] = !IM.on[i]; impSheet(); };
 ACT.imgrp = el => { IM.grp = el.dataset.k; impSheet(); };
+ACT.imhid = el => { IM.hid = el.dataset.k === "1" ? 1 : 0; impSheet(); };
 ACT.imok = () => {
-  const r = IM.res, fi = st.files.length, meta = { n: r.name, k: r.kind, t: {} }; let add = 0; const mine = [];
+  const r = IM.res, fi = newNum(st.files), meta = { id: fi, n: r.name, k: r.kind, t: {} }; let add = 0; const mine = [];   // fiecare fișier adus are numărul lui (două aparate pot aduce liste în același timp)
+  /* aceeași listă adusă încă o dată: mă uit câte dintre rândurile ei sunt deja în ofertă (și dacă între timp ai șters câteva) */
+  const nNew = r.tables.reduce((a, t, i) => a + (IM.on[i] && t.ok ? t.n : 0), 0), sameF = st.files.filter(f => f.n === r.name).map(f => f.id), have = new Set(st.items.filter(it => sameF.includes(it.f)).map(it => (it.sh || "") + "|" + (it.rw || 0)));
+  let nDup = 0; if (have.size) r.tables.forEach((t, i) => { if (IM.on[i] && t.ok) t.items.forEach(it => { if (have.has((it.sheet || t.name) + "|" + (it.row || 0))) nDup++; }); });
+  const dup = !IM.again && r.kind !== "text" && nDup > 0;
+  if (dup) { sheet(h3("Lista asta e deja în ofertă") + `<p class="s">Ai mai adus „${esc(r.name)}” (${nDup === nNew ? plural(nNew, "o poziție", "poziții") : nDup + " din cele " + plural(nNew, "o poziție", "poziții") + " sunt deja în ofertă"}). Dacă o aduci încă o dată, pozițiile apar de două ori și suma se dublează.</p><button class="pri" data-a="x">Nu o mai aduc</button><button class="sec" data-a="imagain" style="margin-top:10px">O aduc încă o dată</button>`); return; }
   r.tables.forEach((t, i) => { if (!IM.on[i] || !t.ok) return; meta.t[t.name] = { cols: t.cols, hr: t.headerRow, title: t.title || "" };
-    if (t.kind === "sume" || t.kind === "randuri") { t.items.forEach(it => st.rows.push({ id: nextRow(), k: "r", den: it.den, um: it.um || "buc", cant: +it.cant || 1, pret: +it.pret || 0 })); add += t.items.length; return; }
-    t.items.forEach(it => { const cap0 = String(it.cap0 || t.title || t.name || "Listă").replace(/\s+/g, " ").slice(0, 90), x = { id: nextItem(), cap0, cap: IM.grp === "fis" ? cap0 : OF.autoCap(it.den, cap0), cod: it.cod || "", den: it.den, um: it.um || "buc", cant: +it.cant || 0, pret: +it.pret || 0, conf: false, src: it.pret > 0 ? "file" : "", f: fi, sh: it.sheet || t.name, rw: it.row || 0 }; st.items.push(x); mine.push(x); add++; }); });
-  st.files.push(meta); if (IM.buf && /^xls[xm]$/.test(r.kind || "")) FILES[CUR + "/" + fi] = { name: r.name, data: IM.buf }; syncRows(st); const m = autoMatch(mine); save(); closeOvl(); IM = null; render();
-  toast(mine.length ? `Am adus ${plural(add, "o poziție", "poziții")}. ${m.a} au primit preț singure, ${m.s + m.v} au o sugestie.` : `Am adus ${plural(add, "un rând", "rânduri")}.`);
+    if (t.kind === "sume" || t.kind === "randuri") { t.items.forEach(it => st.rows.push({ id: nextRow(), k: "r", den: it.den, um: it.um || "buc", cant: +it.cant || 1, pret: (it.neg ? -1 : 1) * (+it.pret || 0) })); add += t.items.length; return; }
+    t.items.forEach(it => { if (it.neg) { st.rows.push({ id: nextRow(), k: "r", den: it.den, um: it.um || "buc", cant: +it.cant || 1, pret: -(+it.pret || 0) }); add++; return; } const cap0 = String(it.cap0 || t.title || t.name || "Listă").replace(/\s+/g, " ").slice(0, 90), x = { id: nextItem(), cap0, cap: IM.grp === "fis" ? cap0 : OF.autoCap(it.den, cap0), cod: it.cod || "", den: it.den, um: it.um || "buc", cant: +it.cant || 0, pret: +it.pret || 0, conf: false, src: it.pret > 0 ? "file" : "", f: fi, sh: it.sheet || t.name, rw: it.row || 0 }; if (r.kind !== "text") x.q0 = x.cant; if (it.hid) x.hid = 1; st.items.push(x); mine.push(x); add++; }); });
+  st.files.push(meta); if (IM.buf && /^xls[xm]$/.test(r.kind || "")) FILES[CUR + "/" + fi] = { name: r.name, data: IM.buf }; syncRows(st); const hidNo = IM.hid ? [] : mine.filter(x => x.hid), m = autoMatch(mine.filter(x => !hidNo.includes(x))); hidNo.forEach(x => { x.no = 1; }); save(); closeOvl(); IM = null; render();
+  const nfp = mine.filter(x => x.src === "file" && x.pret > 0).length, parts = [nfp ? nfp + " cu preț din fișier" : "", m.a ? m.a + " cu preț din prețurile tale" : "", m.e ? m.e + " estimate" : "", m.z ? m.z + " fără preț" : ""].filter(Boolean);
+  const msg = (mine.length ? `Am adus ${plural(add, "o poziție", "poziții")}${parts.length ? ": " + parts.join(", ") : ""}.` : `Am adus ${plural(add, "un rând", "rânduri")}.`) + (hidNo.length ? ` ${plural(hidNo.length, "Un rând ascuns e", "rânduri ascunse sunt")} la „nu ofertez”.` : "");
+  const dq = {}; mine.forEach(x => { const d = OF.domainOf(x.den, x.um); if (DOMQ[d]) (dq[d] = dq[d] || []).push(x); });
+  if (Object.keys(dq).length) { DQ = { dq, msg }; domSheet(); } else toast(msg);
 };
+/* lista are și ventilație, climatizare, electrice…: le ofertezi? (ține minte răspunsul pentru data viitoare) */
+let DQ = null;
+function domSheet() { const d = FIRMA.dom || {}; sheet(h3("Ce ofertezi din listă?") + `<p class="s">${esc(DQ.msg)}</p><p class="s">Lista are și lucrări pe care poate nu le faci. Lasă pornit doar ce ofertezi. Restul rămân în listă, dar nu intră în ofertă și nu apar ca „fără preț”.</p>` + Object.keys(DQ.dq).map(k => sw("dq_" + k, DOMQ[k] + " · " + plural(DQ.dq[k].length, "o poziție", "poziții"), !!d[k])).join("") + '<button class="pri" data-a="dqok">Gata</button>'); }
+ACT.dqok = () => { if (!DQ) { closeOvl(); return; } FIRMA.dom = FIRMA.dom || {}; let n = 0; for (const k in DQ.dq) { const on = isOn("dq_" + k); FIRMA.dom[k] = on ? 1 : 0; if (!on) DQ.dq[k].forEach(x => { x.no = 1; n++; }); } saveFirma(); save(); DQ = null; closeOvl(); render(); toast(n ? plural(n, "O poziție trecută", "poziții trecute") + " la „nu ofertez”. Le găsești în capitol, la „Nu ofertez”." : "Le ofertezi pe toate."); };
 ACT.itext = () => { sheet(h3("Lipește sau scrie") + '<p class="s">Câte o lucrare pe rând. Exemple: „12 calorifere la 230”, „pardoseală 190 mp x 68”, „montaj centrală 1150”. Poți lipi și un tabel copiat din Excel.</p><textarea class="inp" id="iTxt" style="min-height:170px" placeholder="12 calorifere la 230&#10;pardoseală 190 mp x 68&#10;montaj centrală 1150" autofocus></textarea><button class="pri" data-a="iread">Citește</button>'); };
 let LN = null;
 ACT.iread = () => {
@@ -559,40 +686,45 @@ ACT.iread = () => {
   if (ls.length > 1 && tab >= ls.length * 0.6) { const res = IMP.readText(t, "Text lipit"); IM = { res, buf: null, on: res.tables.map(x => x.ok && !x.skip), grp: "fel" }; impSheet(); return; }
   LN = IMP.parseLines(t).filter(x => x && x.den).map(x => Object.assign({ m: "u" }, x)); if (!LN.length) { toast("Nu am înțeles niciun rând."); return; } lnSheet();
 };
-function lnSheet() { sheet(h3("Am înțeles " + plural(LN.length, "un rând", "rânduri")) + '<p class="s">Verifică. Unde nu e clar dacă suma e pe bucată sau cu totul, alege tu.</p>' + LN.map((x, i) => { const pr = x.m === "t" && x.cant ? r2(x.pret / x.cant) : x.pret; return `<div class="tb on" style="cursor:default"><i>${ic("check", 16, 3)}</i><p>${esc(x.den)}<small>${fq(x.cant)} ${esc(x.um)} × ${fmt(pr)} lei = ${fmt(r2(x.cant * pr))} lei</small>${x.amb && x.cant > 1 ? `<span class="seg" style="margin-top:8px;display:flex"><button data-a="lnm" data-k="${i}" data-m="u" class="${x.m === "u" ? "on" : ""}">${fmt(x.pret)} pe ${esc(x.um)}</button><button data-a="lnm" data-k="${i}" data-m="t" class="${x.m === "t" ? "on" : ""}">${fmt(x.pret)} cu totul</button></span>` : ""}</p></div>`; }).join("") + `<button class="pri" data-a="lnok">Pune ${plural(LN.length, "rândul", "rânduri")} în ofertă</button>`); }
+function lnSheet() { sheet(h3("Am înțeles " + plural(LN.length, "un rând", "rânduri")) + '<p class="s">Verifică. Unde nu e clar dacă suma e pe bucată sau cu totul, alege tu.</p>' + LN.map((x, i) => { const pr = (x.neg ? -1 : 1) * (x.m === "t" && x.cant ? r2(x.pret / x.cant) : x.pret); return `<div class="tb on" style="cursor:default"><i>${ic("check", 16, 3)}</i><p>${esc(x.den)}<small>${fq(x.cant)} ${esc(x.um)} × ${fmt(pr)} lei = ${fmt(r2(x.cant * pr))} lei</small>${x.amb && x.cant > 1 ? `<span class="seg" style="margin-top:8px;display:flex"><button data-a="lnm" data-k="${i}" data-m="u" class="${x.m === "u" ? "on" : ""}">${fmt(x.pret)} pe ${esc(x.um)}</button><button data-a="lnm" data-k="${i}" data-m="t" class="${x.m === "t" ? "on" : ""}">${fmt(x.pret)} cu totul</button></span>` : ""}</p></div>`; }).join("") + `<button class="pri" data-a="lnok">Pune ${plural(LN.length, "rândul", "rânduri")} în ofertă</button>`); }
 ACT.lnm = el => { LN[+el.dataset.k].m = el.dataset.m; lnSheet(); };
-ACT.lnok = () => { const n = LN.length; LN.forEach(x => { const o = { den: x.den.charAt(0).toUpperCase() + x.den.slice(1), um: x.um || "buc", cant: +x.cant || 1, pret: x.m === "t" && x.cant ? r2(x.pret / x.cant) : +x.pret || 0 }; st.rows.push(Object.assign({ id: nextRow(), k: "r" }, o)); learn(o); }); LN = null; save(); closeOvl(); render(); toast(plural(n, "Un rând pus", "rânduri puse") + " în ofertă."); };
+ACT.lnok = () => { const n = LN.length; LN.forEach(x => { const sg = x.neg && x.pret > 0 ? -1 : 1, o = { den: x.den.charAt(0).toUpperCase() + x.den.slice(1), um: x.um || "buc", cant: +x.cant || 1, pret: sg * (x.m === "t" && x.cant ? r2(x.pret / x.cant) : +x.pret || 0) }; st.rows.push(Object.assign({ id: nextRow(), k: "r" }, o)); learn(o); }); LN = null; save(); closeOvl(); render(); toast(plural(n, "Un rând pus", "rânduri puse") + " în ofertă."); };
 
 /* ---------- descarcă: Excel ca al tău, listă scurtă sau fișierul clientului cu prețurile tale ---------- */
 let XP = null;
-const chapX = () => st.rows.map(r => { const i = rowInfo(r); return r.k === "c" ? { name: r.den, value: i.val } : { name: r.den, um: r.um, cant: +r.cant || 0, pret: +r.pret || 0, value: i.val }; }).filter(c => c.value > 0 || c.name);
-const xlFiles = () => st.files.map((f, i) => ({ f, i })).filter(x => x.f.k !== "text" && st.items.some(it => it.f === x.i));   // textul lipit nu e „fișierul clientului”
+const chapX = () => st.rows.filter(r => !r.no && !(r.k === "c" && rowInfo(r).n === 0 && rowInfo(r).nn > 0)).map(r => { const i = rowInfo(r); return r.k === "c" ? { name: r.den, value: i.val } : { name: r.den, um: r.um, cant: +r.cant || 0, pret: +r.pret || 0, value: i.val }; }).filter(c => c.value > 0 || c.name);
+const fileOf = id => st.files.find(f => f.id === id);
+const xlFiles = () => st.files.map(f => ({ f, i: f.id })).filter(x => x.f.k !== "text" && st.items.some(it => it.f === x.i));   // textul lipit nu e „fișierul clientului”
 ACT.xl = () => { if (!st.rows.length) { toast("Oferta e goală. Pune întâi un rând."); return; } XP = { k: "mare", anexa: st.items.length > 0, fi: -1 }; xlSheet(); xlPrep(); };
 function xlSheet() {
-  const fara = st.items.filter(i => !(i.pret > 0)).length, r0 = st.rows.filter(r => rowInfo(r).val <= 0).length, cl = xlFiles();
+  const fara = offered().filter(i => !(i.pret > 0)).length, nno = st.items.length - offered().length, r0 = st.rows.filter(r => !r.no && rowInfo(r).val <= 0 && !(r.k === "c" && rowInfo(r).n === 0)).length, cl = xlFiles();
   const o = (k, icon, t, s, fi) => `<button class="op" data-a="xlk" data-k="${k}" data-fi="${fi == null ? -1 : fi}" style="${XP.k === k && (k !== "client" || XP.fi === fi) ? "box-shadow:inset 0 0 0 2.5px var(--navy);background:#F4F8FD" : ""}"><i>${ic(icon, 24, 2)}</i><p>${t}<small>${s}</small></p></button>`;
   sheet(h3("Descarcă oferta") + o("mare", "file-spreadsheet", "Oferta mea, cu antet", "Foaia cu antet albastru, beneficiar, capitole, total, condiții.") + o("scurta", "list", "Ofertă scurtă", "Listă simplă: lucrare și cost. Cum faci la case.") +
     cl.map(x => o("client", "file-up", "Fișierul clientului, cu prețurile mele", /\.xls[xm]$/i.test(x.f.n || "") ? "Pun prețurile în „" + esc(x.f.n) + "”, fără să-i schimb forma." : "Fac un Excel cu rândurile din „" + esc(x.f.n) + "”, în aceeași ordine, cu prețul și valoarea.", x.i)).join("") +
     (XP.k === "mare" && st.items.length ? sw("xAnx", "Pune și lista de poziții cu prețuri (anexă)", XP.anexa).replace('data-a="sw"', 'data-a="sw" data-then="xlanx"') : "") +
-    (fara || r0 ? `<div class="nt">${fara ? plural(fara, "O poziție nu are", "poziții nu au") + " preț și nu intră în total. " : ""}${r0 ? plural(r0, "Un rând e", "rânduri sunt") + " fără valoare." : ""}</div>` : "") +
+    (fara || r0 ? `<div class="nt">${fara ? plural(fara, "O poziție nu are", "poziții nu au") + " preț și nu intră în total. " : ""}${r0 ? plural(r0, "Un rând e fără valoare și nu apare", "rânduri sunt fără valoare și nu apar") + " în ofertă." : ""}</div>` : "") +
+    (nno ? `<div class="nt q">${plural(nno, "O poziție neofertată rămâne", "poziții neofertate rămân")} fără preț în fișier.</div>` : "") +
+    (!String(FIRMA.firma || "").trim() ? '<div class="nt">Nu ai completat „Firma mea”: oferta iese fără numele și datele firmei. Le pui din lista de oferte, la „Firma mea”.</div>' : "") +
     '<div id="xNote"></div><button class="pri" data-a="xlgo" id="xGo" disabled>Se pregătește…</button>');
 }
-ACT.xlk = el => { XP.k = el.dataset.k; XP.fi = +el.dataset.fi; xlSheet(); xlPrep(); };
-ACT.xlanx = () => { XP.anexa = isOn("xAnx"); xlPrep(); };
+ACT.xlk = el => { XP = { k: el.dataset.k, anexa: XP.anexa, fi: +el.dataset.fi }; xlSheet(); xlPrep(); };
+ACT.xlanx = () => { XP = { k: XP.k, anexa: isOn("xAnx"), fi: XP.fi }; const b = $("#xGo"); if (b) { b.disabled = true; b.textContent = "Se pregătește…"; } xlPrep(); };
 async function xlPrep() {
-  const my = XP, nm = fileSafe(st.proj.santier || "SANTIER"); my.blob = null; my.err = "";
+  const my = XP, nm = fileSafe(st.proj.santier) || "fara nume"; my.blob = null; my.err = "";
   try {
     if (my.k === "client") {
-      const key = CUR + "/" + my.fi, inPlace = /^xls[xm]$/.test(st.files[my.fi].k || "") && /\.xls[xm]$/i.test(st.files[my.fi].n || ""), f = inPlace ? FILES[key] : { name: st.files[my.fi].n, data: new Uint8Array(0) };   // pentru PDF, .xls, text nu am nevoie de fișier: fac unul nou din rândurile ținute minte
-      if (!f) { my.need = true; if (XP === my) { $("#xNote").innerHTML = `<div class="nt">Am nevoie de fișierul primit: „${esc(st.files[my.fi].n)}”. Apasă mai jos și alege-l din telefon sau din laptop.</div>`; const b = $("#xGo"); b.disabled = false; b.textContent = "Alege fișierul primit"; } return; }
+      const key = CUR + "/" + my.fi, inPlace = /^xls[xm]$/.test(fileOf(my.fi).k || "") && /\.xls[xm]$/i.test(fileOf(my.fi).n || ""), f = inPlace ? FILES[key] : { name: fileOf(my.fi).n, data: new Uint8Array(0) };   // pentru PDF, .xls, text nu am nevoie de fișier: fac unul nou din rândurile ținute minte
+      if (!f) { my.need = true; if (XP === my) { $("#xNote").innerHTML = `<div class="nt">Am nevoie de fișierul primit: „${esc(fileOf(my.fi).n)}”. Apasă mai jos și alege-l din telefon sau din laptop.</div>`; const b = $("#xGo"); b.disabled = false; b.textContent = "Alege fișierul primit"; } return; }
       const out = await fillClient(f, my.fi); my.blob = new Blob([out.data], { type: XLSX_MIME }); my.name = out.name; my.notes = out.notes || [];
     } else {
       await SCV.needXl();
-      const wb = my.k === "scurta" ? OFX.exportShort(ExcelJS, { proj: projX(), chap: chapX() }) : OFX.exportOffer(ExcelJS, { proj: projX(), chap: chapX(), items: st.items, adaos: st.adaos }, { anexa: my.anexa });
+      const wb = my.k === "scurta" ? OFX.exportShort(ExcelJS, { proj: projX(), chap: chapX() }) : OFX.exportOffer(ExcelJS, { proj: projX(), chap: chapX(), items: (EP => { const ord = new Map(), nmc = new Map(); st.rows.forEach((r, i) => { if (r.k === "c") { ord.set(r.cap, i); nmc.set(r.cap, r.den || r.cap); } });   // anexa: capitolele în ordinea și cu numele din ofertă
+        return offered().map((it, j) => Object.assign({}, it, { cap: nmc.get(it.cap) || it.cap, ord: (ord.has(it.cap) ? ord.get(it.cap) : 1e6) * 1e6 + j, pret: EP.get(it.id) || 0, tot: r2((+it.cant || 0) * (EP.get(it.id) || 0)) })); })(effPrices()), adaos: 0 }, { anexa: my.anexa });
       my.blob = new Blob([await wb.xlsx.writeBuffer()], { type: XLSX_MIME }); my.name = "OFERTA " + nm + (my.k === "scurta" ? " (scurta)" : "") + ".xlsx";
     }
   } catch (e) { my.err = (e && e.message) || String(e); }
   if (XP !== my || !$("#xGo")) return; const b = $("#xGo");
+  if (my.need && !my.blob) return;
   if (my.err) { $("#xNote").innerHTML = `<div class="nt">Nu am putut face fișierul: ${esc(my.err)}</div>`; b.disabled = true; b.textContent = "Nu s-a putut"; return; }
   $("#xNote").innerHTML = (my.notes || []).map(x => `<div class="nt">${esc(x)}</div>`).join(""); b.disabled = false; b.innerHTML = ic("download", 20, 2.2) + "Descarcă";
 }
@@ -600,30 +732,69 @@ ACT.xlgo = async () => {
   if (XP.need && !XP.blob) { $("#fOrig").value = ""; $("#fOrig").click(); return; }
   if (!XP.blob) return; const r = await SCV.saveFile(XP.name, XP.blob, XLSX_MIME); if (r !== "cancelled") { closeOvl(); toast(r === "shared" ? "Trimis." : "Am descărcat „" + XP.name + "”."); if (st.proj.stare === "lucru") { /* rămâne în lucru până o trece el la trimisă */ } }
 };
-$("#fOrig").addEventListener("change", async e => { const f = e.target.files[0]; if (!f || !XP) return; FILES[CUR + "/" + XP.fi] = { name: f.name, data: await f.arrayBuffer() }; XP.need = false; const b = $("#xGo"); if (b) { b.disabled = true; b.textContent = "Se pregătește…"; } xlPrep(); });
+$("#fOrig").addEventListener("change", async e => {
+  const f = e.target.files[0]; if (!f || !XP) return; const my = XP, fi = my.fi, buf = await f.arrayBuffer(), b = $("#xGo"); if (b) { b.disabled = true; b.textContent = "Verific fișierul…"; }
+  let bad = -1;                                           // câte rânduri din ofertă nu se regăsesc la locul lor în fișierul ales
+  try { const res = await IMP.readFile({ name: f.name, data: buf.slice(0) }), m = new Map(); res.tables.forEach(t => (t.items || []).forEach(it => m.set((it.sheet || t.name) + "|" + it.row, OF.keyOf(it.den))));
+    const mine = st.items.filter(it => it.f === fi && it.rw); if (mine.length) bad = mine.filter(it => { const a = m.get(it.sh + "|" + it.rw), k = OF.keyOf(it.den); return a == null || !(a === k || a.indexOf(k) >= 0 || k.indexOf(a) >= 0); }).length; } catch (err) { bad = -1; }
+  if (XP !== my) return;
+  if (bad !== 0) { if ($("#xNote")) $("#xNote").innerHTML = `<div class="nt">Fișierul ales nu e cel din care ai adus lista${bad > 0 ? " (" + plural(bad, "un rând nu se potrivește", "rânduri nu se potrivesc") + ")" : ""}. Alege fișierul primit la început. Dacă ai primit o variantă nouă a listei, adu-o din nou în ofertă.</div>`; if (b) { b.disabled = false; b.textContent = "Alege fișierul primit"; } return; }
+  FILES[CUR + "/" + fi] = { name: f.name, data: buf }; my.need = false; if (b) { b.disabled = true; b.textContent = "Se pregătește…"; } xlPrep();
+});
 /* prețurile mele puse în fișierul primit (wb.js) */
 async function fillClient(file, fi) {
   if (!window.WB) throw new Error("modulul pentru fișierul clientului nu e încărcat");
-  const meta = st.files[fi], by = {}; st.items.forEach(it => { if (it.f === fi && it.rw) (by[it.sh] = by[it.sh] || []).push({ row: it.rw, pret: r2((+it.pret || 0) * (1 + (st.adaos || 0) / 100)), cant: +it.cant || 0 }); });
-  const sheets = Object.keys(by).map(sh => { const t = meta.t[sh] || {}, tbl = { name: sh, cols: t.cols || {}, headerRow: t.hr || 0 }; return { sheet: sh, plan: WB.plan(tbl), headerRow: t.hr || 0, cols: t.cols || {}, rows: by[sh] }; });
+  const meta = fileOf(fi), by = {}, clr = {}, EP = effPrices(), live = new Set(); st.items.forEach(it => { if (it.f !== fi || !it.rw) return; live.add(it.sh + "|" + it.rw); by[it.sh] = by[it.sh] || []; if (isNo(it)) (clr[it.sh] = clr[it.sh] || []).push(it.rw); else by[it.sh].push({ row: it.rw, pret: EP.get(it.id) || 0, cant: +it.cant || 0 }); });
+  (meta.del || []).forEach(([sh, rw]) => { if (live.has(sh + "|" + rw)) return; by[sh] = by[sh] || []; (clr[sh] = clr[sh] || []).push(rw); });   // pozițiile șterse din ofertă: prețul vechi din fișier se golește
+  const sheets = Object.keys(by).map(sh => { const t = meta.t[sh] || {}, tbl = { name: sh, cols: t.cols || {}, headerRow: t.hr || 0 }; return { sheet: sh, plan: WB.plan(tbl), headerRow: t.hr || 0, cols: t.cols || {}, rows: by[sh], clear: clr[sh] || [] }; });
   const tables = Object.keys(by).map(sh => ({ name: sh, title: (meta.t[sh] || {}).title || "", items: st.items.filter(it => it.f === fi && it.sh === sh).map(it => ({ nr: "", cod: it.cod || "", den: it.den, um: it.um, cant: +it.cant || 0, pret: 0, cap0: it.cap0 || "", row: it.rw })) }));
-  return WB.fill({ name: file.name, data: file.data }, sheets, { tables });
+  const out = await WB.fill({ name: file.name, data: file.data }, sheets, { tables });
+  out.notes = (out.notes || []).concat(clientDiff(fi)); return out;
+}
+/* Fișierul clientului are doar pozițiile lui, cu cantitățile lui. Dacă oferta ta are și altceva (rânduri puse de tine, o reducere, alte liste)
+   sau ai schimbat cantități, totalul din fișier nu mai e totalul ofertei: o spun limpede, cu sumele. */
+function clientDiff(fi) {
+  const EP = effPrices(), mine = st.items.filter(it => it.f === fi && it.rw && !isNo(it)), notes = [];
+  const qch = mine.filter(it => it.q0 != null && Math.abs((+it.cant || 0) - it.q0) > 1e-9);
+  const fileTot = r2(mine.reduce((a, it) => a + r2((it.q0 != null ? it.q0 : (+it.cant || 0)) * (EP.get(it.id) || 0)), 0)), offTot = totals().sub;
+  if (qch.length) notes.push((qch.length === 1 ? "La o poziție ai" : "La " + qch.length + " poziții ai") + " schimbat cantitatea față de fișier (de ex. „" + String(qch[0].den).slice(0, 40) + "”: " + fq(qch[0].q0) + " → " + fq(qch[0].cant) + "). În fișierul clientului a rămas cantitatea lui.");
+  if (Math.abs(fileTot - offTot) >= 0.01) notes.push("ATENȚIE: pozițiile din fișierul clientului dau " + fmt(fileTot) + " lei, iar oferta ta e " + fmt(offTot) + " lei (diferență " + fmt(Math.abs(r2(offTot - fileTot))) + " lei). Diferența vine din " + (qch.length ? "cantitățile schimbate" : "ce mai ai în ofertă pe lângă fișier") + (qch.length && Math.abs(r2(offTot - fileTot) - r2(mine.reduce((a, it) => a + r2(((+it.cant || 0) - (it.q0 != null ? it.q0 : (+it.cant || 0))) * (EP.get(it.id) || 0)), 0))) >= 0.01 ? " și din ce mai ai în ofertă pe lângă fișier" : "") + " (rânduri puse de tine, reduceri, alte liste). Spune-i clientului sau trimite-i și oferta ta.");
+  return notes;
 }
 
 /* ---------- prețurile mele ---------- */
 ACT.prf = el => { VIEW.f = el.dataset.f; VIEW.lim = 50; VIEW.q = ""; render(); };
 ACT.prmore = () => { VIEW.lim = (VIEW.lim || 50) + 50; $("#prl").innerHTML = priceRows(); };
 INP.prq = el => { VIEW.q = el.value; VIEW.lim = 50; $("#prl").innerHTML = priceRows(); };
-ACT.fam = el => { const g = {}; OF.famList().forEach(f => (g[f.grp] = g[f.grp] || []).push(f)); $("#famList").innerHTML = Object.keys(g).map(k => `<h4>${esc(k)}</h4><ul>${g[k].map(f => `<li>${esc(f.label)}${f.soft ? ' <span class="mut">– doar sugestie</span>' : ""}</li>`).join("")}</ul>`).join(""); el.remove(); };
+ACT.fam = el => { const g = {}; OF.famList().forEach(f => (g[f.grp] = g[f.grp] || []).push(f)); $("#famList").innerHTML = Object.keys(g).map(k => `<h4>${esc(k)}</h4><ul>${g[k].map(f => `<li>${esc(f.label)}${f.soft ? ' <span class="mut">– prețul rămâne de verificat</span>' : ""}</li>`).join("")}</ul>`).join(""); el.remove(); };
 let PE = null;
 function priceSheet(c) { PE = c ? c.id : 0; const h = (c && c.h) || []; sheet(h3(c ? "Preț" : "Preț nou") + fld("eDen", "Lucrarea", c ? c.den : "", { af: !c }) + '<div class="r3"><div>' + fld("eP", "Preț (lei)", c ? edn(c.pret) : "", { n: 1 }) + '</div><div class="um">' + fld("eUm", "UM", c ? c.um : "buc", {}) + "</div></div>" + (c && c.desc ? `<p class="s" style="margin-top:10px">${esc(c.desc)}</p>` : "") + (h.length ? `<p class="s" style="margin-top:10px">Ultimele prețuri puse: ${h.map(x => fmt(x.p) + " lei (" + String(x.d).split("-").reverse().join(".") + (x.o ? ", " + esc(x.o) : "") + ")").join(" · ")}</p>` : "") + (c ? `<div class="minis"><button class="r" data-a="edel">${ic("trash-2", 16, 2.2)}Șterge prețul</button></div>` : "") + '<button class="pri" data-a="esave" data-ok="1">Gata</button>'); }
 ACT.pnew = () => priceSheet(null);
+/* învață prețurile din ofertele vechi (unul sau mai multe fișiere deodată) */
+let LRN = null;
+ACT.plearn = () => { $("#fLearn").value = ""; $("#fLearn").click(); };
+$("#fLearn").addEventListener("change", async e => {
+  const fs = [...e.target.files]; if (!fs.length) return; sheet(h3("Citesc…") + `<p class="s">${plural(fs.length, "un fișier", "fișiere")}</p>`);
+  const got = [], bad = [], seen = new Set(); let nf = 0;
+  for (const f of fs) { let n = 0; try { const res = await IMP.readFile({ name: f.name, data: await f.arrayBuffer() });
+      res.tables.forEach(t => { if (!t.ok || t.f3) return; t.items.forEach(it => { if (!(it.pret > 0) || !it.den || (+it.cant === 1 && OF.umFamily(it.um) === "buc" && it.pret >= 20000)) return; const k = OF.keyOf(it.den) + "|" + OF.umFamily(it.um); if (seen.has(k)) return; seen.add(k); got.push({ den: it.den, um: it.um || "buc", pret: +it.pret, f: f.name, k }); n++; }); }); } catch (err) { }
+    if (n) nf++; else bad.push(f.name); }
+  const have = new Set(catalog.map(c => OF.keyOf(c.den) + "|" + OF.umFamily(c.um)));
+  LRN = { nw: got.filter(x => !have.has(x.k)), all: got.length, nf, bad }; learnSheet();
+});
+function learnSheet() { const L = LRN, nw = L.nw;
+  sheet(h3(nw.length ? "Am găsit " + plural(nw.length, "un preț nou", "prețuri noi") : "Nu am găsit prețuri noi") + `<p class="s">${L.all ? plural(L.all, "Un preț", "prețuri") + " în " + plural(L.nf, "un fișier", "fișiere") + (L.all > nw.length ? "; " + (L.all - nw.length) + " le aveai deja" : "") + "." : "În fișierele alese nu am găsit rânduri cu preț."}</p>` +
+    (nw.length ? '<div class="prl" style="margin-top:8px">' + nw.slice(0, 6).map(x => `<button disabled><p>${esc(x.den.length > 80 ? x.den.slice(0, 80) + "…" : x.den)}<small>${esc(x.f)}</small></p><b>${fmt(x.pret)} lei<small>/ ${esc(x.um)}</small></b></button>`).join("") + "</div>" + (nw.length > 6 ? `<p class="s" style="margin-top:8px">… și încă ${nw.length - 6}.</p>` : "") : "") +
+    (L.bad.length ? `<div class="nt">Fără prețuri de luat: ${esc(L.bad.join(", "))}</div>` : "") +
+    (nw.length ? `<p class="s" style="margin-top:10px">Ia-le doar dacă sunt prețurile tale de manoperă. Prețurile cu material cu tot ar strica ofertele următoare.</p><button class="pri" data-a="plearnok">Ține-le minte (${nw.length})</button>` : '<button class="pri" data-a="x">Am înțeles</button>')); }
+ACT.plearnok = () => { const nw = LRN.nw, old = JSON.stringify(catalog), y = new Date().getFullYear(); nw.forEach(x => catalog.push({ id: newCatId(), dom: "OFERTE VECHI", sec: String(x.f).replace(/\.\w+$/, ""), den: x.den, desc: "", um: x.um, pret: x.pret, learned: true, imp: 1, an: y })); LRN = null; catDirty = true; rebuildCat(); saveCat(); closeOvl(); VIEW.f = "m"; VIEW.q = ""; render();
+  toast("Am ținut minte " + plural(nw.length, "un preț", "prețuri") + ".", () => { catalog = JSON.parse(old); catDirty = true; rebuildCat(); saveCat(); render(); }); };
 ACT.pcat = el => priceSheet(catalog.find(c => c.id == el.dataset.k));
 ACT.esave = () => { const den = val("eDen"), p = num(val("eP")), um = val("eUm") || "buc"; if (!den) { toast("Scrie lucrarea."); return; } const c = PE ? catalog.find(x => x.id === PE) : null; if (c) { if (+c.pret !== p) c.h = [{ p, d: todayIso(), o: "" }].concat(c.h || []).slice(0, 6); Object.assign(c, { den, um, pret: p }); } else catalog.unshift({ id: nextCatId++, dom: "MEU", sec: "", den, desc: "", um, pret: p, learned: true, h: [{ p, d: todayIso(), o: "" }] }); catDirty = true; rebuildCat(); saveCat(); closeOvl(); render(); };
 ACT.edel = () => { const id = PE, old = JSON.stringify(catalog); catalog = catalog.filter(c => c.id !== id); catDirty = true; rebuildCat(); saveCat(); closeOvl(); render(); toast("Preț șters.", () => { catalog = JSON.parse(old); catDirty = true; rebuildCat(); saveCat(); render(); }); };
 ACT.pref = el => { const r = REF[+el.dataset.k]; PE = +el.dataset.k; sheet(h3("Din ofertele tale vechi") + `<p style="font-weight:700;margin:6px 0 0">${esc(r.d)}</p><p class="s" style="margin-top:6px">${fmt(r.p)} lei / ${esc(r.u)} · ${esc(r.pr || "")}${r.an ? ", " + esc(r.an) : ""}${r.s === "p" ? " · de verificat" : ""}</p><button class="pri" data-a="prefok">Pune-l în prețurile mele</button>`); };
-ACT.prefok = () => { const r = REF[PE]; catalog.unshift({ id: nextCatId++, dom: "OFERTE VECHI", sec: (r.pr || "") + " " + (r.an || ""), den: r.d, desc: "", um: r.u, pret: +r.p, learned: true }); catDirty = true; rebuildCat(); saveCat(); closeOvl(); VIEW.f = "m"; VIEW.q = ""; render(); toast("L-am pus în prețurile tale."); };
-ACT.ppia = el => { const p = PIATA.lista[+el.dataset.k]; sheet(h3("Reper de piață") + `<p style="font-weight:700;margin:6px 0 0">${esc(p.lucrare)}</p><div class="tl" style="margin-top:10px"><span>De la – până la</span><b>${fmt(p.min)} – ${fmt(p.max)} ${esc(p.um || "")}</b></div>${p.tipic ? `<div class="tl"><span>Cel mai des</span><b>${fmt(p.tipic)}</b></div>` : ""}<p class="s" style="margin-top:10px">${esc(p.nota || "")}</p><p class="s">TVA: ${esc(p.tva || "neprecizat")} · cât de sigur: ${esc(p.sigur || "orientativ")} · ${esc(PIATA.data || "")}</p><div class="src">${(p.surse || []).map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.titlu)}</a>`).join("")}</div><p class="s" style="margin-top:12px">E doar un reper de pe internet. Nu se pune singur în ofertă.</p><button class="pri" data-a="x">Am înțeles</button>`); };
+ACT.prefok = () => { const r = REF[PE]; catalog.unshift({ id: newCatId(), dom: "OFERTE VECHI", sec: (r.pr || "") + " " + (r.an || ""), den: r.d, desc: "", um: r.u, pret: +r.p, learned: true }); catDirty = true; rebuildCat(); saveCat(); closeOvl(); VIEW.f = "m"; VIEW.q = ""; render(); toast("L-am pus în prețurile tale."); };
+ACT.ppia = el => { const p = PIATA.lista[+el.dataset.k]; sheet(h3("Reper de piață") + `<p style="font-weight:700;margin:6px 0 0">${esc(p.lucrare)}</p><div class="tl" style="margin-top:10px"><span>De la – până la</span><b>${fmt(p.min)} – ${fmt(p.max)} ${esc(p.um || "")}</b></div>${p.tipic ? `<div class="tl"><span>Cel mai des</span><b>${fmt(p.tipic)}</b></div>` : ""}<p class="s" style="margin-top:10px">${esc(p.nota || "")}</p><p class="s">TVA: ${esc(p.tva || "neprecizat")} · cât de sigur: ${esc(p.sigur || "orientativ")} · ${esc(PIATA.data || "")}</p><div class="src">${(p.surse || []).map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.titlu)}</a>`).join("")}</div><p class="s" style="margin-top:12px">${p.fam ? "E un reper de pe internet. Îl folosesc doar unde nu ai tu niciun preț, iar poziția apare cu „după piață”, ca să o verifici." : "E doar un reper de pe internet. Nu se pune singur în ofertă."}</p><button class="pri" data-a="x">Am înțeles</button>`); };
 ACT.pidx = () => { sheet(h3("Schimbă toate prețurile") + `<p class="s">Se schimbă cele ${catalog.length} prețuri din „Puse de mine” și „Catalogul meu”. Ofertele deja făcute rămân cum sunt.</p>` + fld("ixP", "Cu cât la sută? (ex. 8 sau -5)", "", { n: 1, af: 1 }) + '<button class="pri" data-a="pidxok" data-ok="1">Schimbă</button>'); };
 ACT.pidxok = () => { const s = val("ixP").replace(/\s/g, ""), p = (s[0] === "-" ? -1 : 1) * num(s.replace(/^[-+]/, "")); if (!p || p < -90 || p > 300) { toast("Scrie un procent, de exemplu 8."); return; } const old = JSON.stringify(catalog); catalog.forEach(c => { if (c.pret > 0) c.pret = r2(c.pret * (1 + p / 100)); }); catDirty = true; rebuildCat(); saveCat(); closeOvl(); render(); toast("Prețuri schimbate cu " + fmt(p) + "%.", () => { catalog = JSON.parse(old); catDirty = true; rebuildCat(); saveCat(); render(); }); };
 
@@ -635,43 +806,51 @@ ACT.bkp = () => { const o = {}; Object.keys(DOCS).forEach(p => o[p] = DOCS[p]); 
 ACT.hist = () => SCV.history({ app: "oferta",
   label: p => { if (p.indexOf("p/") === 0) { const e = entry(p.slice(2)); return "Ofertă: " + (e ? e.nume : "(ștearsă)"); } return p === "index" ? "Lista de oferte" : p === "catalog" ? "Prețurile tale" : p === "firma" ? "Datele firmei" : p === "hist" ? "Reperele din ofertele tale" : null; },
   restore: (p, d) => {
-    if (p.indexOf("p/") === 0) { const id = p.slice(2); DOCS[p] = normSt(clone(d)); if (!entry(id)) { IDX.list.unshift({ id, nume: nameOf(DOCS[p]), upd: todayIso() }); store.put("index", () => IDX, 0); } if (id === CUR) st = DOCS[p]; store.put(p, () => DOCS[p], 0); }
+    if (p.indexOf("p/") === 0) { const id = p.slice(2); DOCS[p] = normSt(clone(d)); let ch = false; if (IDX.del && IDX.del[id]) { delete IDX.del[id]; ch = true; }   // nu mai e „ștearsă”: altfel celălalt aparat ar șterge-o din nou
+      if (!entry(id)) { IDX.list.unshift({ id, nume: nameOf(DOCS[p]), upd: todayIso() }); ch = true; } if (ch) store.put("index", () => IDX, 0); if (id === CUR) st = DOCS[p]; store.put(p, () => DOCS[p], 0); }
     else { onRemote(p, clone(d)); store.put(p, () => p === "index" ? IDX : p === "catalog" ? { items: catalog } : p === "firma" ? FIRMA : OF.HIST, 0); }
     render(); toast("Am pus înapoi copia."); } });
 
 /* ---------- schimbări venite de pe celălalt aparat ---------- */
+/* Două aparate care fac câte o ofertă în aceeași clipă primesc același număr. Când se văd una pe alta, cea făcută a doua (dacă numărul e pus de aplicație și oferta e încă în lucru) ia numărul următor. */
+function dedupeNr() {
+  const by = {}; Object.keys(DOCS).forEach(p => { if (p.indexOf("p/") !== 0) return; const nr = String(((DOCS[p] || {}).proj || {}).nrOferta || "").trim(); if (/^\d{4}\/\d+$/.test(nr)) (by[nr] = by[nr] || []).push(p); });
+  let ch = null; Object.keys(by).forEach(nr => { const xs = by[nr].sort(); if (xs.length < 2) return; xs.slice(1).forEach(p => { const pr = DOCS[p].proj; if (!pr.nrAuto || (pr.stare && pr.stare !== "lucru")) return; pr.nrOferta = ""; pr.nrOferta = nextNr(); store.put(p, () => DOCS[p], 0); if (p === "p/" + CUR) ch = pr.nrOferta; }); });
+  return ch;
+}
 function onRemote(path, data) {
-  if (path === "index" && data && Array.isArray(data.list)) IDX = data;
+  if (path === "index" && data && Array.isArray(data.list)) { IDX = data; const gone = Object.keys(IDX.del || {}).filter(id => DOCS["p/" + id]);
+    gone.forEach(id => { delete DOCS["p/" + id]; store.remove("p/" + id).catch(() => { }); });   // ce era de trimis pentru o ofertă ștearsă se aruncă (altfel ar bloca salvarea celorlalte)
+    if (CUR && IDX.del && IDX.del[CUR]) { CUR = ""; st = null; closeOvl(); go("#/"); toast("Oferta a fost ștearsă de pe celălalt aparat."); return; } }
   else if (path === "firma") FIRMA = data || {};
   else if (path === "hist") OF.HIST = data || {};
+  else if (path === "ref" || path === "ref2") { DOCS[path] = data; REF = ((DOCS.ref && DOCS.ref.items) || []).concat(ref2Items()); TAR = null; PX = null; }
   else if (path === "catalog" && data && data.items) { catalog = data.items; nextCatId = Math.max(1, ...catalog.map(c => c.id || 0)) + 1; rebuildCat(); }
-  else if (path.indexOf("p/") === 0) { DOCS[path] = normSt(data); if (path === "p/" + CUR) st = DOCS[path]; }
+  else if (path.indexOf("p/") === 0) { if (IDX.del && IDX.del[path.slice(2)]) { delete DOCS[path]; store.remove(path).catch(() => { }); return; } DOCS[path] = normSt(data); if (path === "p/" + CUR) st = DOCS[path]; const nn = dedupeNr(); if (nn) toast("Oferta a primit numărul " + nn + ": celălalt aparat luase același număr în aceeași clipă."); }
   else DOCS[path] = data;
   if (booted && !isOpen() && !(document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName))) render();
 }
 
 /* ---------- pornire ---------- */
-window.__of = { get st() { return st; }, get docs() { return DOCS; }, get idx() { return IDX; }, get cat() { return catalog; }, get firma() { return FIRMA; }, totals, rowInfo, searchPrices, scaleTo, checks, num, fmt };
+window.__of = { tarif, autoMatch, offered, effPrices, get st() { return st; }, get docs() { return DOCS; }, get idx() { return IDX; }, get cat() { return catalog; }, get firma() { return FIRMA; }, totals, rowInfo, searchPrices, scaleTo, checks, num, fmt, ref2n: () => ref2Pts().length };
 (async function () {
   const fail = m => { $("#app").innerHTML = '<main><div class="emp">' + m + '<br><br><button class="sec" onclick="location.reload()">Încearcă din nou</button></div></main>'; };
   try {
     ME = await SCV.gate({ name: "Ofertare SCV", sub: "Oferte de manoperă · doar pentru proprietar" });
-    store = SCV.store("oferta", { cache: false, delay: 1200, warnUnload: true, onStatus: setSaved, onRemote, onAuthLost: () => { SCV.gate({ name: "Ofertare SCV", sub: "Sesiunea a expirat – intră din nou. Ce ai scris rămâne pe ecran și se salvează după intrare." }).then(u => { ME = u; store.resume(); }); } });
+    store = SCV.store("oferta", { cache: "pend", pullFirst: true, delay: 1200, warnUnload: true, onStatus: setSaved, onRemote, onAuthLost: () => { SCV.gate({ name: "Ofertare SCV", sub: "Sesiunea a expirat – intră din nou. Ce ai scris rămâne pe ecran și se salvează după intrare." }).then(u => { ME = u; store.resume(); }); } });
     let r = await store.load();
     if (!Object.keys(r.docs).length) { const n = await SCV.claimSeed(); if (n) r = await store.load(); }
     DOCS = r.docs;
     BASE_CAT = (DOCS.catalog0 && DOCS.catalog0.items) || [];
     catalog = (DOCS.catalog && DOCS.catalog.items) ? DOCS.catalog.items : BASE_CAT.map(x => Object.assign({}, x));
     nextCatId = Math.max(1, ...catalog.map(c => c.id || 0)) + 1;
-    FIRMA = DOCS.firma || {}; OF.HIST = DOCS.hist || {}; REF = (DOCS.ref && DOCS.ref.items) || [];
-    pref = OF.prepCatalog(REF.map((x, i) => ({ id: "r" + i, dom: "", sec: "", den: x.d, desc: "", um: x.u, pret: x.p, an: x.an })));
+    FIRMA = DOCS.firma || {}; OF.HIST = DOCS.hist || {}; REF = ((DOCS.ref && DOCS.ref.items) || []).concat(ref2Items());
     IDX = DOCS.index && Array.isArray(DOCS.index.list) ? DOCS.index : { list: [] };
     Object.keys(DOCS).forEach(p => { if (p.indexOf("p/") === 0) DOCS[p] = normSt(DOCS[p]); });
-    Object.keys(DOCS).forEach(p => { if (p.indexOf("p/") === 0 && !entry(p.slice(2))) IDX.list.push({ id: p.slice(2), nume: nameOf(DOCS[p]), upd: "" }); });
+    Object.keys(DOCS).forEach(p => { if (p.indexOf("p/") !== 0 || entry(p.slice(2))) return; if (IDX.del && IDX.del[p.slice(2)]) { delete DOCS[p]; store.remove(p).catch(() => { }); } else IDX.list.push({ id: p.slice(2), nume: nameOf(DOCS[p]), upd: "" }); });   // ce a fost șters (și n-a apucat să dispară de pe server) se șterge acum, nu se întoarce
     rebuildCat(); booted = true; store.start(); setSaved(""); route();
-    /* ofertele potrivite cu reguli mai vechi se refac o singură dată (prețurile puse sau verificate de tine nu se ating) */
-    setTimeout(() => { let ch = 0; Object.keys(DOCS).forEach(p => { const s = DOCS[p]; if (p.indexOf("p/") === 0 && s.items.length && s.mv !== OF.MV) { autoMatch(null, s); store.put(p, () => DOCS[p]); ch++; } }); if (ch && !isOpen()) render(); }, 50);
-    fetch("piata.json", { cache: "no-cache" }).then(x => x.ok ? x.json() : null).then(j => { PIATA = j; if (VIEW.name === "prices" && !isOpen()) render(); }).catch(() => { });
-  } catch (e) { fail("Nu pot încărca datele: " + esc((e && e.message) || e)); }
+    const piata = fetch("piata.json", { cache: "no-cache" }).then(x => x.ok ? x.json() : null).then(j => { PIATA = j; TAR = null; PX = null; if (VIEW.name === "prices" && !isOpen()) render(); }).catch(() => { });
+    Promise.race([piata, new Promise(r => setTimeout(r, 4000))]).then(rematchAll); piata.then(() => { if (PIATA) rematchAll(); });
+  } catch (e) { const m = String((e && e.message) || e); fail(/failed to fetch|networkerror|load failed|fără internet/i.test(m) ? "Nu am internet acum. Aplicația are nevoie de internet ca să pornească; ce ai scris și n-a apucat să se salveze e păstrat pe acest aparat și se trimite la următoarea pornire." : "Nu pot încărca datele: " + esc(m)); }
 })();
 })();

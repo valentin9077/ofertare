@@ -1,7 +1,7 @@
 {
   "name": "Ofertare SCV",
   "short_name": "Ofertare",
-  "description": "Oferte de manoperă: proiecte, cantități, prețuri, export Excel – SCV Aqua Premium Instal",
+  "description": "Oferte de manoperă: proiecte, cantități, prețuri, export Excel",
   "lang": "ro",
   "id": "./",
   "start_url": "./",

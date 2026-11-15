@@ -10,6 +10,9 @@
     if (/^(buc|bucati|ans|ansamblu|sistem|sisteme|grup|set|kit|cmp|complet|punct|probe|proba)$/.test(u)) return "buc";
     return u || "buc";
   }
+  /* „ans”, „sistem”, „instalație”: o sumă pe tot, nu un preț pe bucată sau pe metru */
+  function isLump(u) { return /^(ans|ansamblu|ansamblul|sistem|sisteme|instalatie|instalatia|lot|gl|global|ls|ft|forfetar)$/.test(strip(u).replace(/\./g, "")); }
+  const WORKFAM = new Set(["proba", "spalare", "pif", "eticheta", "demontare", "vent", "vent_tub_c", "vent_tub_r", "vent_flex", "vent_grila", "vent_clapeta", "teava", "izolatie", "izol_vata", "pardoseala", "pard_acc", "strapungere", "etans_foc", "terasament", "curatire", "fixare", "tub_protectie", "grund", "gaz", "electric", "transport", "gol", "fiting", "racord", "garnitura", "clima_teava", "piesa"]);
 
   /* ====================== POTRIVIRE: familii de denumiri + dimensiune ======================
      Fiecare poziție (din lista de cantități, din catalog, din ofertele vechi) e încadrată într-o FAMILIE
@@ -19,7 +22,7 @@
   const norm = s => String(s == null ? "" : s).normalize("NFD").replace(/[̀-ͯ]/g, "")
     .replace(/¼/g, " 1/4").replace(/½/g, " 1/2").replace(/¾/g, " 3/4")
     .replace(/[“”„″‟]|''|’’|‘‘|``|´´/g, '"').replace(/[’‘´`]/g, "'")
-    .replace(/\bD[eE] ?(?=\d{2,3}(?!\d))/g, " ø").replace(/\b[OF] ?(?=\d{1,3}(?:[ \/".,x-]|$|mm))/g, " ø").replace(/[øØ∅⌀ΦφϕФ]/g, " ø")
+    .replace(/\bD[eE] ?(?=\d{2,3}(?!\d))/g, " ø").replace(/\bD ?(?=\d{2,3}(?![\d.,]))/g, " ø").replace(/\b[OF] ?(?=\d{1,3}(?:[ \/".,x-]|$|mm))/g, " ø").replace(/[øØ∅⌀ΦφϕФ]/g, " ø")
     .toLowerCase().replace(/_/g, " ").replace(/\b([12])([13])\/([248])(?!\d)/g, "$1 $2/$3").replace(/\s+/g, " ").trim();
 
   const INCH = { "1/4": 8, "3/8": 10, "1/2": 15, "3/4": 20, "1": 25, "1 1/4": 32, "1 1/2": 40, "2": 50, "2 1/2": 65, "3": 80, "4": 100, "5": 125, "6": 150, "8": 200 };
@@ -43,25 +46,30 @@
     const reDn = /\bdn ?\.? ?(\d{2,3})(?![\d/])/g; while ((m = reDn.exec(t))) add(toDn(+m[1], "dn", cls));
     const rePh = /(?:ø|\bd ?[.=]|\bdiametru\w* ?(?:de |nominal )?:?) ?(\d{2,3}(?:[.,]\d)?)(?![\d/])/g;
     while ((m = rePh.exec(t))) add(toDn(parseFloat(m[1].replace(",", ".")), "o", cls));
+    if (!out.length) { m = /(?:^| )(\d{2,3}) ?[x×] ?\d{1,3}(?:[.,]\d)?(?![\d.,])/.exec(t); if (m) add(toDn(+m[1], "o", cls)); }   // „110x10”, „Cot 20x90”: primul număr e diametrul
     return out;
   }
   function sizesShort(t, cls) {
     if (t.length > 48) return [];
+    t = t.replace(/\b(?:pn|cod|nr|art|sdr|sn|tip|clasa)\.? ?\d+(?:[.,]\d+)?\b/g, " ").replace(/(?:^| )\d+(?:[.,]\d+)? ?(?:buc|bucati|ml|mp|mc|kg|litri|l|kw|w|bar|grade|ore|zile|m)\b/g, " ");   // presiunea, codul și cantitățile nu sunt diametre
     const out = []; let m;
     const reF = /(?:^| )(\d \d\/\d|\d\/\d)(?= |$)/g; while ((m = reF.exec(t))) if (INCH[m[1]]) out.push(INCH[m[1]]);
     if (!out.length) { const reM = /(?:^| )(\d{2,3})(?= |$|\+)/g; while ((m = reM.exec(t))) { const v = toDn(+m[1], "o", cls); if (v) out.push(v); } }
     if (!out.length) { m = /(?<!nr|pn|x) ([1-6])(?= toli?\b| tol\b|$| (?!cai|bazine|cuve|circuite|strat|buc|bar|ml\b|m\b))/.exec(t); if (m && INCH[m[1]] && !/\b(?:nr|pn) ?\d/.test(t.slice(Math.max(0, m.index - 3), m.index + 1))) out.push(INCH[m[1]]); }
     return out.filter((v, i) => out.indexOf(v) === i);
   }
+  const mmOf = t => { const m = /ø ?(\d{1,4}(?:[.,]\d{1,2})?)/.exec(t) || /(\d{1,4}(?:[.,]\d{1,2})?) ?mm\b/.exec(t); return m ? parseFloat(m[1].replace(",", ".")) : null; };
   const thickOf = t => { const m = /(?:grosim\w*|\bs) ?(?:de|=|:)? ?(\d{1,3}) ?mm/.exec(t) || /\b(\d{1,2}) ?mm\b/.exec(t); return m ? +m[1] : null; };
   function radOf(t) {
-    const h = /(?:\bh ?= ?|inaltime\w*(?: totala)?(?: de)? ?)(\d{3,4})/.exec(t), l = /(?:\bl ?= ?|lungime\w*(?: de)? ?)(\d{3,4})/.exec(t);
-    return h || l ? { h: h ? +h[1] : null, l: l ? +l[1] : null } : null;
+    const h = /(?:\bh ?=? ?|inaltime\w*(?: totala)?(?: de)? ?)(\d{3,4})(?!\d)/.exec(t), l = /(?:\bl ?=? ?|lungime\w*(?: de)? ?)(\d{3,4})(?!\d)/.exec(t);
+    let H = h ? +h[1] : null, L = l ? +l[1] : null;
+    if (!L) { const m = /(?:^|[^\d.,])(?:\d{2} ?[x×*] ?)?(\d{3}) ?[x×*\/] ?(\d{3,4})(?![\d.,])/.exec(t); if (m) { H = H || +m[1]; L = +m[2]; } }   // „22x600x1200”, „600/1000”
+    return H || L ? { h: H, l: L } : null;
   }
 
   /* Materialul țevii: cel scris primul după cuvântul „țeavă/conductă”. */
   const MATS = [
-    ["ppr", "PPR", /\bpp-?r\b|polifuziune/], ["pex", "PEX", /\bpe-?x\w?\b|\bpex\w?\b|reticulat/], ["mst", "multistrat", /multistrat|pex-?al/],
+    ["ppr", "PPR", /\bpp-?r\b|polifuziune|polipropilena random|\brandom\b/], ["pex", "PEX", /\bpe-?x\w?\b|\bpex\w?\b|reticulat/], ["mst", "multistrat", /multistrat|pex-?al/],
     ["cu", "cupru", /\bcupru\b/], ["zn", "oțel zincat", /zincat|\bol ?-?zn\b/], ["inox", "inox", /\binox/],
     ["pehd", "PEHD", /\bpe-?hd\b|\bpeid\b|\bpe ?100\b|\bpe ?80\b|polietilena de inalta/], ["pvc", "PVC", /\bpvc\b/], ["pp", "PP", /\bpp\b|polipropilena/],
     ["fonta", "fontă", /\bfonta\b/], ["ol", "oțel", /\botel\b|\bol\b|\bneagra\b|\bnegre\b|sudat/],
@@ -83,13 +91,16 @@
   const G = { s: "Sanitare", t: "Termice", h: "Hidranți", v: "Ventilație", c: "Climatizare", g: "Gaz", e: "Electrice", p: "Terasamente", x: "Diverse" };
   const FAMS = [
     // --- în afara meseriei de bază (recunoscute ca să nu primească din greșeală un preț de instalații)
-    ["terasament", "Săpături și terasamente", "p", /\bsapatur|\bumplutur|imprastier|compactare|\budare|excavat|sprijinir|transportul? rutier|\bpamant|\bnisip\b|\bcamin\b|banda avertizoare/],
-    ["clima_teava", "Țeavă frigorifică (cupru izolat)", "c", /^ø ?\d+[.,]\d+ ?(?:mm)? ?izolat|teava (?:de |din )?cupru|\btevi (?:de |din )?cupru/],
+    ["piesa", "Piese și accesorii (sifon, capac, furtun, rozetă, set de fixare)", "s", /^(?:sifo\w+(?! (?:de )?pardoseala)|capac\w*|furtun\w*|rozet\w+|masc[aă]\w*|picior\w*|semipicior\w*|set\w* (?:de )?(?:fixare|prindere|montaj|suruburi)|surub\w*|ventil\w* (?:de )?scurgere|preaplin\w*)\b/],
+    ["camin", "Cămin de vizitare / de vane", "s", /\bcamin\w*/],
+    ["terasament", "Săpături și terasamente", "p", /\bsapatur|\bumplutur|imprastier|compactare|\budare|excavat|sprijinir|transportul? rutier|\bpamant|\bnisip\b|banda avertizoare/],
+    ["clima_teava", "Țeavă frigorifică (cupru izolat)", "c", /^ø ?\d+[.,]\d+ ?(?:mm)? ?izolat|(?:teava|tevi|conduct[ae]) (?:de |din )?cupru\b(?=.{0,70}(?:izolat|frigorific|freon|6[.,]35|9[.,]52|12[.,]7|15[.,]88|19[.,]05|22[.,]2|28[.,]6))/, "mm"],
+    ["pompa_caldura", "Pompă de căldură / chiller", "t", /pomp\w+ de caldura|\bchiller/],
     ["clima", "Climatizare (split, VRF)", "c", /\bsplit\b|monosplit|multisplit|\bvrf\b|\bvrv\b|freon|agent frigorific|branch joint|kit distributie|unitat\w+ (?:interioar|exterioar)|compresor condensator|aer conditionat|cabluri de interconectare/],
     ["vent_clapeta", "Clapetă antifoc / de reglaj (ventilație)", "v", /clapet\w+ (?:rectangular|circular|antifoc|rezistent\w+ la foc|de reglaj|de aer)/],
-    ["vent_tub_c", "Tubulatură circulară", "v", /tubulatur\w+ circular|canal\w* de aer circular(?! flexibil)|conduct\w+ de aer circular/],
+    ["vent_tub_c", "Tubulatură circulară", "v", /tubulatur\w+ circular|canal\w* de aer circular(?! flexibil)|conduct\w+ de aer circular/, "mm"],
     ["vent_tub_r", "Tubulatură rectangulară", "v", /tubulatur\w+ rectangular|canal\w* de aer rectangular|conduct\w+ de aer rectangular/],
-    ["vent_flex", "Tubulatură flexibilă", "v", /tubulatur\w+ flexibil|canal\w* de aer circular flexibil|tub flexibil/],
+    ["vent_flex", "Tubulatură flexibilă", "v", /tubulatur\w+ flexibil|canal\w* de aer circular flexibil|tub flexibil/, "mm"],
     ["vent_grila", "Grile și anemostate", "v", /\bgril[ae]\b|anemostat|difuzor|\bvalv[ae] (?:cu con|de aspiratie|aspiratie|de evacuare)|priza de (?:aer|admisie)/],
     ["vent", "Ventilație (alte poziții)", "v", /tubulatur|canal\w* de aer|ventilator|\bcta\b|centrala de tratare|agregat de ventilare|recuperator|\bhota\b|\bhote\b|burduf|jacheting|piese speciale|debitului de aer|plenum|atenuator|conducte de aer/],
     ["gaz", "Instalație de gaze", "g", /\bgaz(?:e|elor)?\b/],
@@ -130,7 +141,10 @@
     ["hidrant_ext", "Hidrant exterior", "h", /hidran\w+ exterior|hidran\w+ suprateran|hidran\w+ subteran/],
     ["distr_hidranti", "Distribuitor hidranți", "h", /distribuitor\w* hidran/],
     ["grup_pompare", "Grup de pompare", "t", /grup\w* (?:de )?pompare|statie (?:de )?pompare/],
+    ["rob_hidrant", "Robinet de hidrant", "h", /robine\w+ (?:de |pentru )?(?:hidrant|incendiu)/, "dn"],
     ["hidrant_int", "Hidrant interior (cutie completă)", "h", /hidran\w+ interior|cutie\w* (?:de )?hidran|\bhidrant\b/],
+    ["sprinkler", "Sprinkler", "h", /sprinkler/],
+    ["cuplaj", "Cuplaj canelat (Victaulic)", "h", /\bcupl[ae]j?\w* (?:flexibil\w* |rigid\w* )?(?:canelat|victaulic)|\bcuplaj(?! storz)|\bcupla (?:redusa )?\d/, "dn"],
     ["stingator", "Stingător", "h", /stingato/],
     ["pichet", "Pichet / panou PSI", "h", /\bpichet|panou psi/],
     ["storz", "Cuplaj Storz", "h", /\bstorz\b/, "dn"],
@@ -169,11 +183,12 @@
     ["pompa", "Pompă", "t", /\bpomp[aei]\b|\bpompele\b|electropomp/],
     ["cazan", "Centrală termică / cazan", "t", /\bcazan|centrala termica|centrala murala|sursa (?:de )?preparare agent/],
     ["boiler", "Boiler / rezervor", "t", /\bboiler|\brezervor|\bbazin\b|\bseparator\b|butelie de egalizare|statie de dedurizare/],
-    ["pardoseala", "Încălzire în pardoseală (plăci, bandă, țeavă)", "t", /incalzire in pardoseala|placa (?:cu )?nuturi|banda perimetrala|aditiv (?:beton|sapa)|curba conducatoare/],
+    ["pard_acc", "Accesorii pentru încălzirea în pardoseală (plăci, bandă, curbe, aditiv)", "t", /plac\w+ (?:cu )?nuturi|banda perimetrala|aditiv (?:beton|sapa|pentru sapa)|curb\w+ conducatoare|clips\w* (?:de )?fixare|agraf/],
+    ["pardoseala", "Încălzire în pardoseală (montaj complet)", "t", /incalzire in pardoseala/],
     // --- fixări (brățară = bridă = colier = clemă; suporți)
     ["fixare", "Fixare conducte: brățări, bride, coliere, cleme, suporți", "s", /\bbratar[aiă]|\bbratari\b|\bbrid[ae]\b|\bbride\b|\bcolier|\bclem[ae]\b|\bcleme\b|\bsuport[i]?\b|dispozitive de (?:sustinere|fixare)|\bconsol[ae]\b|\bconsole\b/, "dn"],
     // --- fitinguri mărunte
-    ["racord", "Racord (olandez, eurocon, flexibil)", "s", /\bracord/, "dn"],
+    ["racord", "Racord (olandez, eurocon, flexibil)", "s", /\bracord(?!\w* (?:fix |tip |incendiu tip )?storz)/, "dn"],
     ["fiting", "Fitinguri (cot, teu, mufă, reducție, niplu, dop)", "s", /\bcot\b|\bcoturi\b|\bcurba\b|\bteu\b|\bteuri\b|\bmuf[ae]\b|\bmufe\b|reducti[ei]|\bnipl[ue]|\bdop\b|\bdopuri\b|\bflans[ae]\b/, "dn"],
     // --- țevi (la urmă: multe denumiri conțin „țeavă” în descriere)
     ["rob_trecere", "", "s", /\brobineti?\b(?! (?:de )?(?:hidrant|incendiu))/, "dn"],
@@ -192,7 +207,7 @@
     ["pp", /\bpp\b(?!-?r)|polipropilena/], ["antiseismic", /antiseismic/], ["co2", /\bco2\b/], ["p50", /\bp ?50\b|transportabil/], ["fotocelula", /fotocel|senzor/],
     ["pluvial", /pluvial/], ["canalizare", /canaliz|menajer/], ["hidrant", /hidran|\bpsi\b|incendiu/], ["coloane", /\bcoloan/], ["de radiator", /radiator|calorifer/],
     ["lavoar", /\blavoar/], ["spalator", /\bspalator|chiuvet/], ["wc", /\bwc\b/], ["pisoar", /\bpisoar/], ["dus", /\bdus\b/], ["presemnalizare", /presemnaliz/],
-    ["motorizat", /motoriz|servomotor/], ["dilatare", /dilatare/], ["functionare", /functionare|eficacitate/], ["solar", /\bsolar/], ["terasa", /\bteras/]];
+    ["motorizat", /motoriz|servomotor/], ["canelat", /canelat|victaulic/], ["interioara", /unitat\w+ interioar/], ["exterioara", /unitat\w+ exterioar/], ["dilatare", /dilatare/], ["functionare", /functionare|eficacitate/], ["solar", /\bsolar/], ["terasa", /\bteras/]];
 
   /** Încadrarea unei denumiri: familie, material (la țevi), dimensiune, cuvinte de variantă. */
   const EQUIP = new Set(["boiler", "pompa", "cazan", "senzor", "vas_exp", "distribuitor"]);
@@ -204,16 +219,18 @@
     if (fam && (at > HEAD || (EQUIP.has(fam[0]) && at > 14))) fam = null;
     // o poziție care vorbește de split/VRF/freon ori de tubulatură de aer ține de climatizare / ventilație, orice cuvânt ar avea la început
     const h90 = t.slice(0, 90);
-    if (fam && fam[2] !== "c" && /\b(?:mono|multi)?split\b|\bvrf\b|\bvrv\b|freon|frigorific/.test(h90)) fam = FAM.clima;
-    else if (fam && fam[2] !== "v" && /tubulatur|conduct\w+ de aer|\bcta\b|gur\w+ de aer/.test(h90)) fam = FAM.vent;
-    const o = { t, fam: fam ? fam[0] : null, grp: fam ? fam[2] : null, um: umFamily(um), dn: [], mat: null, thick: null, rad: null, vars: [] };
+    let grpOver = null; const work = fam && /^(pif|proba|spalare|demontare|eticheta)$/.test(fam[0]);   // „PIF VRF”, „Demontare tubulatură”: rămân punere în funcțiune / demontare (nu primesc preț de montaj), dar țin de climatizare / ventilație
+    if (fam && fam[2] !== "c" && /\b(?:mono|multi)?split\b|\bvrf\b|\bvrv\b|freon|frigorific/.test(h90)) { if (work) grpOver = "c"; else fam = FAM.clima; }
+    else if (fam && fam[2] !== "v" && /tubulatur|conduct\w+ de aer|\bcta\b|gur\w+ de aer/.test(h90)) { if (work) grpOver = "v"; else fam = FAM.vent; }
+    const o = { t, fam: fam ? fam[0] : null, grp: fam ? (grpOver || fam[2]) : null, um: umFamily(um), dn: [], mat: null, thick: null, rad: null, mm: null, vars: [] };
     if (!fam) return o;
     let cls = "metal";
-    if (fam[0] === "teava" || fam[0] === "tub_protectie") { const m = pipeMat(t.slice(at)); if (m) { o.mat = m.id; cls = m.cls; if (fam[0] === "teava") o.fam = "teava:" + m.id; } }
+    if (fam[0] === "teava" || fam[0] === "tub_protectie") { const m = pipeMat(t.slice(at)); if (m) { o.mat = m.id; cls = m.cls; o.cls = cls; if (fam[0] === "teava") o.fam = "teava:" + m.id; } }
     else if (["curatire", "sifon_pard", "receptor", "caciula", "aerator"].includes(fam[0])) cls = "sewer";
     if (fam[4] === "dn") { o.dn = sizes(t, cls); if (!o.dn.length) o.dn = sizesShort(t, cls); }
     else if (fam[4] === "thick") o.thick = thickOf(t);
     else if (fam[4] === "rad") o.rad = radOf(t);
+    else if (fam[4] === "mm") o.mm = mmOf(t);
     const isPipe = o.fam.startsWith("teava:");
     // la țevi contează doar la ce folosește țeava (pluvial, canalizare, hidranți, solar), nu restul cuvintelor din descriere
     o.vars = VARIANTS.filter(v => (!isPipe || ["pluvial", "canalizare", "hidrant", "solar"].includes(v[0])) && v[1].test(t.slice(0, 220))).map(v => v[0]);
@@ -233,7 +250,7 @@
   }
   /** Lista familiilor care primesc preț, pe grupe – pentru panoul „Denumiri asimilate”. */
   function famList() { return FAMS.filter(f => f[1] && (!NOMATCH.has(f[0]) || f[0] === "teava")).map(f => ({ id: f[0], label: f[0] === "teava" ? "Țeavă (pe materiale: PPR, PEX, oțel, oțel zincat, PEHD, PP, PVC, cupru)" : f[1], grp: G[f[2]], soft: SOFT.has(f[0]) })); }
-  const MV = 2;   // versiunea regulilor de potrivire; când crește, proiectele deschise își refac singure potrivirea
+  const MV = 3;   // versiunea regulilor de potrivire; când crește, proiectele deschise își refac singure potrivirea
   const dnLabel = dn => "DN" + dn + (DN_LABEL[dn] ? " (" + DN_LABEL[dn] + ")" : "");
 
   function feats(den, um) { const c = classify(den, um); return Object.assign(c, { s: strip(den), fam0: c.fam, kinds: new Set(c.fam ? [c.fam] : []), mats: new Set(c.mat ? [c.mat] : []), dia: new Set(c.dn), words: new Set() }); }
@@ -316,8 +333,134 @@
     return { id: pick.c.id, score: 3 + pick.dim + pick.dom, sure, why, fam: fi.fam, near: pick.dim < 2 };
   }
 
-  const r2 = x => Math.round((+x + Number.EPSILON) * 100) / 100;
-  function total(it, adaos) { return r2((+it.cant || 0) * r2((+it.pret || 0) * (1 + (adaos || 0) / 100))); }
+  const r2 = x => { const v = Math.round(+x * 1e6) / 1e4; return Math.round(v + (v >= 0 ? 1e-9 : -1e-9)) / 100; };   // la ban, cu jumătatea în sus (8,325 → 8,33), fără capcanele virgulei mobile
+
+  /* ====================== MOTORUL DE PREȚURI ======================
+     Toate prețurile cunoscute (ale tale, din ofertele vechi, din bugete, de pe piață) devin „puncte”: familie + unitate + dimensiune + preț.
+     Pentru o poziție caut, în ordine: 1) aceeași denumire cu preț pus de tine; 2) aceeași lucrare și aceeași dimensiune;
+     3) aceeași lucrare, altă dimensiune (socotesc prețul între cele două dimensiuni vecine); 4) o lucrare asemănătoare sau o sursă mai slabă;
+     5) reper de piață. Fiecare preț pus spune de unde vine și cât de sigur e (lv 1…5). */
+  const QUAL = { mine: 4, cat: 3, ref: 2, weak: 1, mkt: 0 };
+  const KINDOF = fam => fam.startsWith("teava:") ? "dn" : (FAM[fam] || [])[4] || "";
+  const sizeOf = (f, kind) => kind === "dn" ? (f.dn.length ? Math.max.apply(null, f.dn) : null) : kind === "thick" ? f.thick : kind === "rad" ? (f.rad && f.rad.l) || null : kind === "mm" ? f.mm : null;
+  const SLOPE = { dn: 0.6, mm: 0.55, thick: 0.3, rad: 0.5 };
+  /* Lucrări care se plătesc cam la fel (pentru când nu există niciun preț la lucrarea cerută). */
+  const ALIKE = [
+    ["rob_trecere", "clapeta_sens", "filtru_y", "rob_golire", "vana_fluture", "electrovana", "vana_2c", "vana_3c", "vana_amestec", "reductor", "supapa_sig", "rob_reglaj", "antivibrant", "rob_plutitor", "contor", "rob_hidrant"],
+    ["lavoar", "spalator", "vas_wc", "pisoar", "cada"], ["radiator", "rad_baie", "rad_electric"], ["curatire", "sifon_pard", "receptor", "aerator", "caciula"],
+    ["teava:ppr", "teava:pex", "teava:mst", "teava:cu"], ["teava:ol", "teava:zn", "teava:inox"], ["teava:pvc", "teava:pp", "teava:pehd", "teava:fonta"],
+    ["vent_tub_c", "vent_flex"], ["boiler", "vas_exp"], ["cazan", "pompa_caldura"], ["hidrant_int", "hidrant_ext"], ["fiting", "cuplaj", "racord"],
+  ];
+  const alikeOf = fam => { const out = []; for (const g of ALIKE) if (g.includes(fam)) for (const x of g) if (x !== fam && !out.includes(x)) out.push(x); return out; };
+  /* Familii la care prețul depinde mult de aparat sau de situație: prețul pus se arată mereu „de verificat”. */
+  const LOOSE = new Set(["fiting", "racord", "garnitura", "gol", "transport", "electric", "gaz", "teava", "demontare", "eticheta", "grund", "pif", "terasament", "clima", "vent", "camin", "pompa_caldura", "pard_acc", "piesa"]);
+  const med = a => { a = a.slice().sort((x, y) => x - y); const n = a.length; return n ? (n % 2 ? a[(n - 1) / 2] : (a[n / 2 - 1] + a[n / 2]) / 2) : 0; };
+  const nice = p => p < 20 ? Math.round(p * 10) / 10 : p < 200 ? Math.round(p * 2) / 2 : p < 2000 ? Math.round(p) : Math.round(p / 10) * 10;
+  const f2 = n => (Math.round(n * 100) / 100).toLocaleString("ro-RO", { maximumFractionDigits: 2 });
+
+  /** Tariful: lista de surse → puncte grupate pe familie și unitate.
+      src: [{den, desc?, um, pret, q, an?, lab?, dom?, sec?, id?, learned?, lo?, hi?}]  (lo/hi = interval de DN la reperele de piață) */
+  function buildTarif(src) {
+    const T = { by: new Map(), name: new Map(), same: new Map(), n: 0 };
+    for (const c of src) {
+      if (!(+c.pret > 0)) continue;
+      let f;
+      if (c.fam) { const k0 = KINDOF(c.fam), z = +c.sz || null; f = { t: norm(c.den), fam: c.fam, um: umFamily(c.um), dn: k0 === "dn" && z ? [z] : [], thick: k0 === "thick" ? z : null, rad: k0 === "rad" && z ? { h: null, l: z } : null, mm: k0 === "mm" ? z : null, vars: c.vars || [] }; }
+      else { const full = c.desc && String(c.desc).trim() ? c.desc + " | " + c.den : c.den; f = classify(full, c.um); const fd = classify(c.den, c.um);
+        if (!f.fam || (fd.fam && f.fam !== fd.fam && !(c.desc && String(c.desc).trim().length > 12))) f = fd;
+        if (f.fam && fd.fam === f.fam) { for (const d of fd.dn) if (!f.dn.includes(d)) f.dn.push(d); if (f.thick == null) f.thick = fd.thick; if (!f.rad) f.rad = fd.rad; if (f.mm == null) f.mm = fd.mm; } }
+      if (c.learned) T.name.set(keyOf(c.den) + "|" + f.um, { p: +c.pret, id: c.id, lab: c.lab || "prețul tău" });
+      else if ((c.q == null ? QUAL.ref : c.q) >= QUAL.ref) { const k0 = keyOf(c.desc && String(c.desc).trim().length > 14 ? c.desc : c.den) + "|" + f.um, o = T.same.get(k0); if (!o || (c.q || 0) > o.q || ((c.q || 0) === o.q && (+c.an || 0) > o.an)) T.same.set(k0, { p: +c.pret, id: c.id, lab: c.lab || "", q: c.q || 0, an: +c.an || 0 }); }
+      if (!f.fam) continue;
+      const kind = KINDOF(f.fam), pt = { fam: f.fam, f, kind, tk: toks(f.t || norm(c.den)), sz: sizeOf(f, kind), lo: c.lo || null, hi: c.hi || null, p: +c.pret, q: c.q == null ? QUAL.ref : c.q, an: +c.an || 0, lab: c.lab || "", d: c.d != null ? c.d : domOf(c), id: c.id, den: c.den, lump: isLump(c.um) };
+      const k = f.fam + "|" + f.um; let a = T.by.get(k); if (!a) T.by.set(k, a = []); a.push(pt); T.n++;
+    }
+    return T;
+  }
+  const dnIdx = dn => { let b = 0, bd = 1e9; for (let i = 0; i < DNS.length; i++) { const d = Math.abs(DNS[i] - dn); if (d < bd) { bd = d; b = i; } } return b; };
+  const szLabel = (kind, v) => kind === "dn" ? "DN" + v : kind === "thick" ? v + " mm" : kind === "rad" ? "L" + v : "Ø" + f2(v);
+  /* prețul pentru mărimea x dintr-un șir (mărime → preț) */
+  function interp(x, ser, kind) {
+    ser.sort((a, b) => a.s - b.s); const n = ser.length; let lo = null, hi = null;
+    for (const e of ser) { if (e.s <= x) lo = e; if (e.s >= x && !hi) hi = e; }
+    const slope = (a, b) => Math.min(1.1, Math.max(0.15, Math.log(b.p / a.p) / Math.log(b.s / a.s)));
+    if (lo && hi) { if (lo === hi) return { p: lo.p, a: lo, b: null }; const t = Math.log(x / lo.s) / Math.log(hi.s / lo.s); return { p: Math.exp(Math.log(lo.p) + t * Math.log(hi.p / lo.p)), a: lo, b: hi }; }
+    const e = lo || hi; let al = SLOPE[kind] || 0.5;
+    if (n >= 2) { const a = lo ? ser[n - 2] : ser[0], b = lo ? ser[n - 1] : ser[1]; if (b.s > a.s && a.p > 0 && b.p > 0 && b.p !== a.p) al = slope(a, b); }
+    return { p: e.p * Math.pow(x / e.s, al), a: e, b: null, out: true };
+  }
+  /* cuvintele care spun ce lucrare e (fără „procurare”, „montaj”, „inclusiv”…), pentru asemănarea a două denumiri */
+  const STOPW = new Set("procur monta monte inclu pentr avand diame presi compl echip confo proie carac tehni furni execu reali efect urmat nomin maxim minim clasa dimen mater acces neces toate fieca aferen".split(" "));
+  const toks = t => { const o = []; for (const w of String(t).slice(0, 160).split(/[^a-z0-9]+/)) { if (w.length < 4 || /^\d/.test(w)) continue; const k = w.slice(0, 5); if (!STOPW.has(k) && !o.includes(k)) o.push(k); if (o.length >= 10) break; } return o; };
+  const simOf = (a, b) => { if (!a.length || !b.length) return 0; let n = 0; for (const w of a) if (b.includes(w)) n++; const v = n / Math.sqrt(a.length * b.length); return a[0] === b[0] ? Math.max(v, 0.5) : v; };
+  const okSize = (kind, fam, v) => v == null ? null : kind === "mm" ? (fam === "clima_teava" ? (v >= 4 && v <= 60 ? v : null) : (v >= 80 && v <= 2500 ? v : null)) : v;
+  function pickIn(fi, pts, dItem, far) {
+    if (!pts || !pts.length) return null;
+    const kind = KINDOF(fi.fam); let x = okSize(kind, fi.fam, far ? sizeOf(fi, KINDOF(far)) : sizeOf(fi, kind)), assumed = 0;
+    if (x == null && kind === "dn" && fi.fam.startsWith("teava:")) { x = fi.cls === "sewer" ? 100 : fi.cls === "plastic" ? 20 : 25; assumed = x; }   // țeavă fără diametru scris: socotesc ca pentru diametrul obișnuit
+    const short = famLabel(far || fi.fam).replace(/ \(.*$/, "").replace(/:.*$/, ""), tk = toks(fi.t);
+    const mm = a => [Math.min.apply(null, a), Math.max.apply(null, a)];
+    for (const tier of [[3, 9], [2, 2], [1, 1], [0, 0]]) {            // 1) lista ta de prețuri; 2) alte oferte ale tale; 3) surse mai slabe (bugete, prețuri deduse); 4) piață
+      const S = pts.filter(p => p.q >= tier[0] && p.q <= tier[1]); if (!S.length) continue;
+      const sc = S.map(p => ({ p, sz: okSize(kind, fi.fam, p.sz), dm: p.q >= QUAL.mine ? 1 : (dItem && p.d ? (dItem === p.d ? 1 : 0) : 0.5), dv: varFit(fi, p.f), sim: Math.round(simOf(tk, p.tk) * 4) / 4 }));
+      sc.forEach(e => { e.ex = !kind ? 1 : (x != null && (e.sz === x || (e.p.lo && x >= e.p.lo && x <= e.p.hi) || (kind === "dn" && fi.dn.some(d => e.p.f.dn.includes(d))))) ? 1 : 0; });
+      const mineFirst = !!kind || !(LOOSE.has(fi.fam) || SOFT.has(fi.fam));        // la aceeași lucrare, prețul pus de tine bate lista, oricum ar fi scrisă denumirea
+      const rank = (a, b) => b.dm - a.dm || b.dv - a.dv || (mineFirst ? (b.p.q >= QUAL.mine) - (a.p.q >= QUAL.mine) : 0) || b.sim - a.sim || b.p.q - a.p.q || b.p.an - a.p.an;
+      const base = tier[0] >= 3 ? 0 : tier[0] === 2 ? 3 : tier[0] === 1 ? 4 : 5; let res = null;
+      let E = sc.filter(e => e.ex).sort(rank);
+      if (kind && E.length && E[0].dm === 0 && x != null) { const own = sc.filter(e => e.dm > 0 && e.sz != null).map(e => e.sz); if (own.length && x > Math.min.apply(null, own) && x < Math.max.apply(null, own)) E = []; }   // între două dimensiuni de la același fel de instalație: socotesc între ele; în afara lor: iau prețul tău de la dimensiunea exactă, chiar de la alt fel de instalație
+      else if (kind && E.length && E[0].dv < 0 && sc.some(e => e.sz != null && e.dv >= 0 && e.dm >= E[0].dm)) E = [];   // aceeași dimensiune doar la altă variantă (ex. pluvial): socotesc din varianta bună      // aceeași dimensiune doar la alt fel de instalație: mai bine socotesc între dimensiunile vecine de la același fel
+      if (E.length) {
+        const t = E[0], same = E.filter(e => e.dm === t.dm && e.dv === t.dv), grp = same.filter(e => e.sim === t.sim && e.p.q === t.p.q && e.p.an === t.p.an), p = med(grp.map(e => e.p.p));
+        const clean = fi.vars.every(v => t.p.f.vars.includes(v)) && t.p.f.vars.every(v => fi.vars.includes(v)), r = mm(same.map(e => e.p.p)), wide = r[1] / r[0] > 2.5;
+        if (!kind && t.sim < 0.5 && (wide || LOOSE.has(fi.fam) || SOFT.has(fi.fam))) continue;   // aceeași familie, dar lucrări prea diferite între ele și niciuna care să semene: nu ghicesc
+        res = { p, lv: t.dm > 0 && clean && !(!kind && (t.sim < 0.5 || (wide && t.sim < 0.75))) ? 2 : 3, pt: t.p, why: short + (kind && x != null ? ", " + szLabel(kind, x) : "") + (t.dm === 0 ? "; prețul tău pentru dimensiunea asta e de la alt fel de instalație" : !clean ? "; altă variantă" : !kind && wide ? "; ai prețuri diferite la lucrarea asta (" + f2(r[0]) + "–" + f2(r[1]) + " lei), l-am luat pe cel care seamănă cel mai mult" : "") };
+      } else if (kind && x != null && sc.some(e => e.sz != null)) {
+        const W = sc.filter(e => e.sz != null).sort(rank), t = W[0], G = W.filter(e => e.dm === t.dm && (e.dv >= 0) === (t.dv >= 0)), by = new Map();
+        for (const e of G) { const o = by.get(e.sz); if (!o || rank(e, o) < 0) by.set(e.sz, e); }
+        const ser = [...by.values()].map(e => ({ s: e.sz, p: e.p.p, pt: e.p })), r = interp(x, ser, kind);
+        const steps = kind === "dn" ? Math.abs(dnIdx(x) - dnIdx(r.a.s)) : Math.abs(Math.log(x / r.a.s)) / 0.25;
+        if (r.out) r.p = Math.min(r.a.p * 3, Math.max(r.a.p / 3, r.p));               // în afara dimensiunilor cunoscute nu mă depărtez de mai mult de 3 ori
+        res = { p: nice(r.p), lv: r.out && steps > 2 ? 4 : 3, pt: r.a.pt, why: short + ": " + (r.b ? "socotit între " + szLabel(kind, r.a.s) + " (" + f2(r.a.p) + " lei) și " + szLabel(kind, r.b.s) + " (" + f2(r.b.p) + " lei)" : "socotit după " + szLabel(kind, r.a.s) + " (" + f2(r.a.p) + " lei); " + (sc.some(e => e.ex) ? "la " + szLabel(kind, x) + " ai preț doar la altă variantă sau la alt fel de instalație" : "nu ai preț la " + szLabel(kind, x))) };
+      } else {
+        const gen = sc.filter(e => e.sz == null).sort(rank), W = gen.length ? gen : sc.slice().sort(rank), t = W[0], G = W.filter(e => e.dm === t.dm), r = mm(G.map(e => e.p.p));
+        if (t.sim < 0.5 && (r[1] / r[0] > 2.5 || LOOSE.has(fi.fam) || SOFT.has(fi.fam))) continue;
+        if (gen.length) res = { p: med(G.filter(e => e.sim === t.sim && e.p.q === t.p.q).map(e => e.p.p)), lv: 3, pt: t.p, why: short + ": preț general" + (x == null && kind ? ", aici nu scrie dimensiunea" : kind && x != null && t.p.lo && (x < t.p.lo || x > t.p.hi) ? ", dat pentru " + szLabel(kind, t.p.lo) + "–" + szLabel(kind, t.p.hi) + ", nu pentru " + szLabel(kind, x) : "") };
+        else { const ps = G.map(e => e.p.p).sort((a, b) => a - b), low = kind === "dn" || kind === "mm"; res = { p: nice(low ? med(ps.slice(0, Math.ceil(ps.length / 2))) : med(ps)), lv: 4, pt: t.p, why: short + ": aici nu scrie dimensiunea, am pus " + (low ? "prețul dimensiunilor mici" : "prețul mijlociu") + " (" + f2(r[0]) + "–" + f2(r[1]) + " lei)" }; }
+      }
+      if (assumed) { res.lv = Math.max(res.lv, 4); res.why = short + ": aici nu scrie diametrul, am socotit ca pentru DN" + assumed; }
+      res.lv = Math.max(res.lv, base, far ? 4 : 0, LOOSE.has(fi.fam) || SOFT.has(fi.fam) ? 3 : 0);
+      if (!kind && fi.um === "buc" && /^(proba|spalare|pif)$/.test(fi.fam)) { res.lv = Math.max(res.lv, 4); res.why += "; e o sumă pe toată instalația, depinde de mărimea lucrării"; }
+      if (base === 3 || base === 4) res.why += "; din " + (res.pt.lab || "o sursă mai slabă");
+      if (base === 5) {   // reper de piață: spun și cum am ajuns la sumă (altă dimensiune, fără dimensiune, altă variantă), nu doar de unde e
+        const det = res.why.slice(short.length).replace(/^, [^;]*/, "").replace(/^[;:] /, "").replace("nu ai preț la", "nu există reper la").replace(/la (\S+) ai preț doar la/, "la $1 e reper doar la").replace("ai prețuri diferite la lucrarea asta", "reperele de piață diferă mult");
+        res.why = short + ": reper de piață" + (res.pt.den ? " („" + res.pt.den + "”)" : "") + (det ? "; " + det : "");
+      }
+      if (base === 4) res.why = res.why.replace("ai prețuri diferite la lucrarea asta", "sursele diferă mult");
+      if (far) res.why = "după „" + short + "” (lucrare asemănătoare)" + (res.why.indexOf(": ") > 0 ? ": " + res.why.split(": ").slice(1).join(": ") : "");
+      return { p: r2(res.p), lv: res.lv, why: res.why, lab: res.pt.lab || "", id: res.pt.id, fam: fi.fam, src: res.pt.den || "" };
+    }
+    return null;
+  }
+  /** Prețul unei poziții. Întoarce {p, lv, why, lab, id, fam, src} sau null. */
+  function priceItem(item, T) {
+    const um = umFamily(item.um), ex = T.name.get(keyOf(item.den) + "|" + um);
+    if (ex) return { p: ex.p, lv: 1, why: "aceeași denumire, preț pus de tine", lab: ex.lab, id: ex.id, fam: "", src: item.den };
+    const sm = T.same.get(keyOf(item.den) + "|" + um);
+    if (sm && keyOf(item.den).length > 14) return { p: sm.p, lv: 2, why: "aceeași denumire ca în prețurile tale", lab: sm.lab, id: sm.id, fam: "", src: item.den };
+    const fi = classify(item.den, item.um); if (!fi.fam) return null;
+    const dItem = (FAM[fi.fam] || [])[2] === "h" || domOfCap(item.cap) === "h" ? "h" : (domOfCap(item.cap0) || domOfCap(item.cap));
+    if (isLump(item.um) && /\bvrf\b|\bvrv\b|multisplit/.test(fi.t)) return null;   // un sistem VRF întreg: nu există reper care să i se potrivească
+    const lumpStrict = isLump(item.um) && WORKFAM.has(fi.fam.replace(/:.*$/, ""));
+    const ptsOf = k => { const a = T.by.get(k); return a && lumpStrict ? a.filter(p => p.lump) : a; };
+    let r = pickIn(fi, ptsOf(fi.fam + "|" + fi.um), dItem, "");
+    if (r && r.lv <= 3) return r;
+    for (const alt of alikeOf(fi.fam)) { const r2_ = pickIn(Object.assign({}, fi, { fam: alt, vars: fi.vars }), ptsOf(alt + "|" + fi.um), dItem, fi.fam && alt); if (r2_ && (!r || r2_.lv < r.lv)) { r = r2_; r.fam = fi.fam; break; } }
+    return r;
+  }
+  /** Domeniul unei poziții (s, t, h, v, c, g, e, p, x) – pentru „ce ofertez din lista asta”. */
+  function domainOf(den, um) { const c = classify(den, um); return c.grp || ""; }
+  function total(it, adaos) { return it.no ? 0 : r2((+it.cant || 0) * r2((+it.pret || 0) * (1 + (adaos || 0) / 100))); }
 
   function chapters(items, adaos) {
     const m = new Map();
@@ -368,6 +511,8 @@
   /* Prețuri pe aparat deduse din ofertele tale de manoperă (total capitol ÷ număr aparate din „OFERTA INCLUDE”). */
   const HIST = {};
 
-  const api = { CAPS, autoCap, counts, HIST, keyOf, strip, norm, feats, score, classify, famLabel, dnLabel, entryLabel, famList, MV, sizes, FAMS, G, prepCatalog, matchItem, total, chapters, risc, r2, umFamily };
+  /* familie largă: sub același nume stau lucrări foarte diferite, deci un preț mediu pe familie nu spune nimic */
+  const isBroad = fam => { const b = String(fam || "").replace(/:.*$/, ""); return LOOSE.has(b) || SOFT.has(b) || LOOSE.has(fam) || SOFT.has(fam); };
+  const api = { QUAL, buildTarif, priceItem, domainOf, alikeOf, isLump, isBroad, CAPS, autoCap, counts, HIST, keyOf, strip, norm, feats, score, classify, famLabel, dnLabel, entryLabel, famList, MV, sizes, FAMS, G, prepCatalog, matchItem, total, chapters, risc, r2, umFamily };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.OF = api;
 })(typeof window !== "undefined" ? window : globalThis);

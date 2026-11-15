@@ -33,7 +33,7 @@
   const setAttr = (s, n, v) => { const re = new RegExp("(^|\\s)" + n + "\\s*=\\s*(?:\"[^\"]*\"|'[^']*')"); return re.test(s) ? s.replace(re, (m, a) => a + n + '="' + v + '"') : s + " " + n + '="' + v + '"'; };
   const delAttr = (s, n) => s.replace(new RegExp("\\s+" + n + "\\s*=\\s*(?:\"[^\"]*\"|'[^']*')"), "");
   const numS = v => { const n = Math.round((+v || 0) * 1e4) / 1e4; return String(n); };                       // cel mult 4 zecimale, fără scriere cu „e”
-  const r2 = v => Math.round((+v || 0) * 100) / 100;
+  const r2 = x => { const v = Math.round((+x || 0) * 1e6) / 1e4; return Math.round(v + (v >= 0 ? 1e-9 : -1e-9)) / 100; };
   const bytes = d => d instanceof Uint8Array ? d : new Uint8Array(d || 0);
   const extOf = n => { const m = /\.([a-z0-9]+)$/i.exec(n || ""); return m ? m[1].toLowerCase() : ""; };
   const baseOf = n => String(n || "lista").replace(/^.*[\\/]/, "").replace(/\.[a-z0-9]+$/i, "");
@@ -140,7 +140,13 @@
       let i = 0; const s = src;
       const ws = () => { while (s[i] === " " || s[i] === "\n" || s[i] === "\r" || s[i] === "\t") i++; };
       const fail = () => { throw new Error("x"); };
-      const numOf = v => { if (v == null) return 0; if (typeof v === "number") return v; if (typeof v === "boolean") return v ? 1 : 0; if (typeof v === "string" && v.trim() !== "" && isFinite(+v.replace(",", "."))) return +v.replace(",", "."); return fail(); };
+      /* text care arată a număr: „12,5” și „1.250,75” sunt limpezi; „1.250” poate fi o mie două sute cincizeci sau unu virgulă două sute cincizeci – nu ghicesc, las căsuța pe seama Excelului */
+      const txtNum = v => { const t = v.replace(/\s/g, ""); if (t === "") return fail();
+        if (/^[-+]?\d{1,3}(\.\d{3})+,\d+$/.test(t)) return +t.replace(/\./g, "").replace(",", ".");
+        if (/^[-+]?[1-9]\d{0,2}(\.\d{3})+$/.test(t)) return fail();
+        if (/^[-+]?\d+,\d+$/.test(t)) return +t.replace(",", ".");
+        return isFinite(+t) ? +t : fail(); };
+      const numOf = v => { if (v == null) return 0; if (typeof v === "number") return v; if (typeof v === "boolean") return v ? 1 : 0; if (typeof v === "string") return txtNum(v); return fail(); };
       const flat = (args, f) => args.forEach(a => { if (a && a.rg) rng(a.rg[0], a.rg[1], a.rg[2], a.rg[3], v => { if (typeof v === "number") f(v); }); else f(numOf(a)); });
       const rnd = (v, n, mode) => { const k = Math.pow(10, n), x = Math.abs(v * k), sg = v < 0 ? -1 : 1; return sg * (mode === 0 ? Math.round(x + 1e-9) : mode > 0 ? Math.ceil(x - 1e-9) : Math.floor(x + 1e-9)) / k; };
       const FN = {
@@ -273,8 +279,8 @@
     const cols = e.cols || {}, hasC = v => typeof v === "number" && v >= 0;
     let p = e.plan || plan({ cols }, {});
     const tg = new Map(); (e.rows || []).forEach(x => { const r = +x.row, v = +x.pret; if (r > 0 && isFinite(v) && v > 0) tg.set(r, { pret: v, cant: x.cant }); });
-    if (!tg.size) return { xml, changed: 0, notes };
-    const tr = [...tg.keys()].sort((a, b) => a - b), rMin = hasC(e.headerRow) && e.headerRow > 0 ? Math.min(e.headerRow, tr[0]) : tr[0], rMax = tr[tr.length - 1];
+    if (!tg.size && !((e.clear || []).length && !(e.plan || plan({ cols }, {})).newCols)) return { xml, changed: 0, notes };
+    const tr = [...tg.keys()].sort((a, b) => a - b), tr0 = tr.length ? tr[0] : Math.min.apply(null, e.clear), rMin = hasC(e.headerRow) && e.headerRow > 0 ? Math.min(e.headerRow, tr0) : tr0, rMax = tr.length ? tr[tr.length - 1] : Math.max.apply(null, e.clear);
     let pc = p.priceCol, tc = hasC(p.totalCol) ? p.totalCol : -1;
     if (p.newCols) {                                             // coloanele noi trebuie să fie chiar libere; dacă nu sunt, mă mut la dreapta
       const used = new Set(); rows.forEach(r => { if (r.r < rMin || r.r > rMax) return; parseCells(r, P).forEach(c => { if (c.col >= pc && filled(c, P)) used.add(c.col); }); });
@@ -299,6 +305,20 @@
       const row = { r, a: ' r="' + r + '"', inner: "", raw: "", pre: "", cells: [], dirty: true }; let i = 0; while (i < rows.length && rows[i].r < r) i++; rows.splice(i, 0, row); byRow.set(r, row); return row;
     };
     const changed = new Map(); let n = 0, skipF = 0, maxCol = -1;
+    /* Coloană „Valoare” scrisă de mână (numere, nu formule): o recunosc după „cantitate × prețul vechi” pe rândurile listei și o refac,
+       altfel lângă prețul nou ar rămâne valoarea veche. */
+    const isN = c => { const t = attr(c.a, "t"); return t == null || t === "n"; };
+    const numCell = c => { if (!c || !isN(c) || hasF(c, P)) return NaN; const m = new RegExp("<" + P + "v>([^<]*)</" + P + "v>").exec(c.inner); return m && m[1] !== "" ? +m[1] : NaN; };
+    let vcol = -1, nval = 0;
+    if (!p.newCols && tc < 0 && hasC(cols.cant)) {
+      const cnt = {}; let nOld = 0;
+      tr.concat((e.clear || []).map(Number)).forEach(r => { const row = byRow.get(r); if (!row) return; const oldP = numCell(cellOf(row, pc, P)), q = numCell(cellOf(row, cols.cant, P)); if (!(oldP > 0) || !(q > 0)) return; nOld++;
+        parseCells(row, P).forEach(c => { if (c.col <= pc) return; const v = numCell(c); if (v > 0 && Math.abs(v - q * oldP) <= 0.011) cnt[c.col] = (cnt[c.col] || 0) + 1; }); });
+      Object.keys(cnt).forEach(c => { if (nOld >= 2 && cnt[c] >= 0.6 * nOld && (vcol < 0 || cnt[c] > cnt[vcol])) vcol = +c; });
+    }
+    const vcolOld = vcol >= 0 ? r2(rows.filter(r => r.r > (e.headerRow || 0) && r.r <= rMax).reduce((a, r) => { const v = numCell(cellOf(r, vcol, P)); return a + (v > 0 ? v : 0); }, 0)) : 0;
+    const putVal = (row, r, v) => { if (vcol < 0) return; const oc = cellOf(row, vcol, P); if (!oc || hasF(oc, P) || !isN(oc)) return; const q = numCell(cellOf(row, cols.cant, P)); if (v > 0 && !(q > 0)) return;
+      putCell(row, vcol, oc.a, v > 0 ? "<" + P + "v>" + numS(r2(q * v)) + "</" + P + "v>" : "", P); changed.set(vcol + ":" + r, v > 0 ? r2(q * v) : 0); nval++; if (vcol > maxCol) maxCol = vcol; };
     tr.forEach(r => {
       const t = tg.get(r), row = byRow.get(r) || mkRow(r), old = cellOf(row, pc, P);
       if (hasF(old, P)) { skipF++; return; }
@@ -306,6 +326,7 @@
       if (old) { a = delAttr(old.a, "t"); if (attr(a, "r") == null) a = ' r="' + colL(pc) + r + '"' + a; }
       else { const s = newStyle(row, pc); a = ' r="' + colL(pc) + r + '"' + (s != null ? ' s="' + s + '"' : ""); }
       putCell(row, pc, a, "<" + P + "v>" + v + "</" + P + "v>", P); changed.set(pc + ":" + r, +v); n++; if (pc > maxCol) maxCol = pc;
+      putVal(row, r, +v);
       if (tc >= 0 && (p.newCols || e.writeTotal)) {
         const ot = cellOf(row, tc, P); if (hasF(ot, P) || (!p.newCols && filled(ot, P) && !e.writeTotal)) return;
         let q = +t.cant; const qc = hasC(cols.cant) ? cellOf(row, cols.cant, P) : null;
@@ -317,6 +338,15 @@
         if (tc > maxCol) maxCol = tc;
       }
     });
+    /* pozițiile pe care nu le ofertezi: dacă în fișier era deja un preț acolo, îl șterg (altfel totalul din fișier nu ar fi al tău) */
+    let nclr = 0; if (!p.newCols) (e.clear || []).forEach(r0 => { const r = +r0, row = byRow.get(r), old = row && cellOf(row, pc, P); if (!old || hasF(old, P) || !filled(old, P) || tg.has(r)) return; putCell(row, pc, delAttr(old.a, "t"), "", P); changed.set(pc + ":" + r, 0); n++; nclr++; putVal(row, r, 0); });
+    if (nval) {
+      /* totalul scris de mână sub listă, în aceeași coloană: dacă era chiar suma valorilor vechi, îl refac și pe el */
+      let fixedTot = false; const vOld = vcolOld, lst = rows.filter(r => r.r > (e.headerRow || 0) && r.r <= rMax), sumNew = r2(lst.reduce((a, r) => { const v = numCell(cellOf(r, vcol, P)); return a + (v > 0 ? v : 0); }, 0));
+      if (vOld > 0) rows.forEach(r => { if (fixedTot || r.r <= rMax || r.r > rMax + 6) return; const c = cellOf(r, vcol, P), v = numCell(c); if (v > 0 && Math.abs(v - vOld) <= 0.011) { putCell(r, vcol, c.a, "<" + P + "v>" + numS(sumNew) + "</" + P + "v>", P); changed.set(vcol + ":" + r.r, sumNew); fixedTot = true; } });
+      notes.push("Coloana " + colL(vcol) + " («Valoare») avea numere scrise, nu formule: le-am refăcut la pozițiile atinse" + (fixedTot ? ", împreună cu totalul de sub listă." : ". Dacă fișierul are și un total scris de mână, verifică-l."));
+    }
+    if (nclr) notes.push(nclr === 1 ? "La o poziție pe care nu o mai ofertezi am șters prețul care era în fișier." : "La " + nclr + " poziții pe care nu le mai ofertezi am șters prețul care era în fișier.");
     if (skipF) notes.push(skipF === 1 ? "O căsuță de preț avea formulă; am lăsat-o cum era." : skipF + " căsuțe de preț aveau formule; le-am lăsat cum erau.");
     if (!n) return { xml, changed: 0, notes };
     let head = sp.head, tail = sp.tail;
@@ -334,7 +364,7 @@
     }
     let re = 0; if (doRe) { try { re = recalc(rows, P, changed, shared); } catch (x) { re = 0; } }
     const body = rows.map(r => r.pre + rowXml(r, P)).join("") + pr.post;
-    return { xml: head + "<" + P + "sheetData>" + body + "</" + P + "sheetData>" + tail, changed: n, notes, recalc: re, priceCol: pc, totalCol: tc };
+    return { xml: head + "<" + P + "sheetData>" + body + "</" + P + "sheetData>" + tail, changed: n, cleared: nclr, notes, recalc: re, priceCol: pc, totalCol: tc };
   }
   /* lățime pentru coloanele adăugate (dacă foaia nu le are deja descrise) */
   function addCols(head, P, c1, c2) {
@@ -433,13 +463,13 @@
     let bk = null, zip = null;
     if (isZip && (ext === "xlsx" || ext === "xlsm" || ext === "")) { try { const JSZip = await needZip(); zip = await JSZip.loadAsync(data); bk = await openBook(zip); } catch (e) { if (/modulul/.test(e.message)) throw e; bk = null; } }
     if (!bk) { const r = await rebuild(file || {}, sheets, opts, notes); return { data: r.data, name: base + " - cu preturi SCV.xlsx", changed: r.changed, notes, kind: "rebuilt" }; }
-    const st = stylesCtx(await bk.txt(bk.stylesPath)), shared = opts.recalc === false ? null : sharedGetter(await bk.txt(bk.ssPath)), cache = {}; let changed = 0, re = 0;
+    const st = stylesCtx(await bk.txt(bk.stylesPath)), shared = opts.recalc === false ? null : sharedGetter(await bk.txt(bk.ssPath)), cache = {}; let changed = 0, re = 0, cleared = 0;
     for (const e of sheets) {
       const s = findSheet(bk, e.sheet);
       if (!s || !s.path || !zip.file(s.path)) { notes.push("Nu am găsit foaia «" + e.sheet + "» în fișier; prețurile ei nu au fost scrise."); continue; }
       const xml = cache[s.path] != null ? cache[s.path] : await bk.txt(s.path);
       let r; try { r = patchSheet(xml, e, st, shared, opts.recalc !== false); } catch (x) { notes.push("Nu am putut scrie în foaia «" + e.sheet + "»: " + x.message); continue; }
-      if (r.changed) { cache[s.path] = r.xml; changed += r.changed; re += r.recalc || 0; }
+      if (r.changed) { cache[s.path] = r.xml; changed += r.changed; cleared += r.cleared || 0; re += r.recalc || 0; }
       r.notes.forEach(t => notes.push((sheets.length > 1 ? "«" + e.sheet + "»: " : "") + t));
     }
     if (!changed) { notes.push("Nu am avut niciun preț de scris."); return { data, name: outName, changed: 0, notes, kind: "patched" }; }
@@ -458,7 +488,7 @@
         for (const t of after) { const k = bk.wb.indexOf("</" + P + t + ">"); if (k >= 0) { const at = k + P.length + t.length + 3; wb2 = bk.wb.slice(0, at) + tag + bk.wb.slice(at); break; } }
         if (!wb2) wb2 = bk.wb; }
       zip.file(bk.wbPath, wb2, NF); }
-    notes.push(changed === 1 ? "Am scris un preț." : "Am scris " + changed + " prețuri. Restul fișierului e neatins.");
+    { const w = changed - cleared, de = w !== 0 && (w % 100 >= 20 || w % 100 === 0) ? " de" : ""; notes.push(w === 1 ? "Am scris un preț. Restul fișierului e neatins." : w > 0 ? "Am scris " + w + de + " prețuri. Restul fișierului e neatins." : "Nu am scris niciun preț nou."); }
     if (opts.recalc !== false) notes.push("Totalurile se refac singure când deschizi fișierul în Excel.");
     const out = await zip.generateAsync({ type: "uint8array", compression: "DEFLATE", compressionOptions: { level: 6 } });
     return { data: out, name: outName, changed, notes, kind: "patched", recalc: re };
