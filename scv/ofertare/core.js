@@ -153,7 +153,7 @@
     ["storz", "Cuplaj Storz", "h", /\bstorz\b/, "dn"],
     ["sorb", "Sorb", "h", /\bsorb\b/, "dn"],
     // --- armături
-    ["rob_coltar", "Robinet colțar", "s", /robine\w+ coltar|rob\.? ?coltar|^(?!.*(?:\bprofil|faiant|gresie|placaj|tencui|gips|glet|termometr|manometr|drept sau coltar|coltar sau drept))(?=.*\bcoltar\b(?!.{0,200}(?:vas\w* (?:de )?wc|set (?:de )?conectare)))/, "dn"],
+    ["rob_coltar", "Robinet colțar", "s", /robine\w+ coltar|rob\.? ?coltar/, "dn"],
     ["rob_golire", "Robinet de golire", "s", /robine\w+ (?:de )?golire/, "dn"],
     ["rob_termo", "Robinet de calorifer tur (termostatat)", "t", /robine\w+ (?:de )?(?:calorifer|radiator) tur|robine\w+ termostat|cap\w* termostat/, "dn"],
     ["rob_retur", "Robinet de calorifer retur", "t", /robine\w+ (?:de )?(?:calorifer|radiator) retur|reglaj retur|detentor/, "dn"],
@@ -181,12 +181,12 @@
     ["rad_electric", "Radiator electric", "t", /radiato\w+ electric|convecto\w+ electric/],
     ["radiator", "Radiator / calorifer", "t", /\bradiato|\bcalorifer|convecto-?radiator/, "rad"],
     ["ventilo", "Ventiloconvector", "t", /ventilo-?convecto/],
-    ["solar", "Panou / colector solar termic", "t", /^(?!\W*(?:set|kit|suport\w*|accesori\w*|racord\w*|cadru|structur\w*|fixar\w*)\b)(?!.*(?:fotovolt|\bpv\b)).*?(?:panou\w* solar|colector\w* solar|captator\w* solar)/],
+    ["solar", "Panou / colector solar termic", "t", /panou\w* solar|colector\w* solar|captator\w* solar/, null, /fotovolt|\bpv\b|^\W*(?:set|kit|suport\w*|accesori\w*|racord\w*|cadru|structur\w*|fixar\w*)\b/],
     ["dedurizator", "Dedurizator / osmoză / tratare apă", "s", /dedurizat|statie de dedurizare|osmoz|sterilizator uv|lampa uv/],
     ["distribuitor", "Distribuitor / colector", "t", /distribuitor|distribuitro\b|\bcolector|caset\w+ de distributie/],
     ["vas_exp", "Vas de expansiune", "t", /\bvas\w* (?:de )?expansiune/],
     ["pompa", "Pompă", "t", /\bpomp[aei]\b|\bpompele\b|electropomp/],
-    ["cazan", "Centrală termică / cazan", "t", /^(?!\W*(?:kit|set)\b)(?!.*(?:detecti|detector|semnaliz|avertiz)).*?(?:\bcazan|centrala termica|centrala murala|sursa (?:de )?preparare agent|\bcentral[aei]\b(?! de tratare| (?:de )?ventilare)(?=.{0,25}(?:condens|gaz|electric|combustibil|lemne|peleti|\d+ ?kw)))/],
+    ["cazan", "Centrală termică / cazan", "t", /\bcazan|centrala termica|centrala murala|sursa (?:de )?preparare agent|\bcentral[aei]\b(?! de tratare| (?:de )?ventilare)(?=.{0,25}(?:condens|gaz|electric|combustibil|lemne|peleti|\d+ ?kw))/, null, /^\W*(?:kit|set)\b|detecti|detector|semnaliz|avertiz/],
     ["boiler", "Boiler / rezervor", "t", /\bboiler|\brezervor|\bbazin\b|\bseparator\b|butelie de egalizare|\bpuffer|acumulator\w* (?:de )?(?:apa|agent|caldura)/],
     ["pard_acc", "Accesorii pentru încălzirea în pardoseală (plăci, bandă, curbe, aditiv)", "t", /plac\w+ (?:cu )?nuturi|banda perimetrala|aditiv (?:beton|sapa|pentru sapa)|curb\w+ conducatoare|clips\w* (?:de )?fixare|agraf/],
     ["pardoseala", "Încălzire în pardoseală (montaj complet)", "t", /incalzire in pardoseala/],
@@ -197,6 +197,7 @@
     ["fiting", "Fitinguri (cot, teu, mufă, reducție, niplu, dop)", "s", /\bcot\b|\bcoturi\b|\bcurba\b|\bteu\b|\bteuri\b|\bmuf[ae]\b|\bmufe\b|reducti[ei]|\bnipl[ue]|\bdop\b|\bdopuri\b|\bbuson\w*|\bflans[ae]\b/, "dn"],
     // --- țevi (la urmă: multe denumiri conțin „țeavă” în descriere)
     ["rob_trecere", "", "s", /\brobineti?\b(?! (?:de )?(?:hidrant|incendiu))/, "dn"],
+    ["rob_coltar", "", "s", /\bcoltar\b(?!.{0,200}(?:vas\w* (?:de )?wc|set (?:de )?conectare))/, "dn", /\bprofil|faiant|gresie|placaj|tencui|gips|glet|termometr|manometr|drept sau coltar|coltar sau drept/],
     ["tub_protectie", "Tub / țeavă de protecție", "s", /(?:tub|teava|tevi)\w* (?:de )?protectie/, "dn"],
     ["teava", "Țeavă", "s", /\bteav[ai]\b|\btevi\b|\bconduct[ae]\b|\btub\b|\btuburi\b|coloane si distributie/, "dn"],
   ];
@@ -220,7 +221,7 @@
   const HEAD = 48;   // cuvântul care dă familia trebuie să fie la începutul denumirii, nu în descrierea de după
   function classify(den, um) {
     const full = norm(den), t = full.replace(BOILER, ""); let fam = null, at = 1e9;
-    for (const f of FAMS) { const m = f[3].exec(t); if (m && m.index < at) { at = m.index; fam = f; } }
+    for (const f of FAMS) { const m = f[3].exec(t); if (m && m.index < at && !(f[5] && f[5].test(t))) { at = m.index; fam = f; } }   // f[5]: cuvinte care arată că nu e lucrarea asta (ex. „centrală de detecție gaz”, „panou fotovoltaic”)
     if (fam && (at > HEAD || (EQUIP.has(fam[0]) && at > 14))) fam = null;
     // o poziție care vorbește de split/VRF/freon ori de tubulatură de aer ține de climatizare / ventilație, orice cuvânt ar avea la început
     const h90 = t.slice(0, 90);

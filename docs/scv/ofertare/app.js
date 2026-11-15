@@ -315,7 +315,7 @@ const CHK_W = [   // [cheie, familiile care o „dovedesc”, cuvinte care arat�
   ["aerisire", ["caciula", "aerator"], /caciul|cap de coloan|aerisire|ventilare coloan/, f => f.canal >= 2, "Nu văd căciula de ventilație / capul de coloană", "căciulile de ventilație la coloanele de canalizare", "Coloanele de canalizare se termină cu căciulă de ventilație (sau aerator). Se uită des."],
   ["coltar", ["rob_coltar"], /coltar|robinet\w* de colt/, f => f.obiecte >= 2, "Nu văd robineții colțar la obiectele sanitare", "robineți colțar la obiectele sanitare", "La fiecare lavoar, vas WC sau spălător se montează robinet colțar. Dacă sunt ale beneficiarului, scrie asta."],
   ["filtru", ["filtru_y"], /filtru/, f => f.cazan, "Nu văd filtrul (magnetic) la centrală", "filtru magnetic / de impurități la centrală", "La o centrală nouă pe instalație veche, producătorii cer filtru magnetic pentru garanție."],
-  ["evac", [], /evacuar|cos de fum|kit de evacuare|tiraj/, f => f.cazan, "Nu văd kitul de evacuare / coșul de fum", "kitul de evacuare a gazelor arse / coșul de fum", "Centrala murală pe gaz are nevoie de kit de evacuare; montajul lui se plătește de obicei separat."],
+  ["evac", [], /evacuar|cos de fum|kit de evacuare|tiraj/, f => f.cazan, "Nu văd kitul de evacuare / coșul de fum", "kitul de evacuare a gazelor arse / coșul de fum", "Centrala murală pe gaz are nevoie de kit de evacuare; montajul lui se plătește de obicei separat.", /kit\w* (?:de )?evacuar|\bcos\w* de fum|evacuar\w* (?:a )?gaze\w* arse|gaze arse|ventuz/],
   ["siguranta", ["supapa_sig"], /grup\w* de siguranta|supap/, f => f.boiler, "Nu văd grupul de siguranță la boiler", "grupul de siguranță la boiler", "Boilerul se montează cu grup / supapă de siguranță. Se uită des."],
   ["anre", [], /anre|receptie|documentati/, f => f.gaz, "Nu e pomenită documentația și recepția ANRE", "documentația și recepția ANRE pentru instalația de gaze", "La gaze, proiectul, dosarul și recepția cu firmă autorizată ANRE costă separat. Scrie cine le face."],
 ];
@@ -337,7 +337,7 @@ function indOf(s) {   // pe capitolele care sunt clar sanitare / termice / hidra
   return o;
 }
 let INDH = null; const INDW = new WeakMap();   // indicatorii fiecărei oferte, ținuți minte cât timp oferta nu se schimbă (altfel la fiecare ofertă deschisă s-ar socoti iar toate)
-const indSig = s => { let x = 0; for (const i of s.items) x += (+i.cant || 0) * (+i.pret || 0) + String(i.den || "").length + String(i.cap || "").length + (i.no ? 7 : 0); for (const r of s.rows) x += String(r.den || "").length + (r.no ? 3 : 0) + (+r.ov || 0); return s.items.length + "|" + s.rows.length + "|" + (+s.adaos || 0) + "|" + x; };
+const indSig = s => { let x = 0; for (const i of s.items) x += (+i.cant || 0) * (+i.pret || 0) + String(i.den || "").length + String(i.cap || "").length + (i.no ? 7 : 0); for (const r of s.rows) x += String(r.den || "").length + (r.no ? 3 : 0) + (+r.ov || 0) + (+r.ovT || 0) + (+r.cant || 0) * (+r.pret || 0); return s.items.length + "|" + s.rows.length + "|" + (+s.adaos || 0) + "|" + (+s.rnd || 0) + "|" + JSON.stringify(s.cond || 0) + "|" + x; };
 function indHist() {   // mediana din ofertele tale (fără cea deschisă), pe fiecare indicator
   const key = IDX.list.length + "|" + CUR; if (INDH && INDH.key === key) return INDH.v; const acc = {};
   IDX.list.forEach(e => { if (e.id === CUR) return; const s = DOCS["p/" + e.id]; if (!s || !s.items || !s.items.length) return; const sig = indSig(s), c = INDW.get(s); let o = c && c.sig === sig ? c.o : null; if (!o) { o = {}; try { o = indOf(s); } catch (x) { } INDW.set(s, { sig, o }); } Object.keys(o).forEach(k => (acc[k] = acc[k] || []).push(o[k].per)); });
@@ -366,7 +366,7 @@ function checkOffer() {
   try { const io = indOf(), ih = indHist(); Object.keys(io).forEach(k => { const x = io[k], h = ih[k], ref = h ? h.per : IND0[k][0], src = h ? "în " + plural(h.n, "o ofertă de-a ta", "oferte de-ale tale") + " (mediana)" : "în oferta ta pe capitole din 27.07.2026";
     if (x.per < ref * 0.5 || x.per > ref * 2) out.push({ t: (x.per < ref ? "Prea puțin" : "Mult") + " pe " + IND0[k][1].replace(/^lei pe /, "") + ": " + fmt(x.per) + " lei", s: "Pe " + plural(x.n, "un aparat", "aparate") + " ies " + fmt(x.v) + " lei, adică " + fmt(x.per) + " " + IND0[k][1] + ". " + src.charAt(0).toUpperCase() + src.slice(1) + " era " + fmt(ref) + " " + IND0[k][1] + ". Poate lipsesc poziții, poate e o zecimală greșită – sau e voit.", b: [] }); }); } catch (e) { }
   // fără familie (kit evacuare, ANRE): ajunge să fie în listă cu numele
-  CHK_W.forEach(w => { if (!w[3](F) || w[1].some(f => fam.get(f)) || w[2].test(txt) || (!w[1].length && w[2].test(names))) return; out.push({ t: w[4], s: w[6], b: [["chkinc", w[0], "E în preț"], ["chknu", w[0], "Nu e în preț"]] }); });
+  CHK_W.forEach(w => { if (!w[3](F) || w[1].some(f => fam.get(f)) || w[2].test(txt) || (!w[1].length && (w[7] || w[2]).test(names))) return; out.push({ t: w[4], s: w[6], b: [["chkinc", w[0], "E în preț"], ["chknu", w[0], "Nu e în preț"]] }); });
   if (!String(p.beneficiar || "").trim()) out.push({ t: "Lipsește beneficiarul", s: "Oferta pleacă fără numele celui căruia îi e adresată.", b: [["hben", "", "Scrie-l"]] });
   if (!String(p.santier || "").trim()) out.push({ t: "Lipsește lucrarea", s: "Scrie pentru ce lucrare e oferta (adresa sau numele șantierului).", b: [["hluc", "", "Scrie-o"]] });
   return out;
@@ -426,7 +426,7 @@ let MATX = null;
 function matIdx() { if (MATX && MATX.P === PIATA) return MATX.m; const m = ((PIATA && PIATA.material) || []).map((x, i) => { let c = null; try { c = OF.classify(x.den, x.um); } catch (e) { } return Object.assign({ i, fam: c && c.fam, dn: c && c.dn && c.dn[0], od: odOf(x.den) }, x); }); MATX = { P: PIATA, m }; return m; }
 /* Diametrul exterior în mm, citit din text (Ø15, 15x1, D=20, 20 mm), pentru țevile pe milimetri: cupru 15 și 22 nu se amestecă. */
 const METRIC = /^teava:(?:cu|ppr|mst|pex|pp|pe|pehd)$/;
-function odOf(t) { const s = String(t || "").toLowerCase().replace(/\bpn\s*\d+/g, " ").replace(/\b\d+(?:[.,]\d+)?\s*m\b/g, " "); const m = s.match(/[ø⌀]\s*(\d{2,3})\b/) || s.match(/\b(\d{2,3})\s*[x×]\s*\d/) || s.match(/\bd[en]?\s*=?\s*(\d{2,3})\b/) || s.match(/\b(\d{2,3})\s*mm\b/) || s.match(/\b(\d{2,3})\b/); return m ? +m[1] : null; }
+function odOf(t) { const s = String(t || "").toLowerCase().replace(/\bpn\s*\d+/g, " ").replace(/\b\d+(?:[.,]\d+)?\s*m\b/g, " "); const m = s.match(/[ø⌀]\s*(\d{2,3})\b/) || s.match(/\b(\d{2,3})\s*[x×]\s*\d/) || s.match(/\b(\d{2,3})\s*mm\b/) || s.match(/\bd(?:e|ext)?\s*=?\s*(\d{2,3})\b/); if (m) return +m[1]; if (/\bdn\s*\d/.test(s)) return null; const b = s.match(/\b(\d{2,3})\b/); return b ? +b[1] : null; }   // „DN20” nu e diametru exterior: atunci se potrivește pe DN
 function matOf(it) {
   let c = null; try { c = OF.classify(it.den, it.um); } catch (e) { } if (!c || !c.fam || c.fam.indexOf("teava:") !== 0 || OF.umFamily(it.um) !== "m") return null;
   const dn = c.dn && c.dn[0], od = METRIC.test(c.fam) ? odOf(it.den) : null, xs = matIdx().filter(x => x.fam === c.fam && x.um === "m" && (od ? x.od === od : dn ? x.dn === dn : false)); if (!xs.length) return null;
@@ -798,7 +798,7 @@ function scaleTo(target) {
   const cur = totals().sub; if (!(cur > 0) || !(target > 0)) return null; const f = target / cur;
   st.rows.forEach(r => { if (r.k === "c") { const i = rowInfo(r); if (i.val > 0) setOv(r, Math.round(i.val * f)); } else if (+r.pret) r.pret = r2(r.pret * f); });   // și reducerile (rânduri cu minus) se schimbă în aceeași măsură
   const d = r2(target - totals().sub);
-  if (Math.abs(d) >= 0.005) { const c = st.rows.filter(r => (r.k === "c" && r.ov > 0) || (r.k === "r" && (+r.cant || 0) === 1 && r.pret > 0)).sort((a, b) => rowInfo(b).val - rowInfo(a).val)[0]; if (c) { if (c.k === "c") c.ov = r2(c.ov + d); else c.pret = r2(c.pret + d); } }
+  if (Math.abs(d) >= 0.005) { const c = st.rows.filter(r => (r.k === "c" && r.ov > 0) || (r.k === "r" && (+r.cant || 0) === 1 && r.pret > 0)).sort((a, b) => rowInfo(b).val - rowInfo(a).val)[0]; if (c) { if (c.k === "c") c.ov = r2(c.ov + d); else c.pret = r2(c.pret + d / condK(st)); } }   // pe un rând scris, diferența se împarte la condiții, ca valoarea să crească exact cu ea
   return r2(target - totals().sub);
 }
 ACT.tgtok = () => { const t = num(val("tgt")); if (!(t > 0)) { toast("Scrie suma dorită."); return; } if (!(totals().sub > 0)) { closeOvl(); toast("Oferta nu are încă prețuri."); return; } closeOvl(); let d = 0; undoable("Prețuri schimbate.", () => { d = scaleTo(t); }); if (d) toast("A ieșit " + fmt(totals().sub) + " lei (diferență de " + fmt(Math.abs(d)) + " lei din rotunjiri).", UNDO); };
