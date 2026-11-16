@@ -663,15 +663,20 @@
      Surse: Inspecția Muncii, comunicat aprilie 2026 (https://www.inspectiamuncii.ro/documents/521316/523496/20260407_COMUNICAT+PRESA+INFORMARE+ANGAJATORI+DIN+DOMENIUL+CONSTRUCTIILOR+-APRILIE+2026.pdf/11a0c4b0-f07a-4515-b18f-920a305473ab)
      și https://folositor.ro/ghid/salariu-minim-sectorial-2026. */
   const MINCONSTR = { an: 2026, brut: 4582, ora: 27.71, oraCost: 28.34, sursa: "Inspecția Muncii, comunicat din aprilie 2026; CAM 2,25%" };
-  /** Cât costă firma pe o zi de om. o: {oameni, salariu (brut pe lună), masini, chirie, scule, contabil (lei pe lună), zile (de lucru pe an de om), pierdute (din ele), ore (pe zi, 8)}.
-      Costul pe an (salarii cu CAM + cheltuieli fixe) împărțit la om-zilele în care se lucrează efectiv. */
+  /* Bani dați în mână pe lângă salariul de pe carte, scoși din firmă ca dividende: înainte se plătește impozitul pe profit (16%),
+     apoi impozitul pe dividende (16% din 1 ianuarie 2026, Legea 141/2025). 1 leu dat în mână costă firma 1 / (0,84 × 0,84) = 1,417 lei.
+     Surse: https://startupcafe.ro/?p=106992 (dividende 16% din 2026), https://bono.ro/blog/obligatii-dupa-infiintare-srl-taxe-si-impozite-pentru-firmele-nou-infiintate (impozit pe profit 16%). */
+  const DIVF = 1 / ((1 - 0.16) * (1 - 0.16));
+  /** Cât costă firma pe o zi de om. o: {oameni, salariu (brut pe carte, pe lună), pelanga (lei în mână pe lângă salariu, de om pe lună, din dividende),
+      masini, chirie, scule, contabil (lei pe lună), zile (de lucru pe an de om), pierdute (din ele), ore (pe zi, 8)}.
+      Costul pe an (salarii cu CAM + banii de pe lângă cu impozitele lor + cheltuieli fixe) împărțit la om-zilele în care se lucrează efectiv. */
   function costZi(o) {
     o = o || {}; const v = k => { const x = +o[k]; return isFinite(x) ? Math.max(0, x) : 0; };   // o valoare negativă, scrisă greșit sau infinită („1e400”) contează ca 0 (nu dă un cost negativ sau ∞)
     const n = v("oameni"), zp = v("zile") - v("pierdute"), ore = v("ore") || 8;
-    const sal = n * v("salariu") * (1 + CAM / 100) * 12, fixe = (v("masini") + v("chirie") + v("scule") + v("contabil")) * 12, oz = n * zp;
-    if (!(oz > 0) || !(sal + fixe > 0)) return null;
-    const zi = (sal + fixe) / oz; if (!isFinite(zi) || !isFinite(sal + fixe)) return null;   // sume prea mari ca să fie adevărate
-    return { an: r2(sal + fixe), sal: r2(sal), fixe: r2(fixe), omZile: oz, zileOm: zp, zi: r2(zi), ora: r2(zi / ore) };
+    const sal = n * v("salariu") * (1 + CAM / 100) * 12, div = n * v("pelanga") * DIVF * 12, fixe = (v("masini") + v("chirie") + v("scule") + v("contabil")) * 12, oz = n * zp;
+    if (!(oz > 0) || !(sal + div + fixe > 0)) return null;
+    const zi = (sal + div + fixe) / oz; if (!isFinite(zi) || !isFinite(sal + div + fixe)) return null;   // sume prea mari ca să fie adevărate
+    return { an: r2(sal + div + fixe), sal: r2(sal), div: r2(div), fixe: r2(fixe), omZile: oz, zileOm: zp, zi: r2(zi), ora: r2(zi / ore) };
   }
   /** Preț din „câte faci pe zi”: lei pe om-zi × oameni ÷ bucăți (sau metri) pe zi. */
   function prodPret(t, oameni, q) { return t > 0 && oameni > 0 && q > 0 ? r2(t * oameni / q) : 0; }
@@ -693,6 +698,6 @@
     sursa: "INS (indicele costului în construcții, clădiri rezidențiale noi, 2021 = 100), publicat de Eurostat; citit la 15.11.2026" };
   /** De câte ori a crescut costul în construcții din anul `an` până azi (1 = nu se schimbă: anul curent, un an viitor sau unul fără indice). */
   function iccFactor(an) { const y = parseInt(an, 10), v = ICC.an[y]; return y && v && y < ICC.acumAn ? ICC.acum / v : 1; }
-  const api = { normHint, QUAL, buildTarif, priceItem, nomLabel, KINDOF, domainOf, alikeOf, isLump, isBroad, CAPS, autoCap, counts, HIST, keyOf, strip, norm, feats, score, classify, famLabel, dnLabel, entryLabel, famList, MV, sizes, FAMS, G, prepCatalog, matchItem, total, chapters, risc, r2, umFamily, CAM, MINCONSTR, costZi, prodPret, topShare, ICC, iccFactor };
+  const api = { normHint, QUAL, buildTarif, priceItem, nomLabel, KINDOF, domainOf, alikeOf, isLump, isBroad, CAPS, autoCap, counts, HIST, keyOf, strip, norm, feats, score, classify, famLabel, dnLabel, entryLabel, famList, MV, sizes, FAMS, G, prepCatalog, matchItem, total, chapters, risc, r2, umFamily, CAM, MINCONSTR, costZi, DIVF, prodPret, topShare, ICC, iccFactor };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.OF = api;
 })(typeof window !== "undefined" ? window : globalThis);
